@@ -718,6 +718,7 @@ extern "C" int errno;
 
 // Dynamic memory allocation related syscall.
 #if defined(TARGET_NUVOTON)
+
 // Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
 // __wrap__sbrk() is implemented in:
 // TARGET_NUMAKER_PFM_NUC472    targets/TARGET_NUVOTON/TARGET_NUC472/TARGET_NUMAKER_PFM_NUC472/TOOLCHAIN_GCC_ARM/nuc472_retarget.c
