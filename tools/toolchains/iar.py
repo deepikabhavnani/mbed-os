@@ -66,6 +66,7 @@ class IAR(mbedToolchain):
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
         ]
+
         if target.core == "Cortex-M7FD":
             asm_flags_cmd += ["--fpu", "VFPv5"]
             c_flags_cmd.append("--fpu=VFPv5")
@@ -74,6 +75,7 @@ class IAR(mbedToolchain):
             c_flags_cmd.append("--fpu=VFPv5_sp")
         elif target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.flags["asm"] += ["--cmse"]
+            self.flags["common"] += ["--cmse"]
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
