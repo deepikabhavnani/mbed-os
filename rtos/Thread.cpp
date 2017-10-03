@@ -86,6 +86,12 @@ osStatus Thread::start(Callback<void()> task) {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     _attr.cb_size = sizeof(_obj_mem);
     _attr.cb_mem = &_obj_mem;
+
+    /* Allow new thread to call secure functions */
+#if (__DOMAIN_NS == 1U)
+    _attr.tz_module = 1U;
+#endif
+
     _task = task;
     _tid = osThreadNew(Thread::_thunk, this, &_attr);
     if (_tid == NULL) {
