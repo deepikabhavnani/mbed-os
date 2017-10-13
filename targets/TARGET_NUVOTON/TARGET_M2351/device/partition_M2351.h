@@ -248,7 +248,7 @@
 /*
 // <e>Setup behavior of Sleep and Exception Handling
 */
-#define SCB_CSR_AIRCR_INIT  1
+#define SCB_CSR_AIRCR_INIT  0
 
 /*
 //   <o> Deep Sleep can be enabled by
@@ -272,7 +272,7 @@
 //     <1=> Lowered to 0x80-0xFF
 //   <i> Value for SCB->AIRCR register bit PRIS
 */
-#define SCB_AIRCR_PRIS_VAL      0
+#define SCB_AIRCR_PRIS_VAL      1
 
 /* Assign HardFault to be always secure for safe */
 #define SCB_AIRCR_BFHFNMINS_VAL 0
@@ -326,7 +326,7 @@
 //   <o.31> PWM1_P2           <0=> Secure <1=> Non-Secure
 //
 */
-#define NVIC_INIT_ITNS0_VAL      0x3F0040
+#define NVIC_INIT_ITNS0_VAL      0xFFFFFFDF
 
 /*
     Initialize ITNS 1 (Interrupts 0..31)
@@ -367,7 +367,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS1_VAL      0x0C
+#define NVIC_INIT_ITNS1_VAL      0x5DFBDEFC
 
 /*
     Initialize ITNS 2 (Interrupts 0..31)
@@ -408,7 +408,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS2_VAL      0x800
+#define NVIC_INIT_ITNS2_VAL      0x14F6FDD1
 
 
 /*
@@ -423,7 +423,7 @@
 //   <o.4>  LCD               <0=> Secure <1=> Non-Secure
 //   <o.5>  TRNG              <0=> Secure <1=> Non-Secure
 */
-#define NVIC_INIT_ITNS3_VAL      0x0
+#define NVIC_INIT_ITNS3_VAL      0x3F
 
 
 
@@ -556,7 +556,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.16>  EBI    <0=> Secure <1=> Non-Secure
 //   <o.24>  PDMA1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET0_VAL      0x00000001
+#define SCU_INIT_PNSSET0_VAL      0x01016201
 /*
     PNSSET1
 */
@@ -565,7 +565,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.17>  CRC       <0=> Secure <1=> Non-Secure
 //   <o.18>  CRPT   <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET1_VAL      0x00040000
+#define SCU_INIT_PNSSET1_VAL      0x00060000
 /*
     PNSSET2
 */
@@ -584,7 +584,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.26>  BPWM0      <0=> Secure <1=> Non-Secure
 //   <o.27>  BPWM1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET2_VAL      0x00020002
+#define SCU_INIT_PNSSET2_VAL      0x0F0221EA
 /*
     PNSSET3
 */
@@ -603,7 +603,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.20>  UART4      <0=> Secure <1=> Non-Secure
 //   <o.21>  UART5      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET3_VAL      0x00200000
+#define SCU_INIT_PNSSET3_VAL      0x003F003F
 /*
     PNSSET4
 */
@@ -616,7 +616,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.17>  SC1      <0=> Secure <1=> Non-Secure
 //   <o.18>  SC2      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET4_VAL      0x00000000
+#define SCU_INIT_PNSSET4_VAL      0x00070007
 /*
     PNSSET5
 */
@@ -631,7 +631,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.24>  LCD      <0=> Secure <1=> Non-Secure
 //   <o.25>  TRNG    <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET5_VAL      0x00000000
+#define SCU_INIT_PNSSET5_VAL      0x03B30001
 /*
     PNSSET6
 */
@@ -641,7 +641,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.16>  USCI0   <0=> Secure <1=> Non-Secure
 //   <o.17>  USCI1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET6_VAL      0x00000000
+#define SCU_INIT_PNSSET6_VAL      0x00030001
 /*
 // </h>
 */
@@ -787,7 +787,7 @@ __STATIC_INLINE void FMC_NSBA_Setup(void)
             while(FMC->ISPTRG);
 
             /* Force Chip Reset to valid new setting */
-            SYS->IPRST0 = SYS_IPRST0_CHIPRST_Msk;
+            SYS_S->IPRST0 = SYS_IPRST0_CHIPRST_Msk;
         }
 
         /* Fatal Error:

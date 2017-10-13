@@ -68,36 +68,12 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<16))
-    UART_0 = (int) NU_MODNAME(UART0_BASE + NS_OFFSET, 0, 0),
-#else
     UART_0 = (int) NU_MODNAME(UART0_BASE, 0, 0),
-#endif    
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<17))
-    UART_1 = (int) NU_MODNAME(UART1_BASE + NS_OFFSET, 1, 0),
-#else
     UART_1 = (int) NU_MODNAME(UART1_BASE, 1, 0),
-#endif
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<18))
-    UART_2 = (int) NU_MODNAME(UART2_BASE + NS_OFFSET, 2, 0),
-#else    
     UART_2 = (int) NU_MODNAME(UART2_BASE, 2, 0),
-#endif
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<19))
-    UART_3 = (int) NU_MODNAME(UART3_BASE + NS_OFFSET, 3, 0),
-#else
     UART_3 = (int) NU_MODNAME(UART3_BASE, 3, 0),
-#endif    
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<20))
-    UART_4 = (int) NU_MODNAME(UART4_BASE + NS_OFFSET, 4, 0),
-#else
     UART_4 = (int) NU_MODNAME(UART4_BASE, 4, 0),
-#endif
-#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<21))
-    UART_5 = (int) NU_MODNAME(UART5_BASE + NS_OFFSET, 5, 0),
-#else
     UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
-#endif    
     // NOTE: board-specific
     STDIO_UART  = UART_3
 } UARTName;
@@ -152,17 +128,12 @@ typedef enum {
 // TIME 0 & TIME 1 only support secure mode
     TIMER_0  = (int) NU_MODNAME(TMR01_BASE, 0, 0),
     TIMER_1  = (int) NU_MODNAME(TMR01_BASE + 0x100, 1, 0),
-#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (0x01<<17))
-    TIMER_2  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET, 2, 0),
-    TIMER_3  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET + 0x100, 3, 0),
-#else
     TIMER_2  = (int) NU_MODNAME(TMR23_BASE, 2, 0),
     TIMER_3  = (int) NU_MODNAME(TMR23_BASE + 0x100, 3, 0),
-#endif    
 } TIMERName;
 
 typedef enum {
-    RTC_0 = (int) NU_MODNAME(RTC_BASE + NS_OFFSET, 0, 0)
+    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0)
 } RTCName;
 
 typedef enum {

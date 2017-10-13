@@ -75,28 +75,6 @@ void RTC_Open(S_RTC_TIME_DATA_T *sPt)
     /* Waiting for RTC settings stable */
     while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
 }
-/**
-  * @brief      Initialize RTC module and start counting API for Non-Secure
-  */
-void RTC_Open_NS(S_RTC_TIME_DATA_T *sPt)
-{
-    RTC_NS->INIT = RTC_INIT_KEY;
-
-    if(RTC_NS->INIT != RTC_INIT_ACTIVE_Msk)
-    {
-        RTC_NS->INIT = RTC_INIT_KEY;
-        while(RTC_NS->INIT != RTC_INIT_ACTIVE_Msk);
-    }
-
-    if(sPt == 0)
-        return ;
-
-    /* Set RTC date and time */
-    RTC_SetDateAndTime_NS(sPt);
-
-    /* Waiting for RTC settings stable */
-    while((RTC_NS->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
-}
 
 /**
   * @brief      Disable RTC Clock
@@ -110,12 +88,6 @@ void RTC_Open_NS(S_RTC_TIME_DATA_T *sPt)
 void RTC_Close(void)
 {
     CLK->APBCLK0 &= ~CLK_APBCLK0_RTCCKEN_Msk;
-}
-/**
-  * @brief      Disable RTC Clock API for Non-Secure
-  */
-void RTC_Close_NS(void)
-{
 }
 
 /**
@@ -145,28 +117,6 @@ void RTC_32KCalibration(int32_t i32FrequencyX10000)
 
     RTC_WaitAccessEnable();
     RTC->FREQADJ = (uint32_t)u64Compensate;
-}
-/**
-  * @brief      Set 32k Frequency Compensation Data API for Non-Secure
-  */
-void RTC_32KCalibration_NS(int32_t i32FrequencyX10000)
-{
-    uint64_t u64Compensate;
-
-    //u64Compensate = (uint64_t)(0x64000000000);
-    u64Compensate = (uint64_t)(0x2710000000000);
-    u64Compensate = (uint64_t)(u64Compensate / (uint64_t)i32FrequencyX10000);
-    /*
-        Formula for 32K compensation is
-            FREQADJ = 0x200000 * (32768 / LXT_freq)
-    */
-    if(u64Compensate >= 0x400000)
-    {
-        u64Compensate = 0x3FFFFF;
-    }
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->FREQADJ = (uint32_t)u64Compensate;
 }
 
 /**
@@ -209,85 +159,6 @@ void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt)
     g_u32loMin  = (RTC->TIME & RTC_TIME_MIN_Msk) >> RTC_TIME_MIN_Pos;
     g_u32hiSec  = (RTC->TIME & RTC_TIME_TENSEC_Msk) >> RTC_TIME_TENSEC_Pos;
     g_u32loSec  = (RTC->TIME & RTC_TIME_SEC_Msk) >> RTC_TIME_SEC_Pos;
-
-    /* Compute to 20XX year */
-    u32Tmp  = (g_u32hiYear * 10);
-    u32Tmp += g_u32loYear;
-    sPt->u32Year = u32Tmp + RTC_YEAR2000;
-
-    /* Compute 0~12 month */
-    u32Tmp = (g_u32hiMonth * 10);
-    sPt->u32Month = u32Tmp + g_u32loMonth;
-
-    /* Compute 0~31 day */
-    u32Tmp = (g_u32hiDay * 10);
-    sPt->u32Day =  u32Tmp  + g_u32loDay;
-
-    /* Compute 12/24 hour */
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
-        u32Tmp = (g_u32hiHour * 10);
-        u32Tmp += g_u32loHour;
-        sPt->u32Hour = u32Tmp;          /* AM: 1~12. PM: 21~32. */
-
-        if(sPt->u32Hour >= 21)
-        {
-            sPt->u32AmPm  = RTC_PM;
-            sPt->u32Hour -= 20;
-        }
-        else
-        {
-            sPt->u32AmPm = RTC_AM;
-        }
-
-        u32Tmp  = (g_u32hiMin  * 10);
-        u32Tmp += g_u32loMin;
-        sPt->u32Minute = u32Tmp;
-
-        u32Tmp  = (g_u32hiSec  * 10);
-        u32Tmp += g_u32loSec;
-        sPt->u32Second = u32Tmp;
-    }
-    else
-    {
-        u32Tmp  = (g_u32hiHour * 10);
-        u32Tmp += g_u32loHour;
-        sPt->u32Hour = u32Tmp;
-
-        u32Tmp  = (g_u32hiMin * 10);
-        u32Tmp +=  g_u32loMin;
-        sPt->u32Minute = u32Tmp;
-
-        u32Tmp  = (g_u32hiSec * 10);
-        u32Tmp += g_u32loSec;
-        sPt->u32Second = u32Tmp;
-    }
-}
-/**
-  * @brief      Get Current RTC Date and Time API for Non-Secure
-  */
-void RTC_GetDateAndTime_NS(S_RTC_TIME_DATA_T *sPt)
-{
-    uint32_t u32Tmp;
-
-    sPt->u32TimeScale = RTC_NS->CLKFMT & RTC_CLKFMT_24HEN_Msk;     /* 12/24-hour */
-    sPt->u32DayOfWeek = RTC_NS->WEEKDAY & RTC_WEEKDAY_WEEKDAY_Msk; /* Day of the week */
-
-    /* Get [Date digit] data */
-    g_u32hiYear  = (RTC_NS->CAL & RTC_CAL_TENYEAR_Msk) >> RTC_CAL_TENYEAR_Pos;
-    g_u32loYear  = (RTC_NS->CAL & RTC_CAL_YEAR_Msk) >> RTC_CAL_YEAR_Pos;
-    g_u32hiMonth = (RTC_NS->CAL & RTC_CAL_TENMON_Msk) >> RTC_CAL_TENMON_Pos;
-    g_u32loMonth = (RTC_NS->CAL & RTC_CAL_MON_Msk) >> RTC_CAL_MON_Pos;
-    g_u32hiDay   = (RTC_NS->CAL & RTC_CAL_TENDAY_Msk) >> RTC_CAL_TENDAY_Pos;
-    g_u32loDay   = (RTC_NS->CAL & RTC_CAL_DAY_Msk) >> RTC_CAL_DAY_Pos;
-
-    /* Get [Time digit] data */
-    g_u32hiHour = (RTC_NS->TIME & RTC_TIME_TENHR_Msk) >> RTC_TIME_TENHR_Pos;
-    g_u32loHour = (RTC_NS->TIME & RTC_TIME_HR_Msk) >> RTC_TIME_HR_Pos;
-    g_u32hiMin  = (RTC_NS->TIME & RTC_TIME_TENMIN_Msk) >> RTC_TIME_TENMIN_Pos;
-    g_u32loMin  = (RTC_NS->TIME & RTC_TIME_MIN_Msk) >> RTC_TIME_MIN_Pos;
-    g_u32hiSec  = (RTC_NS->TIME & RTC_TIME_TENSEC_Msk) >> RTC_TIME_TENSEC_Pos;
-    g_u32loSec  = (RTC_NS->TIME & RTC_TIME_SEC_Msk) >> RTC_TIME_SEC_Pos;
 
     /* Compute to 20XX year */
     u32Tmp  = (g_u32hiYear * 10);
@@ -439,87 +310,6 @@ void RTC_GetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
         sPt->u32Second = u32Tmp;
     }
 }
-/**
-  * @brief      Get RTC Alarm Date and Time API for Non-Secure
-  */
-void RTC_GetAlarmDateAndTime_NS(S_RTC_TIME_DATA_T *sPt)
-{
-    uint32_t u32Tmp;
-
-    sPt->u32TimeScale = RTC_NS->CLKFMT & RTC_CLKFMT_24HEN_Msk;     /* 12/24-hour */
-    sPt->u32DayOfWeek = RTC_NS->WEEKDAY & RTC_WEEKDAY_WEEKDAY_Msk; /* Day of the week */
-
-    /* Get alarm [Date digit] data */
-    RTC_WaitAccessEnable_NS();
-    g_u32hiYear  = (RTC_NS->CALM & RTC_CALM_TENYEAR_Msk) >> RTC_CALM_TENYEAR_Pos;
-    g_u32loYear  = (RTC_NS->CALM & RTC_CALM_YEAR_Msk) >> RTC_CALM_YEAR_Pos;
-    g_u32hiMonth = (RTC_NS->CALM & RTC_CALM_TENMON_Msk) >> RTC_CALM_TENMON_Pos;
-    g_u32loMonth = (RTC_NS->CALM & RTC_CALM_MON_Msk) >> RTC_CALM_MON_Pos;
-    g_u32hiDay   = (RTC_NS->CALM & RTC_CALM_TENDAY_Msk) >> RTC_CALM_TENDAY_Pos;
-    g_u32loDay   = (RTC_NS->CALM & RTC_CALM_DAY_Msk) >> RTC_CALM_DAY_Pos;
-
-    /* Get alarm [Time digit] data */
-    RTC_WaitAccessEnable_NS();
-    g_u32hiHour = (RTC_NS->TALM & RTC_TALM_TENHR_Msk) >> RTC_TALM_TENHR_Pos;
-    g_u32loHour = (RTC_NS->TALM & RTC_TALM_HR_Msk) >> RTC_TALM_HR_Pos;
-    g_u32hiMin  = (RTC_NS->TALM & RTC_TALM_TENMIN_Msk) >> RTC_TALM_TENMIN_Pos;
-    g_u32loMin  = (RTC_NS->TALM & RTC_TALM_MIN_Msk) >> RTC_TALM_MIN_Pos;
-    g_u32hiSec  = (RTC_NS->TALM & RTC_TALM_TENSEC_Msk) >> RTC_TALM_TENSEC_Pos;
-    g_u32loSec  = (RTC_NS->TALM & RTC_TALM_SEC_Msk) >> RTC_TALM_SEC_Pos;
-
-    /* Compute to 20XX year */
-    u32Tmp  = (g_u32hiYear * 10);
-    u32Tmp += g_u32loYear;
-    sPt->u32Year = u32Tmp + RTC_YEAR2000;
-
-    /* Compute 0~12 month */
-    u32Tmp = (g_u32hiMonth * 10);
-    sPt->u32Month = u32Tmp + g_u32loMonth;
-
-    /* Compute 0~31 day */
-    u32Tmp = (g_u32hiDay * 10);
-    sPt->u32Day = u32Tmp + g_u32loDay;
-
-    /* Compute 12/24 hour */
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
-        u32Tmp  = (g_u32hiHour * 10);
-        u32Tmp += g_u32loHour;
-        sPt->u32Hour = u32Tmp;          /* AM: 1~12. PM: 21~32. */
-
-        if(sPt->u32Hour >= 21)
-        {
-            sPt->u32AmPm  = RTC_PM;
-            sPt->u32Hour -= 20;
-        }
-        else
-        {
-            sPt->u32AmPm = RTC_AM;
-        }
-
-        u32Tmp  = (g_u32hiMin * 10);
-        u32Tmp += g_u32loMin;
-        sPt->u32Minute = u32Tmp;
-
-        u32Tmp  = (g_u32hiSec * 10);
-        u32Tmp += g_u32loSec;
-        sPt->u32Second = u32Tmp;
-    }
-    else
-    {
-        u32Tmp  = (g_u32hiHour * 10);
-        u32Tmp +=  g_u32loHour;
-        sPt->u32Hour = u32Tmp;
-
-        u32Tmp  = (g_u32hiMin * 10);
-        u32Tmp += g_u32loMin;
-        sPt->u32Minute = u32Tmp;
-
-        u32Tmp  = (g_u32hiSec * 10);
-        u32Tmp += g_u32loSec;
-        sPt->u32Second = u32Tmp;
-    }
-}
 
 /**
   * @brief      Update Current RTC Date and Time
@@ -594,62 +384,6 @@ void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt)
     RTC->CAL  = (uint32_t)u32RegCAL;
     RTC->TIME = (uint32_t)u32RegTIME;
 }
-/**
-  * @brief      Update Current RTC Date and Time API for Non-Secure
-  */
-void RTC_SetDateAndTime_NS(S_RTC_TIME_DATA_T *sPt)
-{
-    uint32_t u32RegCAL, u32RegTIME;
-
-    if(sPt == 0)
-        return ;
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC 24/12 hour setting and Day of the Week                                                      */
-    /*-----------------------------------------------------------------------------------------------------*/
-    RTC_WaitAccessEnable_NS();
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
-        RTC_NS->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-
-        /*-------------------------------------------------------------------------------------------------*/
-        /* Important, range of 12-hour PM mode is 21 up to 32                                               */
-        /*-------------------------------------------------------------------------------------------------*/
-        if(sPt->u32AmPm == RTC_PM)
-            sPt->u32Hour += 20;
-    }
-    else
-    {
-        RTC_NS->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
-    }
-
-    /* Set Day of the Week */
-    RTC_NS->WEEKDAY = sPt->u32DayOfWeek;
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC Current Date and Time                                                                       */
-    /*-----------------------------------------------------------------------------------------------------*/
-    u32RegCAL  = ((sPt->u32Year - RTC_YEAR2000) / 10) << 20;
-    u32RegCAL |= (((sPt->u32Year - RTC_YEAR2000) % 10) << 16);
-    u32RegCAL |= ((sPt->u32Month  / 10) << 12);
-    u32RegCAL |= ((sPt->u32Month  % 10) << 8);
-    u32RegCAL |= ((sPt->u32Day    / 10) << 4);
-    u32RegCAL |= (sPt->u32Day     % 10);
-
-    u32RegTIME  = ((sPt->u32Hour   / 10) << 20);
-    u32RegTIME |= ((sPt->u32Hour   % 10) << 16);
-    u32RegTIME |= ((sPt->u32Minute / 10) << 12);
-    u32RegTIME |= ((sPt->u32Minute % 10) << 8);
-    u32RegTIME |= ((sPt->u32Second / 10) << 4);
-    u32RegTIME |= (sPt->u32Second % 10);
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC Calender and Time Loading                                                                   */
-    /*-----------------------------------------------------------------------------------------------------*/
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->CAL  = (uint32_t)u32RegCAL;
-    RTC_NS->TIME = (uint32_t)u32RegTIME;
-}
 
 /**
   * @brief      Update RTC Alarm Date and Time
@@ -721,59 +455,7 @@ void RTC_SetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
     RTC->CALM = (uint32_t)u32RegCALM;
     RTC->TALM = (uint32_t)u32RegTALM;
 }
-/**
-  * @brief      Update RTC Alarm Date and Time API for Non-Secure
-  */
-void RTC_SetAlarmDateAndTime_NS(S_RTC_TIME_DATA_T *sPt)
-{
-    uint32_t u32RegCALM, u32RegTALM;
 
-    if(sPt == 0)
-        return ;
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC 24/12 hour setting and Day of the Week                                                      */
-    /*-----------------------------------------------------------------------------------------------------*/
-    RTC_WaitAccessEnable_NS();
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
-        RTC_NS->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-
-        /*-------------------------------------------------------------------------------------------------*/
-        /* Important, range of 12-hour PM mode is 21 up to 32                                               */
-        /*-------------------------------------------------------------------------------------------------*/
-        if(sPt->u32AmPm == RTC_PM)
-            sPt->u32Hour += 20;
-    }
-    else
-    {
-        RTC_NS->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
-    }
-
-    /* Set Day of the Week */
-    RTC_NS->WEEKDAY = sPt->u32DayOfWeek;
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC Alarm Date and Time                                                                         */
-    /*-----------------------------------------------------------------------------------------------------*/
-    u32RegCALM  = ((sPt->u32Year - RTC_YEAR2000) / 10) << 20;
-    u32RegCALM |= (((sPt->u32Year - RTC_YEAR2000) % 10) << 16);
-    u32RegCALM |= ((sPt->u32Month  / 10) << 12);
-    u32RegCALM |= ((sPt->u32Month  % 10) << 8);
-    u32RegCALM |= ((sPt->u32Day    / 10) << 4);
-    u32RegCALM |= (sPt->u32Day    % 10);
-
-    u32RegTALM  = ((sPt->u32Hour   / 10) << 20);
-    u32RegTALM |= ((sPt->u32Hour   % 10) << 16);
-    u32RegTALM |= ((sPt->u32Minute / 10) << 12);
-    u32RegTALM |= ((sPt->u32Minute % 10) << 8);
-    u32RegTALM |= ((sPt->u32Second / 10) << 4);
-    u32RegTALM |= (sPt->u32Second % 10);
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->CALM = (uint32_t)u32RegCALM;
-    RTC_NS->TALM = (uint32_t)u32RegTALM;
-}
 
 /**
   * @brief      Update RTC Current Date
@@ -807,28 +489,6 @@ void RTC_SetDate(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day, uint32_t 
 
     /* Set RTC Calender Loading */
     RTC->CAL = (uint32_t)u32RegCAL;
-}
-/**
-  * @brief      Update RTC Current Date API for Non-Secure
-  */
-void RTC_SetDate_NS(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day, uint32_t u32DayOfWeek)
-{
-    uint32_t u32RegCAL;
-
-    u32RegCAL  = ((u32Year - RTC_YEAR2000) / 10) << 20;
-    u32RegCAL |= (((u32Year - RTC_YEAR2000) % 10) << 16);
-    u32RegCAL |= ((u32Month / 10) << 12);
-    u32RegCAL |= ((u32Month % 10) << 8);
-    u32RegCAL |= ((u32Day   / 10) << 4);
-    u32RegCAL |= (u32Day   % 10);
-
-    RTC_WaitAccessEnable_NS();
-
-    /* Set Day of the Week */
-    RTC_NS->WEEKDAY = u32DayOfWeek & RTC_WEEKDAY_WEEKDAY_Msk;
-
-    /* Set RTC Calender Loading */
-    RTC_NS->CAL = (uint32_t)u32RegCAL;
 }
 
 /**
@@ -874,39 +534,6 @@ void RTC_SetTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint3
 
     RTC->TIME = (uint32_t)u32RegTIME;
 }
-/**
-  * @brief      Update RTC Current Time API for Non-Secure
-  */
-void RTC_SetTime_NS(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint32_t u32TimeMode, uint32_t u32AmPm)
-{
-    uint32_t u32RegTIME;
-
-    /* Important, range of 12-hour PM mode is 21 up to 32 */
-    if((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM))
-        u32Hour += 20;
-
-    u32RegTIME  = ((u32Hour   / 10) << 20);
-    u32RegTIME |= ((u32Hour   % 10) << 16);
-    u32RegTIME |= ((u32Minute / 10) << 12);
-    u32RegTIME |= ((u32Minute % 10) << 8);
-    u32RegTIME |= ((u32Second / 10) << 4);
-    u32RegTIME |= (u32Second % 10);
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC 24/12 hour setting and Day of the Week                                                      */
-    /*-----------------------------------------------------------------------------------------------------*/
-    RTC_WaitAccessEnable_NS();
-    if(u32TimeMode == RTC_CLOCK_12)
-    {
-        RTC_NS->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-    }
-    else
-    {
-        RTC_NS->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
-    }
-
-    RTC_NS->TIME = (uint32_t)u32RegTIME;
-}
 
 /**
   * @brief      Update RTC Alarm Date
@@ -934,25 +561,6 @@ void RTC_SetAlarmDate(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day)
 
     /* Set RTC Alarm Date */
     RTC->CALM = (uint32_t)u32RegCALM;
-}
-/**
-  * @brief      Update RTC Alarm Date API for Non-Secure
-  */
-void RTC_SetAlarmDate_NS(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day)
-{
-    uint32_t u32RegCALM;
-
-    u32RegCALM  = ((u32Year - RTC_YEAR2000) / 10) << 20;
-    u32RegCALM |= (((u32Year - RTC_YEAR2000) % 10) << 16);
-    u32RegCALM |= ((u32Month / 10) << 12);
-    u32RegCALM |= ((u32Month % 10) << 8);
-    u32RegCALM |= ((u32Day   / 10) << 4);
-    u32RegCALM |= (u32Day   % 10);
-
-    RTC_WaitAccessEnable_NS();
-
-    /* Set RTC Alarm Date */
-    RTC_NS->CALM = (uint32_t)u32RegCALM;
 }
 
 /**
@@ -999,40 +607,6 @@ void RTC_SetAlarmTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, 
     /* Set RTC Alarm Time */
     RTC->TALM = (uint32_t)u32RegTALM;
 }
-/**
-  * @brief      Update RTC Alarm Time API for Non-Secure
-  */
-void RTC_SetAlarmTime_NS(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint32_t u32TimeMode, uint32_t u32AmPm)
-{
-    uint32_t u32RegTALM;
-
-    /* Important, range of 12-hour PM mode is 21 up to 32 */
-    if((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM))
-        u32Hour += 20;
-
-    u32RegTALM  = ((u32Hour   / 10) << 20);
-    u32RegTALM |= ((u32Hour   % 10) << 16);
-    u32RegTALM |= ((u32Minute / 10) << 12);
-    u32RegTALM |= ((u32Minute % 10) << 8);
-    u32RegTALM |= ((u32Second / 10) << 4);
-    u32RegTALM |= (u32Second % 10);
-
-    /*-----------------------------------------------------------------------------------------------------*/
-    /* Set RTC 24/12 hour setting and Day of the Week                                                      */
-    /*-----------------------------------------------------------------------------------------------------*/
-    RTC_WaitAccessEnable_NS();
-    if(u32TimeMode == RTC_CLOCK_12)
-    {
-        RTC_NS->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-    }
-    else
-    {
-        RTC_NS->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
-    }
-
-    /* Set RTC Alarm Time */
-    RTC_NS->TALM = (uint32_t)u32RegTALM;
-}
 
 /**
   * @brief      Set RTC Alarm Date Mask Function
@@ -1057,19 +631,6 @@ void RTC_SetAlarmDateMask(uint8_t u8IsTenYMsk, uint8_t u8IsYMsk, uint8_t u8IsTen
                  (u8IsMMsk    << RTC_CAMSK_MMON_Pos) |
                  (u8IsTenDMsk << RTC_CAMSK_MTENDAY_Pos) |
                  (u8IsDMsk    << RTC_CAMSK_MDAY_Pos);
-}
-/**
-  * @brief      Set RTC Alarm Date Mask Function API for Non-Secure
-  */
-void RTC_SetAlarmDateMask_NS(uint8_t u8IsTenYMsk, uint8_t u8IsYMsk, uint8_t u8IsTenMMsk, uint8_t u8IsMMsk, uint8_t u8IsTenDMsk, uint8_t u8IsDMsk)
-{
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->CAMSK = (u8IsTenYMsk << RTC_CAMSK_MTENYEAR_Pos) |
-                    (u8IsYMsk    << RTC_CAMSK_MYEAR_Pos) |
-                    (u8IsTenMMsk << RTC_CAMSK_MTENMON_Pos) |
-                    (u8IsMMsk    << RTC_CAMSK_MMON_Pos) |
-                    (u8IsTenDMsk << RTC_CAMSK_MTENDAY_Pos) |
-                    (u8IsDMsk    << RTC_CAMSK_MDAY_Pos);
 }
 
 /**
@@ -1096,19 +657,6 @@ void RTC_SetAlarmTimeMask(uint8_t u8IsTenHMsk, uint8_t u8IsHMsk, uint8_t u8IsTen
                  (u8IsTenSMsk << RTC_TAMSK_MTENSEC_Pos) |
                  (u8IsSMsk    << RTC_TAMSK_MSEC_Pos);
 }
-/**
-  * @brief      Set RTC Alarm Time Mask Function API for Non-Secure
-  */
-void RTC_SetAlarmTimeMask_NS(uint8_t u8IsTenHMsk, uint8_t u8IsHMsk, uint8_t u8IsTenMMsk, uint8_t u8IsMMsk, uint8_t u8IsTenSMsk, uint8_t u8IsSMsk)
-{
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMSK = (u8IsTenHMsk << RTC_TAMSK_MTENHR_Pos) |
-                    (u8IsHMsk    << RTC_TAMSK_MHR_Pos) |
-                    (u8IsTenMMsk << RTC_TAMSK_MTENMIN_Pos) |
-                    (u8IsMMsk    << RTC_TAMSK_MMIN_Pos) |
-                    (u8IsTenSMsk << RTC_TAMSK_MTENSEC_Pos) |
-                    (u8IsSMsk    << RTC_TAMSK_MSEC_Pos);
-}
 
 /**
   * @brief      Get Day of the Week
@@ -1128,13 +676,6 @@ void RTC_SetAlarmTimeMask_NS(uint8_t u8IsTenHMsk, uint8_t u8IsHMsk, uint8_t u8Is
 uint32_t RTC_GetDayOfWeek(void)
 {
     return (RTC->WEEKDAY & RTC_WEEKDAY_WEEKDAY_Msk);
-}
-/**
-  * @brief      Get Day of the Week API for Non-Secure
-  */
-uint32_t RTC_GetDayOfWeek_NS(void)
-{
-    return (RTC_NS->WEEKDAY & RTC_WEEKDAY_WEEKDAY_Msk);
 }
 
 /**
@@ -1161,15 +702,6 @@ void RTC_SetTickPeriod(uint32_t u32TickSelection)
 
     RTC->TICK = (RTC->TICK & ~RTC_TICK_TICK_Msk) | u32TickSelection;
 }
-/**
-  * @brief      Set RTC Tick Period Time API for Non-Secure
-  */
-void RTC_SetTickPeriod_NS(uint32_t u32TickSelection)
-{
-    RTC_WaitAccessEnable_NS();
-
-    RTC_NS->TICK = (RTC_NS->TICK & ~RTC_TICK_TICK_Msk) | u32TickSelection;
-}
 
 /**
   * @brief      Enable RTC Interrupt
@@ -1193,13 +725,6 @@ void RTC_SetTickPeriod_NS(uint32_t u32TickSelection)
 void RTC_EnableInt(uint32_t u32IntFlagMask)
 {
     RTC->INTEN |= u32IntFlagMask;
-}
-/**
-  * @brief      Enable RTC Interrupt API for Non-Secure
-  */
-void RTC_EnableInt_NS(uint32_t u32IntFlagMask)
-{
-    RTC_NS->INTEN |= u32IntFlagMask;
 }
 
 /**
@@ -1226,14 +751,6 @@ void RTC_DisableInt(uint32_t u32IntFlagMask)
     RTC->INTEN  &= ~u32IntFlagMask;
     RTC->INTSTS = u32IntFlagMask;
 }
-/**
-  * @brief      Disable RTC Interrupt API for Non-Secure
-  */
-void RTC_DisableInt_NS(uint32_t u32IntFlagMask)
-{
-    RTC_NS->INTEN  &= ~u32IntFlagMask;
-    RTC_NS->INTSTS = u32IntFlagMask;
-}
 
 /**
   * @brief      Enable Spare Registers Access
@@ -1250,15 +767,6 @@ void RTC_EnableSpareAccess(void)
 
     RTC->SPRCTL |= RTC_SPRCTL_SPRRWEN_Msk;
 }
-/**
-  * @brief      Enable Spare Registers Access API for Non-Secure
-  */
-void RTC_EnableSpareAccess_NS(void)
-{
-    RTC_WaitAccessEnable_NS();
-
-    RTC_NS->SPRCTL |= RTC_SPRCTL_SPRRWEN_Msk;
-}
 
 /**
   * @brief      Disable Spare Register
@@ -1274,15 +782,6 @@ void RTC_DisableSpareRegister(void)
     RTC_WaitAccessEnable();
 
     RTC->SPRCTL &= ~RTC_SPRCTL_SPRRWEN_Msk;
-}
-/**
-  * @brief      Disable Spare Register API for Non-Secure
-  */
-void RTC_DisableSpareRegister_NS(void)
-{
-    RTC_WaitAccessEnable_NS();
-
-    RTC_NS->SPRCTL &= ~RTC_SPRCTL_SPRRWEN_Msk;
 }
 
 /**
@@ -1333,34 +832,6 @@ void RTC_StaticTamperEnable(uint32_t u32TamperSelect, uint32_t u32DetecLevel, ui
     RTC->TAMPCTL = u32Reg;
 
 }
-/**
-  * @brief      Static Tamper Detect API for Non-Secure
-  */
-void RTC_StaticTamperEnable_NS(uint32_t u32TamperSelect, uint32_t u32DetecLevel, uint32_t u32DebounceEn)
-{
-    uint32_t i;
-    uint32_t u32Reg;
-    uint32_t u32TmpReg;
-
-    RTC_WaitAccessEnable_NS();
-    u32Reg = RTC_NS->TAMPCTL;
-
-    u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | (u32DetecLevel << RTC_TAMPCTL_TAMP0LV_Pos) |
-                 (u32DebounceEn << RTC_TAMPCTL_TAMP0DBEN_Pos));
-
-    for(i = 0; i < MAX_TAMPER_PIN_NUM; i++)
-    {
-        if(u32TamperSelect & (0x1 << i))
-        {
-            u32Reg &= ~((RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP0LV_Msk | RTC_TAMPCTL_TAMP0DBEN_Msk) << (i * 4));
-            u32Reg |= (u32TmpReg << (i * 4));
-        }
-    }
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMPCTL = u32Reg;
-
-}
 
 /**
   * @brief      Static Tamper Disable
@@ -1398,31 +869,6 @@ void RTC_StaticTamperDisable(uint32_t u32TamperSelect)
 
     RTC_WaitAccessEnable();
     RTC->TAMPCTL = u32Reg;
-}
-/**
-  * @brief      Static Tamper Disable API for Non-Secure
-  */
-void RTC_StaticTamperDisable_NS(uint32_t u32TamperSelect)
-{
-    uint32_t i;
-    uint32_t u32Reg;
-    uint32_t u32TmpReg;
-
-    RTC_WaitAccessEnable_NS();
-    u32Reg = RTC_NS->TAMPCTL;
-
-    u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk);
-
-    for(i = 0; i < MAX_TAMPER_PIN_NUM; i++)
-    {
-        if(u32TamperSelect & (0x1 << i))
-        {
-            u32Reg &= ~(u32TmpReg << (i * 4));
-        }
-    }
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMPCTL = u32Reg;
 }
 
 /**
@@ -1497,57 +943,6 @@ void RTC_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32
     RTC_WaitAccessEnable();
     RTC->TAMPCTL = u32Reg;
 }
-/**
-  * @brief      Dynamic Tamper Detect API for Non-Secure
-  */
-void RTC_DynamicTamperEnable_NS(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source)
-{
-    uint32_t i;
-    uint32_t u32Reg;
-    uint32_t u32TmpReg;
-    uint32_t u32Tamper2Debounce, u32Tamper4Debounce;
-
-    RTC_WaitAccessEnable_NS();
-    u32Reg = RTC_NS->TAMPCTL;
-
-    u32Tamper2Debounce = u32Reg & RTC_TAMPCTL_TAMP2DBEN_Msk;
-    u32Tamper4Debounce = u32Reg & RTC_TAMPCTL_TAMP4DBEN_Msk;
-
-    u32Reg &= ~(RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk | RTC_TAMPCTL_TAMP2EN_Msk |
-                RTC_TAMPCTL_TAMP3EN_Msk | RTC_TAMPCTL_TAMP4EN_Msk | RTC_TAMPCTL_TAMP5EN_Msk);
-    u32Reg &= ~(RTC_TAMPCTL_DYN1ISS_Msk | RTC_TAMPCTL_DYN2ISS_Msk);
-    u32Reg |= ((u32Pair1Source & 0x1) << RTC_TAMPCTL_DYN1ISS_Pos) | ((u32Pair2Source & 0x1) << RTC_TAMPCTL_DYN2ISS_Pos);
-
-    if(u32DebounceEn)
-        u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk |
-                     RTC_TAMPCTL_TAMP0DBEN_Msk | RTC_TAMPCTL_TAMP1DBEN_Msk | RTC_TAMPCTL_DYNPR0EN_Msk);
-    else
-        u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk | RTC_TAMPCTL_DYNPR0EN_Msk);
-
-    for(i = 0; i < MAX_PAIR_NUM; i++)
-    {
-        if(u32PairSel & (0x1 << i))
-        {
-            u32Reg &= ~((RTC_TAMPCTL_TAMP0DBEN_Msk | RTC_TAMPCTL_TAMP1DBEN_Msk) << (i * 8));
-            u32Reg |= (u32TmpReg << (i * 8));
-        }
-    }
-
-    if((u32Pair1Source) && (u32PairSel & RTC_PAIR1_SELECT))
-    {
-        u32Reg &= ~RTC_TAMPCTL_TAMP2EN_Msk;
-        u32Reg |= u32Tamper2Debounce;
-    }
-
-    if((u32Pair2Source) && (u32PairSel & RTC_PAIR2_SELECT))
-    {
-        u32Reg &= ~RTC_TAMPCTL_TAMP4EN_Msk;
-        u32Reg |= u32Tamper4Debounce;
-    }
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMPCTL = u32Reg;
-}
 
 /**
   * @brief      Dynamic Tamper Disable
@@ -1592,40 +987,6 @@ void RTC_DynamicTamperDisable(uint32_t u32PairSel)
     RTC_WaitAccessEnable();
     RTC->TAMPCTL = u32Reg;
 }
-/**
-  * @brief      Dynamic Tamper Disable API for Non-Secure
-  */
-void RTC_DynamicTamperDisable_NS(uint32_t u32PairSel)
-{
-    uint32_t i;
-    uint32_t u32Reg;
-    uint32_t u32TmpReg;
-    uint32_t u32Tamper2En = 0, u32Tamper4En = 0;
-
-    RTC_WaitAccessEnable_NS();
-    u32Reg = RTC_NS->TAMPCTL;
-
-    if((u32Reg & RTC_TAMPCTL_DYN1ISS_Msk) && (u32PairSel & RTC_PAIR1_SELECT))
-        u32Tamper2En = u32Reg & RTC_TAMPCTL_TAMP2EN_Msk;
-
-    if((u32Reg & RTC_TAMPCTL_DYN2ISS_Msk) && (u32PairSel & RTC_PAIR2_SELECT))
-        u32Tamper4En = u32Reg & RTC_TAMPCTL_TAMP4EN_Msk;
-
-    u32TmpReg = (RTC_TAMPCTL_TAMP0EN_Msk | RTC_TAMPCTL_TAMP1EN_Msk | RTC_TAMPCTL_DYNPR0EN_Msk);
-
-    for(i = 0; i < MAX_PAIR_NUM; i++)
-    {
-        if(u32PairSel & (0x1 << i))
-        {
-            u32Reg &= ~(u32TmpReg << ((i * 8)));
-        }
-    }
-
-    u32Reg |= (u32Tamper2En | u32Tamper4En);
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMPCTL = u32Reg;
-}
 
 /**
   * @brief      Config dynamic tamper
@@ -1669,24 +1030,6 @@ void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uin
     RTC_WaitAccessEnable();
     RTC->TAMPSEED = u32Seed; // need set seed value before re-loade seed
     RTC->TAMPCTL = u32Reg;
-}
-/**
-  * @brief      Config dynamic tamper API for Non-Secure
-  */
-void RTC_DynamicTamperConfig_NS(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed)
-{
-    uint32_t u32Reg;
-    RTC_WaitAccessEnable_NS();
-    u32Reg = RTC_NS->TAMPCTL;
-
-    u32Reg &= ~(RTC_TAMPCTL_DYNSRC_Msk | RTC_TAMPCTL_SEEDRLD_Msk | RTC_TAMPCTL_DYNRATE_Msk);
-
-    u32Reg |= (u32ChangeRate) | ((u32SeedReload & 0x1) << RTC_TAMPCTL_SEEDRLD_Pos) |
-              ((u32RefPattern & 0x3) << RTC_TAMPCTL_DYNSRC_Pos);
-
-    RTC_WaitAccessEnable_NS();
-    RTC_NS->TAMPSEED = u32Seed; // need set seed value before re-loade seed
-    RTC_NS->TAMPCTL = u32Reg;
 }
 
 /*@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */

@@ -53,18 +53,6 @@ void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_
     /* Setting CRCRST bit will reload the initial seed value(CRC_SEED register) to CRC controller */
     CRC->CTL |= CRC_CTL_CHKSINIT_Msk;
 }
-/**
-  * @brief      CRC Open API for Non-Secure
-  *
-  */
-void CRC_Open_NS(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen)
-{
-    CRC_NS->SEED = u32Seed;
-    CRC_NS->CTL = u32Mode | u32Attribute | u32DataLen | CRC_CTL_CRCEN_Msk;
-
-    /* Setting CRCRST bit will reload the initial seed value(CRC_SEED register) to CRC controller */
-    CRC_NS->CTL |= CRC_CTL_CHKSINIT_Msk;
-}
 
 /**
   * @brief      Get CRC Checksum
@@ -88,27 +76,6 @@ uint32_t CRC_GetChecksum(void)
 
         case CRC_8:
             return (CRC->CHECKSUM & 0xFF);
-
-        default:
-            return 0;
-    }
-}
-/**
-  * @brief      Get CRC Checksum API for Non-Secure
-  */
-uint32_t CRC_GetChecksum_NS(void)
-{
-    switch(CRC_NS->CTL & CRC_CTL_CRCMODE_Msk)
-    {
-        case CRC_CCITT:
-        case CRC_16:
-            return (CRC_NS->CHECKSUM & 0xFFFF);
-
-        case CRC_32:
-            return (CRC_NS->CHECKSUM);
-
-        case CRC_8:
-            return (CRC_NS->CHECKSUM & 0xFF);
 
         default:
             return 0;

@@ -19,6 +19,7 @@
 /** @addtogroup SYS_EXPORTED_FUNCTIONS SYS Exported Functions
   @{
 */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 /**
   * @brief      Clear reset source
@@ -34,9 +35,10 @@
   * @return     None
   * @details    This function clear the selected system reset source.
   */
+__attribute__((cmse_nonsecure_entry))
 void SYS_ClearResetSrc(uint32_t u32Src)
 {
-    SYS->RSTSTS = u32Src;
+    SYS_S->RSTSTS = u32Src;
 }
 
 /**
@@ -46,9 +48,10 @@ void SYS_ClearResetSrc(uint32_t u32Src)
   * @retval     1 System voltage is lower than BODVL setting.
   * @details    This function get Brown-out detector output status.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t SYS_GetBODStatus(void)
 {
-    return ((SYS->BODCTL & SYS_BODCTL_BODOUT_Msk) >> SYS_BODCTL_BODOUT_Pos);
+    return ((SYS_S->BODCTL & SYS_BODCTL_BODOUT_Msk) >> SYS_BODCTL_BODOUT_Pos);
 }
 
 /**
@@ -57,9 +60,10 @@ uint32_t SYS_GetBODStatus(void)
   * @return     Reset source
   * @details    This function get the system reset status register value.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t SYS_GetResetSrc(void)
 {
-    return (SYS->RSTSTS);
+    return (SYS_S->RSTSTS);
 }
 
 /**
@@ -69,9 +73,10 @@ uint32_t SYS_GetResetSrc(void)
   *             1 Write-protection function is enabled.
   * @details    This function check register write-protection bit setting.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t SYS_IsRegLocked(void)
 {
-    return !(SYS->REGLCTL & 0x1);
+    return !(SYS_S->REGLCTL & 0x1);
 }
 
 /**
@@ -80,9 +85,10 @@ uint32_t SYS_IsRegLocked(void)
   * @return     Product ID
   * @details    This function get product ID.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t  SYS_ReadPDID(void)
 {
-    return SYS->PDID;
+    return SYS_S->PDID;
 }
 
 /**
@@ -92,9 +98,10 @@ uint32_t  SYS_ReadPDID(void)
   * @details    This function reset chip with chip reset.
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void SYS_ResetChip(void)
 {
-    SYS->IPRST0 |= SYS_IPRST0_CHIPRST_Msk;
+    SYS_S->IPRST0 |= SYS_IPRST0_CHIPRST_Msk;
 }
 
 /**
@@ -104,9 +111,10 @@ void SYS_ResetChip(void)
   * @details    This function reset CPU with CPU reset.
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void SYS_ResetCPU(void)
 {
-    SYS->IPRST0 |= SYS_IPRST0_CPURST_Msk;
+    SYS_S->IPRST0 |= SYS_IPRST0_CPURST_Msk;
 }
 
 /**
@@ -164,17 +172,15 @@ void SYS_ResetCPU(void)
   * @return     None
   * @details    This function reset selected module.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {
     /* Generate reset signal to the corresponding module */
-    *(volatile uint32_t *)((uint32_t)&SYS->IPRST0 + (u32ModuleIndex >> 24))  |= 1 << (u32ModuleIndex & 0x00ffffff);
+    *(volatile uint32_t *)((uint32_t)&SYS_S->IPRST0 + (u32ModuleIndex >> 24))  |= 1 << (u32ModuleIndex & 0x00ffffff);
 
     /* Release corresponding module from reset state */
-    *(volatile uint32_t *)((uint32_t)&SYS->IPRST0 + (u32ModuleIndex >> 24))  &= ~(1 << (u32ModuleIndex & 0x00ffffff));
+    *(volatile uint32_t *)((uint32_t)&SYS_S->IPRST0 + (u32ModuleIndex >> 24))  &= ~(1 << (u32ModuleIndex & 0x00ffffff));
 }
-#endif
 
 /**
   * @brief      Enable and configure Brown-out detector function
@@ -194,16 +200,17 @@ void SYS_ResetModule(uint32_t u32ModuleIndex)
   * @details    This function configure Brown-out detector reset or interrupt mode, enable Brown-out function and set Brown-out voltage level.
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void SYS_EnableBOD(int32_t i32Mode, uint32_t u32BODLevel)
 {
     /* Enable Brown-out Detector function */
-    SYS->BODCTL |= SYS_BODCTL_BODEN_Msk;
+    SYS_S->BODCTL |= SYS_BODCTL_BODEN_Msk;
 
     /* Enable Brown-out interrupt or reset function */
-    SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODRSTEN_Msk) | i32Mode;
+    SYS_S->BODCTL = (SYS_S->BODCTL & ~SYS_BODCTL_BODRSTEN_Msk) | i32Mode;
 
     /* Select Brown-out Detector threshold voltage */
-    SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | u32BODLevel;
+    SYS_S->BODCTL = (SYS_S->BODCTL & ~SYS_BODCTL_BODVL_Msk) | u32BODLevel;
 }
 
 /**
@@ -213,11 +220,13 @@ void SYS_EnableBOD(int32_t i32Mode, uint32_t u32BODLevel)
   * @details    This function disable Brown-out detector function.
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void SYS_DisableBOD(void)
 {
-    SYS->BODCTL &= ~SYS_BODCTL_BODEN_Msk;
+    SYS_S->BODCTL &= ~SYS_BODCTL_BODEN_Msk;
 }
 
+#endif
 
 
 /*@}*/ /* end of group SYS_EXPORTED_FUNCTIONS */

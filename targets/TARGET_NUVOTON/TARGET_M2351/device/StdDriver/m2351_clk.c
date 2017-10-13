@@ -20,6 +20,8 @@
   @{
 */
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 /**
   * @brief      Disable frequency output function
   * @param      None
@@ -50,6 +52,7 @@ void CLK_DisableCKO(void)
   *             This function is just used to set CKO clock.
   *             User must enable I/O for CKO clock output pin by themselves.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableCKO(uint32_t u32ClkSrc, uint32_t u32ClkDiv, uint32_t u32ClkDivBy1En)
 {
     /* CKO = clock source / 2^(u32ClkDiv + 1) */
@@ -70,6 +73,7 @@ void CLK_EnableCKO(uint32_t u32ClkSrc, uint32_t u32ClkDiv, uint32_t u32ClkDivBy1
   * @details    This function is used to let system enter to Power-down mode. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_PowerDown(void)
 {
     /* Set the processor uses deep sleep as its low power mode */
@@ -89,6 +93,7 @@ void CLK_PowerDown(void)
   * @details    This function let system enter to Idle mode. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_Idle(void)
 {
     /* Set the processor uses sleep as its low power mode */
@@ -107,9 +112,7 @@ void CLK_Idle(void)
   * @return     External high frequency crystal frequency
   * @details    This function get external high frequency crystal frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetHXTFreq(void)
 {
     if(CLK->PWRCTL & CLK_PWRCTL_HXTEN_Msk)
@@ -117,16 +120,14 @@ uint32_t CLK_GetHXTFreq(void)
     else
         return 0;
 }
-#endif
+
 /**
   * @brief      Get external low speed crystal clock frequency
   * @param      None
   * @return     External low speed crystal clock frequency
   * @details    This function get external low frequency crystal frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetLXTFreq(void)
 {
     if(CLK->PWRCTL & CLK_PWRCTL_LXTEN_Msk)
@@ -134,61 +135,53 @@ uint32_t CLK_GetLXTFreq(void)
     else
         return 0;
 }
-#endif
+
 /**
   * @brief      Get HCLK frequency
   * @param      None
   * @return     HCLK frequency
   * @details    This function get HCLK frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetHCLKFreq(void)
 {
     SystemCoreClockUpdate();
     return SystemCoreClock;
 }
-#endif
+
 /**
   * @brief      Get PCLK0 frequency
   * @param      None
   * @return     PCLK0 frequency
   * @details    This function get PCLK0 frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetPCLK0Freq(void)
 {
     SystemCoreClockUpdate();
     return (SystemCoreClock >> ((CLK->CLKSEL0 & CLK_CLKSEL0_PCLK0SEL_Msk) >> CLK_CLKSEL0_PCLK0SEL_Pos));
 }
-#endif
+
 /**
   * @brief      Get PCLK1 frequency
   * @param      None
   * @return     PCLK1 frequency
   * @details    This function get PCLK1 frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetPCLK1Freq(void)
 {
     SystemCoreClockUpdate();
     return (SystemCoreClock >> ((CLK->CLKSEL0 & CLK_CLKSEL0_PCLK1SEL_Msk) >> CLK_CLKSEL0_PCLK1SEL_Pos));
 }
-#endif
+
 /**
   * @brief      Get CPU frequency
   * @param      None
   * @return     CPU frequency
   * @details    This function get CPU frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetCPUFreq(void)
 {
     uint32_t u32Freq, u32HclkSrc, u32HclkDiv;
@@ -241,7 +234,7 @@ uint32_t CLK_GetCPUFreq(void)
     
     return SystemCoreClock;    
 }
-#endif
+
 /**
   * @brief      Set HCLK frequency
   * @param[in]  u32Hclk is HCLK frequency. The range of u32Hclk is 24 MHz ~ 48 MHz.
@@ -249,6 +242,7 @@ uint32_t CLK_GetCPUFreq(void)
   * @details    This function is used to set HCLK frequency. The frequency unit is Hz. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t CLK_SetCoreClock(uint32_t u32Hclk)
 {
     uint32_t u32HIRCSTB;
@@ -309,6 +303,7 @@ uint32_t CLK_SetCoreClock(uint32_t u32Hclk)
   * @details    This function set HCLK clock source and HCLK clock divider.
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
 {
     uint32_t u32HIRCSTB;
@@ -334,6 +329,7 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
     if(u32HIRCSTB == 0)
         CLK->PWRCTL &= ~CLK_PWRCTL_HIRCEN_Msk;
 }
+
 /**
   * @brief      This function set selected module clock source and module clock divider
   * @param[in]  u32ModuleIdx is module index.
@@ -450,6 +446,8 @@ void CLK_SetHCLK(uint32_t u32ClkSrc, uint32_t u32ClkDiv)
   * |\ref SC2_MODULE     |\ref CLK_CLKSEL3_SC2SEL_PCLK1         |\ref CLK_CLKDIV1_SC2(x)   |
   * |\ref SC2_MODULE     |\ref CLK_CLKSEL3_SC2SEL_HIRC          |\ref CLK_CLKDIV1_SC2(x)   |
   */
+
+__attribute__((cmse_nonsecure_entry))
 void CLK_SetModuleClock(uint32_t u32ModuleIdx, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
 {
     uint32_t u32sel = 0, u32div = 0;
@@ -485,6 +483,7 @@ void CLK_SetModuleClock(uint32_t u32ModuleIdx, uint32_t u32ClkSrc, uint32_t u32C
   * @details    This function set SysTick clock source. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_SetSysTickClockSrc(uint32_t u32ClkSrc)
 {
     CLK->CLKSEL0 = (CLK->CLKSEL0 & ~CLK_CLKSEL0_STCLKSEL_Msk) | u32ClkSrc;
@@ -501,6 +500,7 @@ void CLK_SetSysTickClockSrc(uint32_t u32ClkSrc)
   * @details    This function enable clock source. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableXtalRC(uint32_t u32ClkMask)
 {
     CLK->PWRCTL |= u32ClkMask;
@@ -517,6 +517,7 @@ void CLK_EnableXtalRC(uint32_t u32ClkMask)
   * @details    This function disable clock source. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_DisableXtalRC(uint32_t u32ClkMask)
 {
     CLK->PWRCTL &= ~u32ClkMask;
@@ -582,6 +583,7 @@ void CLK_DisableXtalRC(uint32_t u32ClkMask)
   * @return     None
   * @details    This function enable module clock.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableModuleClock(uint32_t u32ModuleIdx)
 {
     uint32_t u32ClkTbl[3] = {0x0, 0x4, 0x8};
@@ -649,6 +651,7 @@ void CLK_EnableModuleClock(uint32_t u32ModuleIdx)
   * @return     None
   * @details    This function disable module clock.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_DisableModuleClock(uint32_t u32ModuleIdx)
 {
     uint32_t u32ClkTbl[3] = {0x0, 0x4, 0x8};
@@ -667,6 +670,7 @@ void CLK_DisableModuleClock(uint32_t u32ModuleIdx)
   * @details    This function is used to configure PLLCTL register to set specified PLL frequency. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t CLK_EnablePLL(uint32_t u32PllClkSrc, uint32_t u32PllFreq)
 {
     uint32_t u32PllSrcClk, u32NR, u32NF, u32NO, u32CLK_SRC;
@@ -791,6 +795,7 @@ lexit:
   * @details    This function set PLL in Power-down mode. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_DisablePLL(void)
 {
     CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
@@ -808,6 +813,7 @@ void CLK_DisablePLL(void)
   * @retval     1  clock is stable
   * @details    To wait for clock ready by specified clock source stable flag or timeout (~300ms)
   */
+__attribute__((cmse_nonsecure_entry))
 uint32_t CLK_WaitClockReady(uint32_t u32ClkMask)
 {
     int32_t i32TimeOutCnt = 2400000;
@@ -835,26 +841,28 @@ uint32_t CLK_WaitClockReady(uint32_t u32ClkMask)
   * @details    This function set System Tick clock source, reload value, enable System Tick counter and interrupt. \n
   *             The register write-protection function should be disabled before using this function.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableSysTick(uint32_t u32ClkSrc, uint32_t u32Count)
 {
     /* Set System Tick counter disabled */
-    SysTick->CTRL = 0;
+    SysTick_NS->CTRL = 0;
 
     /* Set System Tick clock source */
     if(u32ClkSrc == CLK_CLKSEL0_STCLKSEL_HCLK)
-        SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk;
+        SysTick_NS->CTRL |= SysTick_CTRL_CLKSOURCE_Msk;
     else
         CLK->CLKSEL0 = (CLK->CLKSEL0 & ~CLK_CLKSEL0_STCLKSEL_Msk) | u32ClkSrc;
 
     /* Set System Tick reload value */
-    SysTick->LOAD = u32Count;
+    SysTick_NS->LOAD = u32Count;
 
     /* Clear System Tick current value and counter flag */
-    SysTick->VAL = 0;
+    SysTick_NS->VAL = 0;
 
     /* Set System Tick interrupt enabled and counter enabled */
-    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
+    SysTick_NS->CTRL |= SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 }
+
 
 /**
   * @brief      Disable System Tick counter
@@ -862,10 +870,11 @@ void CLK_EnableSysTick(uint32_t u32ClkSrc, uint32_t u32Count)
   * @return     None
   * @details    This function disable System Tick counter.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_DisableSysTick(void)
 {
     /* Set System Tick counter disabled */
-    SysTick->CTRL = 0;
+    SysTick_NS->CTRL = 0;
 }
 
 /**
@@ -879,6 +888,7 @@ void CLK_DisableSysTick(void)
   * @return     None
   * @details    This function is used to set power-down mode.
   */
+__attribute__((cmse_nonsecure_entry))
 void CLK_SetPowerDownMode(uint32_t u32PDMode)
 {
     CLK->PMUCTL = (CLK->PMUCTL & (~CLK_PMUCTL_PDMSEL_Msk)) | (u32PDMode);
@@ -893,7 +903,7 @@ void CLK_SetPowerDownMode(uint32_t u32PDMode)
  * @return      None
  * @details     This function is used to enable Wake-up pin trigger type.
  */
-
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableDPDWKPin(uint32_t u32TriggerType)
 {
     CLK->PMUCTL = (CLK->PMUCTL & (~CLK_PMUCTL_WKPINEN_Msk)) | (u32TriggerType);
@@ -905,7 +915,7 @@ void CLK_EnableDPDWKPin(uint32_t u32TriggerType)
  * @return      None
  * @details     This function get power manager wake up source.
  */
-
+__attribute__((cmse_nonsecure_entry))
 uint32_t CLK_GetPMUWKSrc(void)
 {
     return (CLK->PMUSTS);
@@ -924,7 +934,7 @@ uint32_t CLK_GetPMUWKSrc(void)
  * @return      None
  * @details     This function is used to set specified GPIO as wake up source at Stand-by Power down mode.
  */
-
+__attribute__((cmse_nonsecure_entry))
 void CLK_EnableSPDWKPin(uint32_t u32Port, uint32_t u32Pin, uint32_t u32TriggerType, uint32_t u32DebounceEn)
 {
     CLK_T *pclk;
@@ -941,9 +951,7 @@ void CLK_EnableSPDWKPin(uint32_t u32Port, uint32_t u32Pin, uint32_t u32TriggerTy
   * @return     PLL frequency
   * @details    This function get PLL frequency. The frequency unit is Hz.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetPLLClockFreq(void)
 {
     uint32_t u32PllFreq = 0, u32PllReg;
@@ -973,7 +981,7 @@ uint32_t CLK_GetPLLClockFreq(void)
 
     return u32PllFreq;
 }
-#endif
+
 /**
   * @brief      Get selected module clock source
   * @param[in]  u32ModuleIdx is module index.
@@ -1013,9 +1021,7 @@ uint32_t CLK_GetPLLClockFreq(void)
   * @return     Selected module clock source setting
   * @details    This function get selected module clock source.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
 {
     uint32_t u32sel = 0;
@@ -1042,7 +1048,7 @@ uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
     else
         return 0;
 }
-#endif
+
 /**
   * @brief      Get selected module clock divider number
   * @param[in]  u32ModuleIdx is module index.
@@ -1064,9 +1070,7 @@ uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
   * @return     Selected module clock divider number setting
   * @details    This function get selected module clock divider number.
   */
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-//#endif
 uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
 {
     uint32_t u32div = 0;
@@ -1083,7 +1087,6 @@ uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
         return 0;
 }
 #endif
-
 
 /*@}*/ /* end of group CLK_EXPORTED_FUNCTIONS */
 

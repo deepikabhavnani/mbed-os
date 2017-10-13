@@ -1231,7 +1231,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @return     None
   * @details    This macro clear Brown-out detector interrupt flag.
   */
-#define SYS_CLEAR_BOD_INT_FLAG()        (SYS->BODCTL |= SYS_BODCTL_BODIF_Msk)
+#define SYS_CLEAR_BOD_INT_FLAG()        (SYS_S->BODCTL |= SYS_BODCTL_BODIF_Msk)
 
 /**
   * @brief      Set Brown-out detector function to normal mode
@@ -1240,7 +1240,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro set Brown-out detector to normal mode.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_CLEAR_BOD_LPM()             (SYS->BODCTL &= ~SYS_BODCTL_BODLPM_Msk)
+#define SYS_CLEAR_BOD_LPM()             (SYS_S->BODCTL &= ~SYS_BODCTL_BODLPM_Msk)
 
 /**
   * @brief      Disable Brown-out detector function
@@ -1249,7 +1249,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro disable Brown-out detector function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_DISABLE_BOD()               (SYS->BODCTL &= ~SYS_BODCTL_BODEN_Msk)
+#define SYS_DISABLE_BOD()               (SYS_S->BODCTL &= ~SYS_BODCTL_BODEN_Msk)
 
 /**
   * @brief      Enable Brown-out detector function
@@ -1258,7 +1258,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro enable Brown-out detector function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_ENABLE_BOD()                (SYS->BODCTL |= SYS_BODCTL_BODEN_Msk)
+#define SYS_ENABLE_BOD()                (SYS_S->BODCTL |= SYS_BODCTL_BODEN_Msk)
 
 /**
   * @brief      Get Brown-out detector interrupt flag
@@ -1267,7 +1267,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Brown-out detect interrupt flag is set.
   * @details    This macro get Brown-out detector interrupt flag.
   */
-#define SYS_GET_BOD_INT_FLAG()          (SYS->BODCTL & SYS_BODCTL_BODIF_Msk)
+#define SYS_GET_BOD_INT_FLAG()          (SYS_S->BODCTL & SYS_BODCTL_BODIF_Msk)
 
 /**
   * @brief      Get Brown-out detector status
@@ -1277,7 +1277,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro get Brown-out detector output status.
   *             If the BOD function is disabled, this function always return 0.
   */
-#define SYS_GET_BOD_OUTPUT()            (SYS->BODCTL & SYS_BODCTL_BODOUT_Msk)
+#define SYS_GET_BOD_OUTPUT()            (SYS_S->BODCTL & SYS_BODCTL_BODOUT_Msk)
 
 /**
   * @brief      Enable Brown-out detector interrupt function
@@ -1286,7 +1286,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro enable Brown-out detector interrupt function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_DISABLE_BOD_RST()           (SYS->BODCTL &= ~SYS_BODCTL_BODRSTEN_Msk)
+#define SYS_DISABLE_BOD_RST()           (SYS_S->BODCTL &= ~SYS_BODCTL_BODRSTEN_Msk)
 
 /**
   * @brief      Enable Brown-out detector reset function
@@ -1295,7 +1295,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro enable Brown-out detect reset function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_ENABLE_BOD_RST()            (SYS->BODCTL |= SYS_BODCTL_BODRSTEN_Msk)
+#define SYS_ENABLE_BOD_RST()            (SYS_S->BODCTL |= SYS_BODCTL_BODRSTEN_Msk)
 
 /**
   * @brief      Set Brown-out detector function low power mode
@@ -1304,7 +1304,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro set Brown-out detector to low power mode.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_SET_BOD_LPM()               (SYS->BODCTL |= SYS_BODCTL_BODLPM_Msk)
+#define SYS_SET_BOD_LPM()               (SYS_S->BODCTL |= SYS_BODCTL_BODLPM_Msk)
 
 /**
   * @brief      Set Brown-out detector voltage level
@@ -1321,7 +1321,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro set Brown-out detector voltage level.
   *             The write-protection function should be disabled before using this macro.
   */
-#define SYS_SET_BOD_LEVEL(u32Level)     (SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | (u32Level))
+#define SYS_SET_BOD_LEVEL(u32Level)     (SYS_S->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | (u32Level))
 
 /**
   * @brief      Get reset source is from Brown-out detector reset
@@ -1330,7 +1330,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from Brown-out detector reset
   * @details    This macro get previous reset source is from Brown-out detect reset or not.
   */
-#define SYS_IS_BOD_RST()                (SYS->RSTSTS & SYS_RSTSTS_BODRF_Msk)
+#define SYS_IS_BOD_RST()                (SYS_S->RSTSTS & SYS_RSTSTS_BODRF_Msk)
 
 /**
   * @brief      Get reset source is from CPU reset
@@ -1339,7 +1339,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from CPU reset
   * @details    This macro get previous reset source is from CPU reset.
   */
-#define SYS_IS_CPU_RST()                (SYS->RSTSTS & SYS_RSTSTS_CPURF_Msk)
+#define SYS_IS_CPU_RST()                (SYS_S->RSTSTS & SYS_RSTSTS_CPURF_Msk)
 
 /**
   * @brief      Get reset source is from LVR Reset
@@ -1348,7 +1348,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from Low-Voltage-Reset
   * @details    This macro get previous reset source is from Low-Voltage-Reset.
   */
-#define SYS_IS_LVR_RST()                (SYS->RSTSTS & SYS_RSTSTS_LVRF_Msk)
+#define SYS_IS_LVR_RST()                (SYS_S->RSTSTS & SYS_RSTSTS_LVRF_Msk)
 
 /**
   * @brief      Get reset source is from Power-on Reset
@@ -1357,7 +1357,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from Power-on Reset
   * @details    This macro get previous reset source is from Power-on Reset.
   */
-#define SYS_IS_POR_RST()                (SYS->RSTSTS & SYS_RSTSTS_PORF_Msk)
+#define SYS_IS_POR_RST()                (SYS_S->RSTSTS & SYS_RSTSTS_PORF_Msk)
 
 /**
   * @brief      Get reset source is from reset pin reset
@@ -1366,7 +1366,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from reset pin reset
   * @details    This macro get previous reset source is from reset pin reset.
   */
-#define SYS_IS_RSTPIN_RST()             (SYS->RSTSTS & SYS_RSTSTS_PINRF_Msk)
+#define SYS_IS_RSTPIN_RST()             (SYS_S->RSTSTS & SYS_RSTSTS_PINRF_Msk)
 
 /**
   * @brief      Get reset source is from system reset
@@ -1375,7 +1375,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from system reset
   * @details    This macro get previous reset source is from system reset.
   */
-#define SYS_IS_SYSTEM_RST()             (SYS->RSTSTS & SYS_RSTSTS_SYSRF_Msk)
+#define SYS_IS_SYSTEM_RST()             (SYS_S->RSTSTS & SYS_RSTSTS_SYSRF_Msk)
 
 /**
   * @brief      Get reset source is from window watch dog reset
@@ -1384,7 +1384,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @retval     >=1 Previous reset source is from window watch dog reset
   * @details    This macro get previous reset source is from window watch dog reset.
   */
-#define SYS_IS_WDT_RST()                (SYS->RSTSTS & SYS_RSTSTS_WDTRF_Msk)
+#define SYS_IS_WDT_RST()                (SYS_S->RSTSTS & SYS_RSTSTS_WDTRF_Msk)
 
 /**
   * @brief      Disable Low-Voltage-Reset function
@@ -1393,7 +1393,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro disable Low-Voltage-Reset function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_DISABLE_LVR()               (SYS->BODCTL &= ~SYS_BODCTL_LVREN_Msk)
+#define SYS_DISABLE_LVR()               (SYS_S->BODCTL &= ~SYS_BODCTL_LVREN_Msk)
 
 /**
   * @brief      Enable Low-Voltage-Reset function
@@ -1402,7 +1402,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro enable Low-Voltage-Reset function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_ENABLE_LVR()                (SYS->BODCTL |= SYS_BODCTL_LVREN_Msk)
+#define SYS_ENABLE_LVR()                (SYS_S->BODCTL |= SYS_BODCTL_LVREN_Msk)
 
 /**
   * @brief      Disable Power-on Reset function
@@ -1411,7 +1411,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro disable Power-on Reset function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_DISABLE_POR()               (SYS->PORCTL = 0x5AA5)
+#define SYS_DISABLE_POR()               (SYS_S->PORCTL = 0x5AA5)
 
 /**
   * @brief      Enable Power-on Reset function
@@ -1420,7 +1420,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @details    This macro enable Power-on Reset function.
   *             The register write-protection function should be disabled before using this macro.
   */
-#define SYS_ENABLE_POR()                (SYS->PORCTL = 0)
+#define SYS_ENABLE_POR()                (SYS_S->PORCTL = 0)
 
 /**
   * @brief      Clear reset source flag
@@ -1436,7 +1436,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   * @return     None
   * @details    This macro clear reset source flag.
   */
-#define SYS_CLEAR_RST_SOURCE(u32RstSrc) ((SYS->RSTSTS) = (u32RstSrc) )
+#define SYS_CLEAR_RST_SOURCE(u32RstSrc) ((SYS_S->RSTSTS) = (u32RstSrc) )
 
 
 
@@ -1452,11 +1452,11 @@ __STATIC_INLINE void SYS_UnlockReg(void)
 {
     do
     {
-        SYS->REGLCTL = 0x59;
-        SYS->REGLCTL = 0x16;
-        SYS->REGLCTL = 0x88;
+        SYS_S->REGLCTL = 0x59;
+        SYS_S->REGLCTL = 0x16;
+        SYS_S->REGLCTL = 0x88;
     }
-    while(SYS->REGLCTL == 0);
+    while(SYS_S->REGLCTL == 0);
 }
 
 /**
@@ -1468,9 +1468,8 @@ __STATIC_INLINE void SYS_UnlockReg(void)
   */
 __STATIC_INLINE void SYS_LockReg(void)
 {
-    SYS->REGLCTL = 0;
+    SYS_S->REGLCTL = 0;
 }
-
 
 void SYS_ClearResetSrc(uint32_t u32Src);
 uint32_t SYS_GetBODStatus(void);
