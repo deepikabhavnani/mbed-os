@@ -38,15 +38,20 @@ static inline void gpio_write(gpio_t *obj, int value)
     MBED_ASSERT(obj->pin != (PinName)NC);    
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
+    
 #if defined (NVIC_INIT_ITNS0_VAL)
+    // GPIO is non-secure hence can be accessed
     if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-		{
-			GPIO_PIN_DATA_NS(port_index, pin_index) = value ? 1 : 0;
-		} else {
-			GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
-		}
-#else
+    {
         GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
+    }
+    // For secure GPIO we need secure callable function
+    else {
+        // TODO: cmse_nonsecure_entry
+        MBED_ASSERT(1);
+    }
+#else
+    GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
 #endif
 }
 
@@ -57,13 +62,16 @@ static inline int gpio_read(gpio_t *obj)
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
 #if defined (NVIC_INIT_ITNS0_VAL)
     if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-		{    
-			return (GPIO_PIN_DATA_NS(port_index, pin_index) ? 1 : 0);			
-		} else {	
-			return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
-		}	
-#else
+    {
         return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
+    }
+	// For secure GPIO we need secure callable function
+    else {
+        // TODO: cmse_nonsecure_entry
+        MBED_ASSERT(1);
+    }
+#else
+    return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
 #endif
 }
 

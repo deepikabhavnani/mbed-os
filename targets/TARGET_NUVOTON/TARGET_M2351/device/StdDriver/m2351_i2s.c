@@ -82,6 +82,16 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
   *          The actual sample rate may be different from the target sample rate. The real sample rate will be returned for reference.
   * @note   Both the TX and RX functions will be enabled.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+void I2S_ResetAll(void)
+{
+    /* Reset I2S */
+    SYS_S->IPRST1 |= SYS_IPRST1_I2S0RST_Msk;
+    SYS_S->IPRST1 &= ~SYS_IPRST1_I2S0RST_Msk;
+}
+#endif
+
 uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, uint32_t u32WordWidth, uint32_t u32Channels, uint32_t u32DataFormat)
 {
     if (!(__PC() & (1 << 28)))
@@ -90,8 +100,7 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
         uint32_t u32BitRate, u32SrcClk;
 
         /* Reset I2S */
-        SYS->IPRST1 |= SYS_IPRST1_I2S0RST_Msk;
-        SYS->IPRST1 &= ~SYS_IPRST1_I2S0RST_Msk;
+        I2S_ResetAll();
 
         /* Configure I2S controller according to input parameters. */
         i2s->CTL0 = u32MasterSlave | u32WordWidth | u32Channels | u32DataFormat | I2S_FIFO_TX_LEVEL_WORD_4 | I2S_FIFO_RX_LEVEL_WORD_4;

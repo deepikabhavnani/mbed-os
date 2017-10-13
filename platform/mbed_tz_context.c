@@ -28,7 +28,7 @@
 
 /// Stack size of the secure library code
 #ifndef TZ_PROCESS_STACK_SIZE
-#define TZ_PROCESS_STACK_SIZE      256U
+#define TZ_PROCESS_STACK_SIZE      512U
 #endif
 
 typedef struct {

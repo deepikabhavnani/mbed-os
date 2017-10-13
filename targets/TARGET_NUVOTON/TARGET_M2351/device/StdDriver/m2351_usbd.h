@@ -48,7 +48,6 @@ extern const S_USBD_INFO_T gsInfo;
   @{
 */
 #define USBD_BUF_BASE      (USBD_BASE+0x100)
-#define USBD_BUF_BASE_NS   (USBD_BASE+NS_OFFSET+0x100)
 #define USBD_MAX_EP        12
 
 #define EP0     0       /*!< Endpoint 0 */
@@ -224,11 +223,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_ENABLE_USB()           ((uint32_t)(USBD->ATTR |= 0x7D0))
 
 /**
-  * @brief    Enable USB Macro for Non-Secure
-  */
-#define USBD_ENABLE_USB_NS()        ((uint32_t)(USBD_NS->ATTR |= 0x7D0))
-
-/**
   * @brief    Disable USB
   *
   * @param    None
@@ -239,11 +233,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_DISABLE_USB()          ((uint32_t)(USBD->ATTR &= ~USBD_USB_EN))
-
-/**
-  * @brief    Disable USB Macro for Non-Secure
-  */
-#define USBD_DISABLE_USB_NS()       ((uint32_t)(USBD_NS->ATTR &= ~USBD_USB_EN))
 
 /**
   * @brief    Enable USB PHY
@@ -258,11 +247,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_ENABLE_PHY()           ((uint32_t)(USBD->ATTR |= USBD_PHY_EN))
 
 /**
-  * @brief    Enable USB PHY Macro for Non-Secure
-  */
-#define USBD_ENABLE_PHY_NS()        ((uint32_t)(USBD_NS->ATTR |= USBD_PHY_EN))
-
-/**
   * @brief    Disable USB PHY
   *
   * @param    None
@@ -273,11 +257,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_DISABLE_PHY()          ((uint32_t)(USBD->ATTR &= ~USBD_PHY_EN))
-
-/**
-  * @brief    Disable USB PHY Macro for Non-Secure
-  */
-#define USBD_DISABLE_PHY_NS()       ((uint32_t)(USBD_NS->ATTR &= ~USBD_PHY_EN))
 
 /**
   * @brief    Enable SE0. Force USB PHY transceiver to drive SE0.
@@ -292,11 +271,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_SE0()              ((uint32_t)(USBD->SE0 |= USBD_DRVSE0))
 
 /**
-  * @brief    Enable SE0 Macro for Non-Secure. Force USB PHY transceiver to drive SE0.
-  */
-#define USBD_SET_SE0_NS()           ((uint32_t)(USBD_NS->SE0 |= USBD_DRVSE0))
-
-/**
   * @brief    Disable SE0
   *
   * @param    None
@@ -307,11 +281,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_CLR_SE0()              ((uint32_t)(USBD->SE0 &= ~USBD_DRVSE0))
-
-/**
-  * @brief    Disable SE0 Macro for Non-Secure
-  */
-#define USBD_CLR_SE0_NS()           ((uint32_t)(USBD_NS->SE0 &= ~USBD_DRVSE0))
 
 /**
   * @brief       Set USB device address
@@ -326,11 +295,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_ADDR(addr)         (USBD->FADDR = (addr))
 
 /**
-  * @brief       Set USB device address Macro for Non-Secure
-  */
-#define USBD_SET_ADDR_NS(addr)      (USBD_NS->FADDR = (addr))
-
-/**
   * @brief    Get USB device address
   *
   * @param    None
@@ -341,11 +305,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_ADDR()             ((uint32_t)(USBD->FADDR))
-
-/**
-  * @brief    Get USB device address Macro for Non-Secure
-  */
-#define USBD_GET_ADDR_NS()          ((uint32_t)(USBD_NS->FADDR))
 
 /**
   * @brief      Enable USB interrupt function
@@ -363,11 +322,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_ENABLE_INT(intr)       (USBD->INTEN |= (intr))
 
 /**
-  * @brief      Enable USB interrupt function Macro for Non-Secure
-  */
-#define USBD_ENABLE_INT_NS(intr)    (USBD_NS->INTEN |= (intr))
-
-/**
   * @brief    Get interrupt status
   *
   * @param    None
@@ -378,11 +332,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_INT_FLAG()         ((uint32_t)(USBD->INTSTS))
-
-/**
-  * @brief    Get interrupt status Macro for Non-Secure
-  */
-#define USBD_GET_INT_FLAG_NS()      ((uint32_t)(USBD_NS->INTSTS))
 
 /**
   * @brief      Clear USB interrupt flag
@@ -400,11 +349,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_CLR_INT_FLAG(flag)     (USBD->INTSTS = (flag))
 
 /**
-  * @brief      Clear USB interrupt flag Macro for Non-Secure
-  */
-#define USBD_CLR_INT_FLAG_NS(flag)  (USBD_NS->INTSTS = (flag))
-
-/**
   * @brief    Get endpoint status
   *
   * @param    None
@@ -415,11 +359,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_EP_FLAG()          ((uint32_t)(USBD->EPSTS))
-
-/**
-  * @brief    Get endpoint status Macro for Non-Secure
-  */
-#define USBD_GET_EP_FLAG_NS()       ((uint32_t)(USBD_NS->EPSTS))
 
 /**
   * @brief    Get USB bus state
@@ -438,11 +377,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_GET_BUS_STATE()        ((uint32_t)(USBD->ATTR & 0xf))
 
 /**
-  * @brief    Get USB bus state Macro for Non-Secure
-  */
-#define USBD_GET_BUS_STATE_NS()     ((uint32_t)(USBD_NS->ATTR & 0xf))
-
-/**
   * @brief    Check cable connection state
   *
   * @param    None
@@ -456,11 +390,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_IS_ATTACHED()          ((uint32_t)(USBD->VBUSDET & USBD_VBUSDET_VBUSDET_Msk))
 
 /**
-  * @brief    Check cable connection state Macro for Non-Secure
-  */
-#define USBD_IS_ATTACHED_NS()       ((uint32_t)(USBD_NS->VBUSDET & USBD_VBUSDET_VBUSDET_Msk))
-
-/**
   * @brief      Stop USB transaction of the specified endpoint ID
   *
   * @param[in]  ep The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -471,11 +400,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_STOP_TRANSACTION(ep)      (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk)
-
-/**
-  * @brief      Stop USB transaction of the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_STOP_TRANSACTION_NS(ep)   (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk)
 
 /**
   * @brief      Set USB DATA1 PID for the specified endpoint ID
@@ -491,11 +415,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_DATA1(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk)
 
 /**
-  * @brief      Set USB DATA1 PID for the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_SET_DATA1_NS(ep)       (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk)
-
-/**
   * @brief      Set USB DATA0 PID for the specified endpoint ID
   *
   * @param[in]  ep The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -507,11 +426,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_SET_DATA0(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk))
-
-/**
-  * @brief      Set USB DATA0 PID for the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_SET_DATA0_NS(ep)       (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk))
 
 /**
   * @brief      Set USB payload size (IN data)
@@ -528,11 +442,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_PAYLOAD_LEN(ep, size)     (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size))
 
 /**
-  * @brief      Set USB payload size (IN data) Macro for Non-Secure
-  */
-#define USBD_SET_PAYLOAD_LEN_NS(ep, size)  (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size))
-
-/**
   * @brief      Get USB payload size (OUT data)
   *
   * @param[in]  ep The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -543,11 +452,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_PAYLOAD_LEN(ep)        ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4))))
-
-/**
-  * @brief      Get USB payload size (OUT data) Macro for Non-Secure
-  */
-#define USBD_GET_PAYLOAD_LEN_NS(ep)     ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4))))
 
 /**
   * @brief      Configure endpoint
@@ -564,11 +468,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_CONFIG_EP(ep, config)      (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) = (config))
 
 /**
-  * @brief      Configure endpoint Macro for Non-Secure
-  */
-#define USBD_CONFIG_EP_NS(ep, config)   (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) = (config))
-
-/**
   * @brief      Set USB endpoint buffer
   *
   * @param[in]  ep The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -583,11 +482,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_EP_BUF_ADDR(ep, offset)       (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset))
 
 /**
-  * @brief      Set USB endpoint buffer Macro for Non-Secure
-  */
-#define USBD_SET_EP_BUF_ADDR_NS(ep, offset)    (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset))
-
-/**
   * @brief      Get the offset of the specified USB endpoint buffer
   *
   * @param[in]  ep The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -598,11 +492,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_EP_BUF_ADDR(ep)        ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4))))
-
-/**
-  * @brief      Get the offset of the specified USB endpoint buffer Macro for Non-Secure
-  */
-#define USBD_GET_EP_BUF_ADDR_NS(ep)     ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4))))
 
 /**
   * @brief       Set USB endpoint stall state
@@ -617,11 +506,6 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_SET_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk)
 
 /**
-  * @brief       Set USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_SET_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk)
-
-/**
   * @brief       Clear USB endpoint stall state
   *
   * @param[in]   ep  The USB endpoint ID. M2351 Series supports 12 hardware endpoint ID. This parameter could be 0 ~ 11.
@@ -631,11 +515,6 @@ extern const S_USBD_INFO_T gsInfo;
   * @details     Clear USB endpoint stall state for the specified endpoint ID. Endpoint will respond ACK/NAK token.
   */
 #define USBD_CLR_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk)
-
-/**
-  * @brief       Clear USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_CLR_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk)
 
 /**
   * @brief       Get USB endpoint stall state
@@ -649,11 +528,6 @@ extern const S_USBD_INFO_T gsInfo;
   *
   */
 #define USBD_GET_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk)
-
-/**
-  * @brief       Get USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_GET_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk)
 
 /**
   * @brief      To support byte access between USB SRAM and system SRAM
@@ -707,30 +581,6 @@ static __INLINE void USBD_SetStall(uint8_t epnum)
     }
 }
 
-/**
-  * @brief       Set USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE void USBD_SetStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
-            u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-            *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg | USBD_CFGP_SSTALL);
-            break;
-        }
-    }
-}
 
 /**
   * @brief       Clear USB endpoint stall state
@@ -755,31 +605,6 @@ static __INLINE void USBD_ClearStall(uint8_t epnum)
         if((u32Cfg & 0xf) == epnum)
         {
             u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
-            u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-            *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg & ~USBD_CFGP_SSTALL);
-            break;
-        }
-    }
-}
-
-/**
-  * @brief       Clear USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE void USBD_ClearStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
             u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
             *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg & ~USBD_CFGP_SSTALL);
@@ -820,30 +645,6 @@ static __INLINE uint32_t USBD_GetStall(uint8_t epnum)
     return ((*((__IO uint32_t *)(u32CfgAddr))) & USBD_CFGP_SSTALL);
 }
 
-/**
-  * @brief       Get USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE uint32_t USBD_GetStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
-            break;
-        }
-    }
-
-    return ((*((__IO uint32_t *)(u32CfgAddr))) & USBD_CFGP_SSTALL);
-}
-
 extern volatile uint8_t g_usbd_RemoteWakeupEn;
 
 
@@ -868,15 +669,6 @@ void USBD_SetVendorRequest(VENDOR_REQ pfnVendorReq);
 void USBD_SetConfigCallback(SET_CONFIG_CB pfnSetConfigCallback);
 void USBD_LockEpStall(uint32_t u32EpBitmap);
 
-void USBD_Open_NS(const S_USBD_INFO_T *param, CLASS_REQ pfnClassReq, SET_INTERFACE_REQ pfnSetInterface);
-void USBD_Start_NS(void);
-void USBD_ProcessSetupPacket_NS(void);
-void USBD_StandardRequest_NS(void);
-void USBD_PrepareCtrlIn_NS(uint8_t *pu8Buf, uint32_t u32Size);
-void USBD_CtrlIn_NS(void);
-void USBD_PrepareCtrlOut_NS(uint8_t *pu8Buf, uint32_t u32Size);
-void USBD_CtrlOut_NS(void);
-void USBD_SwReset_NS(void);
 
 /*@}*/ /* end of group USBD_EXPORTED_FUNCTIONS */
 

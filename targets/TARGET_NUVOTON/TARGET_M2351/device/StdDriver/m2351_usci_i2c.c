@@ -38,7 +38,7 @@ uint32_t UI2C_Open(UI2C_T *ui2c, uint32_t u32BusClock)
     uint32_t u32ClkDiv;
     uint32_t u32Pclk;
 
-    if((ui2c == UI2C1)||(ui2c == UI2C1_NS))
+    if(ui2c == UI2C1)
         u32Pclk = CLK_GetPCLK1Freq();
     else
         u32Pclk = CLK_GetPCLK0Freq();
@@ -236,7 +236,7 @@ uint32_t UI2C_GetBusClockFreq(UI2C_T *ui2c)
     uint32_t u32Divider;
     uint32_t u32Pclk;
 
-    if((ui2c == UI2C1)||(ui2c == UI2C1_NS))
+    if(ui2c == UI2C1)
         u32Pclk = CLK_GetPCLK1Freq();
     else
         u32Pclk = CLK_GetPCLK0Freq();
@@ -261,7 +261,7 @@ uint32_t UI2C_SetBusClockFreq(UI2C_T *ui2c, uint32_t u32BusClock)
     uint32_t u32ClkDiv;
     uint32_t u32Pclk;
 
-    if((ui2c == UI2C1)||(ui2c == UI2C1_NS))
+    if(ui2c == UI2C1)
         u32Pclk = CLK_GetPCLK1Freq();
     else
         u32Pclk = CLK_GetPCLK0Freq();

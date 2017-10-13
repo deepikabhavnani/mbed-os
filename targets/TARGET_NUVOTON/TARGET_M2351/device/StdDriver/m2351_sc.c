@@ -44,15 +44,15 @@ uint32_t SC_IsCardInserted(SC_T *sc)
     uint32_t cond1 = ((sc->STATUS & SC_STATUS_CDPINSTS_Msk) >> SC_STATUS_CDPINSTS_Pos);
     uint32_t cond2 = ((sc->CTL & SC_CTL_CDLV_Msk) >> SC_CTL_CDLV_Pos);
 
-    if(((sc == SC0) || (sc == SC0_NS)) && (u32CardStateIgnore[0] == 1UL))
+    if((sc == SC0) && (u32CardStateIgnore[0] == 1UL))
     {
         ret = (uint32_t)TRUE;
     }
-    else if(((sc == SC1) || (sc == SC1_NS)) && (u32CardStateIgnore[1] == 1UL))
+    else if((sc == SC1) && (u32CardStateIgnore[1] == 1UL))
     {
         ret = (uint32_t)TRUE;
     }
-    else if(((sc == SC2) || (sc == SC2_NS)) && (u32CardStateIgnore[2] == 1UL))
+    else if((sc == SC2) && (u32CardStateIgnore[2] == 1UL))
     {
         ret = (uint32_t)TRUE;
     }
@@ -131,11 +131,11 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
 {
     uint32_t u32Reg = 0UL, u32Intf;
 
-    if((sc == SC0) || (sc == SC0_NS))
+    if(sc == SC0)
     {
         u32Intf = 0UL;
     }
-    else if((sc == SC1) || (sc == SC1_NS))
+    else if(sc == SC1)
     {
         u32Intf = 1UL;
     }
@@ -174,11 +174,11 @@ void SC_ResetReader(SC_T *sc)
 {
     uint32_t u32Intf;
 
-    if((sc == SC0) || (sc == SC0_NS))
+    if(sc == SC0)
     {
         u32Intf = 0UL;
     }
-    else if((sc == SC1) || (sc == SC1_NS))
+    else if(sc == SC1)
     {
         u32Intf = 1UL;
     }

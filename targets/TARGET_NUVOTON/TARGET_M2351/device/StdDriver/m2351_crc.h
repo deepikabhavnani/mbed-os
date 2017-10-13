@@ -69,10 +69,6 @@ extern "C"
   *             to CRC controller.
   */
 #define CRC_SET_SEED(u32Seed)       { CRC->SEED = (u32Seed); CRC->CTL |= CRC_CTL_CHKSINIT_Msk; }
-/**
-  * @brief      Set CRC Seed Value Macro for Non-Secure
-  */
-#define CRC_SET_SEED_NS(u32Seed)    { CRC_NS->SEED = (u32Seed); CRC_NS->CTL |= CRC_CTL_CHKSINIT_Msk; }
 
 /**
   * @brief      Get CRC Seed Value
@@ -84,10 +80,6 @@ extern "C"
   * @details    This macro gets the current CRC seed value.
   */
 #define CRC_GET_SEED()              (CRC->SEED)
-/**
-  * @brief      Get CRC Seed Value Macro for Non-Secure
-  */
-#define CRC_GET_SEED_NS()           (CRC_NS->SEED)
 
 /**
   * @brief      CRC Write Data
@@ -99,16 +91,10 @@ extern "C"
   * @details    User can write data directly to CRC Write Data Register(CRC_DAT) by this macro to perform CRC operation.
   */
 #define CRC_WRITE_DATA(u32Data)         (CRC->DAT = (u32Data))
-/**
-  * @brief      CRC Write Data Macro for Non-Secure
-  */
-#define CRC_WRITE_DATA_NS(u32Data)      (CRC_NS->DAT = (u32Data))
 
 
 void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen);
-void CRC_Open_NS(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen);
 uint32_t CRC_GetChecksum(void);
-uint32_t CRC_GetChecksum_NS(void);
 
 /*@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */
 

@@ -62,6 +62,18 @@ uint32_t SPI5_Open(SPI5_T *spi,
 }
 
 /**
+  * @brief Reset SPI5 module
+  */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+void SPI5_Reset(void) 
+{
+    SYS_S->IPRST2 |= SYS_IPRST2_SPI5RST_Msk;
+    SYS_S->IPRST2 &= ~SYS_IPRST2_SPI5RST_Msk;
+}
+#endif
+
+/**
   * @brief Reset SPI5 module and disable SPI5 peripheral clock.
   * @param[in]  spi is the base address of SPI5 module.
   * @return none
@@ -74,8 +86,7 @@ void SPI5_Close(SPI5_T *spi)
         if((uint32_t)spi == SPI5_BASE && (CLK->APBCLK1 & CLK_APBCLK1_SPI5CKEN_Msk))
         {
             CLK->APBCLK1 &= ~CLK_APBCLK1_SPI5CKEN_Msk;
-            SYS->IPRST2 |= SYS_IPRST2_SPI5RST_Msk;
-            SYS->IPRST2 &= ~SYS_IPRST2_SPI5RST_Msk;
+            SPI5_Reset();
             CLK->APBCLK1 |=  CLK_APBCLK1_SPI5CKEN_Msk;
         }
     }
@@ -149,7 +160,7 @@ uint32_t SPI5_SetBusClock(SPI5_T *spi, uint32_t u32BusClock)
         }
 
         /* Check clock source of SPI5 */
-        if((spi == SPI5) || (spi == SPI5_NS))
+        if(spi == SPI5)
         {
             if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_HXT)
                 u32ClkSrc = __HXT; /* Clock source is HXT */
@@ -255,7 +266,7 @@ uint32_t SPI5_GetBusClock(SPI5_T *spi)
     u32HCLKFreq = CLK_GetHCLKFreq();
 
     /* Check clock source of SPI5 */
-    if((spi == SPI5) || (spi == SPI5_NS))
+    if(spi == SPI5)
     {
         if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_HXT)
             u32ClkSrc = __HXT; /* Clock source is HXT */

@@ -48,7 +48,7 @@ void DAC_Open(DAC_T *dac,
               uint32_t u32TrgSrc)
 {
     /* It's necessary to enable DAC1 to use DAC0 for engineering sample. */
-    if((dac == DAC0)||(dac == DAC0_NS))
+    if(dac == DAC0)
     {
         DAC1->CTL |= DAC_CTL_DACEN_Msk;
     }
@@ -79,7 +79,6 @@ void DAC_Close(DAC_T *dac, uint32_t u32Ch)
   */
 int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay)
 {
-
     dac->TCTL = ((CLK_GetPCLK1Freq() * u32Delay / 1000000UL) & 0x3FFUL);
 
     return ((dac->TCTL) * 1000000UL / CLK_GetPCLK1Freq());

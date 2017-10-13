@@ -345,7 +345,9 @@ extern "C" void PREFIX(_exit)(int return_code) {
 }
 
 extern "C" void _ttywrch(int ch) {
+#if DEVICE_SERIAL
     serial_putc(&stdio_uart, ch);
+#endif
 }
 #endif
 

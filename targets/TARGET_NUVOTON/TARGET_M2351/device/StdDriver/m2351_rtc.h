@@ -140,10 +140,6 @@ typedef struct
   * @details    According to current date, return this year is leap year or not.
   */
 #define RTC_IS_LEAP_YEAR()              (RTC->LEAPYEAR & RTC_LEAPYEAR_LEAPYEAR_Msk ? 1:0)
-/**
-  * @brief      Indicate is Leap Year or not Macro for Non-Secure
-  */
-#define RTC_IS_LEAP_YEAR_NS()           (RTC_NS->LEAPYEAR & RTC_LEAPYEAR_LEAPYEAR_Msk ? 1:0)
 
 /**
   * @brief      Clear RTC Alarm Interrupt Flag
@@ -155,10 +151,6 @@ typedef struct
   * @details    This macro is used to clear RTC alarm interrupt flag.
   */
 #define RTC_CLEAR_ALARM_INT_FLAG()      (RTC->INTSTS = RTC_INTSTS_ALMIF_Msk)
-/**
-  * @brief      Clear RTC Alarm Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_CLEAR_ALARM_INT_FLAG_NS()   (RTC_NS->INTSTS = RTC_INTSTS_ALMIF_Msk)
 
 /**
   * @brief      Clear RTC Tick Interrupt Flag
@@ -170,10 +162,6 @@ typedef struct
   * @details    This macro is used to clear RTC tick interrupt flag.
   */
 #define RTC_CLEAR_TICK_INT_FLAG()       (RTC->INTSTS = RTC_INTSTS_TICKIF_Msk)
-/**
-  * @brief      Clear RTC Tick Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_CLEAR_TICK_INT_FLAG_NS()    (RTC_NS->INTSTS = RTC_INTSTS_TICKIF_Msk)
 
 /**
   * @brief      Clear RTC Tamper Interrupt Flag
@@ -191,10 +179,6 @@ typedef struct
   * @details    This macro is used to clear RTC tamper pin interrupt flag.
   */
 #define RTC_CLEAR_TAMPER_INT_FLAG(u32TamperFlag)        (RTC->INTSTS = (u32TamperFlag))
-/**
-  * @brief      Clear RTC Tamper Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_CLEAR_TAMPER_INT_FLAG_NS(u32TamperFlag)     (RTC_NS->INTSTS = (u32TamperFlag))
 
 /**
   * @brief      Get RTC Alarm Interrupt Flag
@@ -207,10 +191,6 @@ typedef struct
   * @details    This macro indicates RTC alarm interrupt occurred or not.
   */
 #define RTC_GET_ALARM_INT_FLAG()        ((RTC->INTSTS & RTC_INTSTS_ALMIF_Msk)? 1:0)
-/**
-  * @brief      Get RTC Alarm Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_GET_ALARM_INT_FLAG_NS()     ((RTC_NS->INTSTS & RTC_INTSTS_ALMIF_Msk)? 1:0)
 
 /**
   * @brief      Get RTC Time Tick Interrupt Flag
@@ -223,10 +203,6 @@ typedef struct
   * @details    This macro indicates RTC time tick interrupt occurred or not.
   */
 #define RTC_GET_TICK_INT_FLAG()         ((RTC->INTSTS & RTC_INTSTS_TICKIF_Msk)? 1:0)
-/**
-  * @brief      Get RTC Time Tick Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_GET_TICK_INT_FLAG_NS()      ((RTC_NS->INTSTS & RTC_INTSTS_TICKIF_Msk)? 1:0)
 
 /**
   * @brief      Get RTC Tamper Interrupt Status
@@ -239,10 +215,6 @@ typedef struct
   * @details    This macro indicates RTC tamper event occurred or not.
   */
 #define RTC_GET_TAMPER_INT_STATUS()         ((RTC->INTSTS & (0x3F00))? 1:0)
-/**
-  * @brief      Get RTC Tamper Interrupt Status Macro for Non-Secure
-  */
-#define RTC_GET_TAMPER_INT_STATUS_NS()      ((RTC_NS->INTSTS & (0x3F00))? 1:0)
 
 /**
   * @brief      Get RTC Tamper Interrupt Flag
@@ -259,10 +231,6 @@ typedef struct
   * @details    This macro indicates RTC tamper interrupt flags.
   */
 #define RTC_GET_TAMPER_INT_FLAG()       ((RTC->INTSTS & (0x3F00)))
-/**
-  * @brief      Get RTC Tamper Interrupt Flag Macro for Non-Secure
-  */
-#define RTC_GET_TAMPER_INT_FLAG_NS()    ((RTC_NS->INTSTS & (0x3F00)))
 
 /**
   * @brief      Enable RTC Tick Wake-up Function
@@ -274,10 +242,6 @@ typedef struct
   * @details    This macro is used to enable RTC tick interrupt wake-up function.
   */
 #define RTC_ENABLE_TICK_WAKEUP()        (RTC->INTEN |= RTC_INTEN_TICKIEN_Msk);
-/**
-  * @brief      Enable RTC Tick Wake-up Function Macro for Non-Secure
-  */
-#define RTC_ENABLE_TICK_WAKEUP_NS()     (RTC_NS->INTEN |= RTC_INTEN_TICKIEN_Msk);
 
 /**
   * @brief      Disable RTC Tick Wake-up Function
@@ -289,10 +253,6 @@ typedef struct
   * @details    This macro is used to disable RTC tick interrupt wake-up function.
   */
 #define RTC_DISABLE_TICK_WAKEUP()       (RTC->INTEN &= ~RTC_INTEN_TICKIEN_Msk);
-/**
-  * @brief      Disable RTC Tick Wake-up Function Macro for Non-Secure
-  */
-#define RTC_DISABLE_TICK_WAKEUP_NS()    (RTC_NS->INTEN &= ~RTC_INTEN_TICKIEN_Msk);
 
 /**
   * @brief      Read Spare Register
@@ -306,10 +266,6 @@ typedef struct
   *             And its controlled by writing 0xA965 to RTC_RWEN[15:0](RTC Access Enable Register).
   */
 #define RTC_READ_SPARE_REGISTER(u32RegNum)              (RTC->SPR[(u32RegNum)])
-/**
-  * @brief      Read Spare Register Macro for Non-Secure
-  */
-#define RTC_READ_SPARE_REGISTER_NS(u32RegNum)           (RTC_NS->SPR[(u32RegNum)])
 
 /**
   * @brief      Write Spare Register
@@ -324,10 +280,6 @@ typedef struct
   *             And its controlled by writing 0xA965 to RTC_RWEN[15:0](RTC Access Enable Register).
   */
 #define RTC_WRITE_SPARE_REGISTER(u32RegNum, u32RegValue)        (RTC->SPR[(u32RegNum)] = (u32RegValue))
-/**
-  * @brief      Write Spare Register Macro for Non-Secure
-  */
-#define RTC_WRITE_SPARE_REGISTER_NS(u32RegNum, u32RegValue)     (RTC_NS->SPR[(u32RegNum)] = (u32RegValue))
 
 /**
   * @brief      Wait RTC Access Enable
@@ -347,19 +299,6 @@ static __INLINE void RTC_WaitAccessEnable(void)
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
     RTC->RWEN = RTC_WRITE_KEY;
     while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
-}
-/**
-  * @brief      Wait RTC Access Enable API for Non-Secure
-  */
-static __INLINE void RTC_WaitAccessEnable_NS(void)
-{
-    /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
-    RTC_NS->RWEN = 0x0; // clear RWENF immediately
-    while(RTC_NS->RWEN & RTC_RWEN_RWENF_Msk);
-
-    /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
-    RTC_NS->RWEN = RTC_WRITE_KEY;
-    while((RTC_NS->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
 }
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);
@@ -386,31 +325,6 @@ void RTC_StaticTamperDisable(uint32_t u32TamperSelect);
 void RTC_DynamicTamperEnable(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source);
 void RTC_DynamicTamperDisable(uint32_t u32PairSel);
 void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed);
-
-void RTC_Open_NS(S_RTC_TIME_DATA_T *sPt);
-void RTC_Close_NS(void);
-void RTC_32KCalibration_NS(int32_t i32FrequencyX10000);
-void RTC_GetDateAndTime_NS(S_RTC_TIME_DATA_T *sPt);
-void RTC_GetAlarmDateAndTime_NS(S_RTC_TIME_DATA_T *sPt);
-void RTC_SetDateAndTime_NS(S_RTC_TIME_DATA_T *sPt);
-void RTC_SetAlarmDateAndTime_NS(S_RTC_TIME_DATA_T *sPt);
-void RTC_SetDate_NS(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day, uint32_t u32DayOfWeek);
-void RTC_SetTime_NS(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint32_t u32TimeMode, uint32_t u32AmPm);
-void RTC_SetAlarmDate_NS(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day);
-void RTC_SetAlarmTime_NS(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint32_t u32TimeMode, uint32_t u32AmPm);
-void RTC_SetAlarmDateMask_NS(uint8_t u8IsTenYMsk, uint8_t u8IsYMsk, uint8_t u8IsTenMMsk, uint8_t u8IsMMsk, uint8_t u8IsTenDMsk, uint8_t u8IsDMsk);
-void RTC_SetAlarmTimeMaskv(uint8_t u8IsTenHMsk, uint8_t u8IsHMsk, uint8_t u8IsTenMMsk, uint8_t u8IsMMsk, uint8_t u8IsTenSMsk, uint8_t u8IsSMsk);
-uint32_t RTC_GetDayOfWeek_NS(void);
-void RTC_SetTickPeriod_NS(uint32_t u32TickSelection);
-void RTC_EnableInt_NS(uint32_t u32IntFlagMask);
-void RTC_DisableInt_NS(uint32_t u32IntFlagMask);
-void RTC_EnableSpareAccess_NS(void);
-void RTC_DisableSpareRegister_NS(void);
-void RTC_StaticTamperEnable_NS(uint32_t u32TamperSelect, uint32_t u32DetecLevel, uint32_t u32DebounceEn);
-void RTC_StaticTamperDisable_NS(uint32_t u32TamperSelect);
-void RTC_DynamicTamperEnable_NS(uint32_t u32PairSel, uint32_t u32DebounceEn, uint32_t u32Pair1Source, uint32_t u32Pair2Source);
-void RTC_DynamicTamperDisable_NS(uint32_t u32PairSel);
-void RTC_DynamicTamperConfig_NS(uint32_t u32ChangeRate, uint32_t u32SeedReload, uint32_t u32RefPattern, uint32_t u32Seed);
 
 /*@}*/ /* end of group RTC_EXPORTED_FUNCTIONS */
 

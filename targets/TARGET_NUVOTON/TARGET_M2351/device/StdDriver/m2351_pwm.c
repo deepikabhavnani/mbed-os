@@ -40,7 +40,7 @@ uint32_t PWM_ConfigCaptureChannel(PWM_T *pwm, uint32_t u32ChannelNum, uint32_t u
     uint16_t u16Prescale = 1, u16CNR = 0xFFFF;
 
     //clock source is from PCLK
-    if((pwm == PWM0)||(pwm == PWM0_NS))
+    if(pwm == PWM0)
         u32PWMClockSrc = CLK_GetPCLK0Freq();
     else //if((pwm == PWM1)||(pwm == PWM1_NS))
         u32PWMClockSrc = CLK_GetPCLK1Freq();
@@ -95,7 +95,7 @@ uint32_t PWM_ConfigOutputChannel(PWM_T *pwm, uint32_t u32ChannelNum, uint32_t u3
     uint16_t u16Prescale = 1, u16CNR = 0xFFFF;
 
     //clock source is from PCLK
-    if((pwm == PWM0)||(pwm == PWM0_NS))
+    if(pwm == PWM0)
         u32PWMClockSrc = CLK_GetPCLK0Freq();
     else //if((pwm == PWM1)||(pwm == PWM1_NS))
         u32PWMClockSrc = CLK_GetPCLK1Freq();

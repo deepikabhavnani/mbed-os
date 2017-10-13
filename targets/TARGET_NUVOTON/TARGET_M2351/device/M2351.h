@@ -31226,15 +31226,30 @@ typedef struct
 /* Peripheral and SRAM base address */
 #define SRAM_BASE            (0x20000000UL)                              /*!< (SRAM      ) Base Address */
 #define NS_OFFSET            (0x10000000UL)
-#define PERIPH_BASE          (0x40000000UL)                              /*!< (Peripheral) Base Address */
+
+#define PERIPH_BASE_S        (0x40000000UL)                              /*!< (Peripheral) Base Address - Secure */
+#define PERIPH_BASE_NS       (0x40000000UL + 0x10000000UL)               /*!< (Peripheral) Base Address - Non Secure*/
+
+#define AHBPERIPH_BASE_S     PERIPH_BASE_S
+#define AHBPERIPH_BASE_NS    PERIPH_BASE_NS
+
+#define APBPERIPH_BASE_S     (PERIPH_BASE_S + 0x00040000)
+#define APBPERIPH_BASE_NS    (PERIPH_BASE_NS + 0x00040000)
 
 /* Peripheral memory map */
-#define AHBPERIPH_BASE       PERIPH_BASE
-#define APBPERIPH_BASE       (PERIPH_BASE + 0x00040000)
+#if (__DOMAIN_NS == 1U)
+#define PERIPH_BASE           PERIPH_BASE_NS                             /*!< (Peripheral) Base Address - Default */
+#define AHBPERIPH_BASE        AHBPERIPH_BASE_NS
+#define APBPERIPH_BASE        APBPERIPH_BASE_NS
+#else
+#define PERIPH_BASE           PERIPH_BASE_S                              /*!< (Peripheral) Base Address */
+#define AHBPERIPH_BASE        AHBPERIPH_BASE_S
+#define APBPERIPH_BASE        APBPERIPH_BASE_S
+#endif
 
 /*!< AHB peripherals */
-#define SYS_BASE             (AHBPERIPH_BASE + 0x00000)
-#define CLK_BASE             (AHBPERIPH_BASE + 0x00200)
+#define SYS_BASE             (AHBPERIPH_BASE_S + 0x00000)
+#define CLK_BASE             (AHBPERIPH_BASE_S + 0x00200)
 #define INT_BASE             (AHBPERIPH_BASE + 0x00300)
 #define GPIO_BASE            (AHBPERIPH_BASE + 0x04000)
 #define GPIOA_BASE           (AHBPERIPH_BASE + 0x04000)
@@ -31246,7 +31261,7 @@ typedef struct
 #define GPIOG_BASE           (AHBPERIPH_BASE + 0x04180)
 #define GPIO_DBCTL_BASE      (AHBPERIPH_BASE + 0x04440)
 #define GPIO_PIN_DATA_BASE   (AHBPERIPH_BASE + 0x04800)
-#define PDMA_BASE           (AHBPERIPH_BASE + 0x08000)
+#define PDMA_BASE            (AHBPERIPH_BASE + 0x08000)
 #define PDMA0_BASE           (AHBPERIPH_BASE + 0x08000)
 #define PDMA1_BASE           (AHBPERIPH_BASE + 0x18000)
 #define USBH_BASE            (AHBPERIPH_BASE + 0x09000)
@@ -31263,14 +31278,20 @@ typedef struct
 #define WWDT_BASE            (APBPERIPH_BASE + 0x00100)
 #define RTC_BASE             (APBPERIPH_BASE + 0x01000)
 #define EADC_BASE            (APBPERIPH_BASE + 0x03000)
-#define EADC0_BASE            (APBPERIPH_BASE + 0x03000)
+#define EADC0_BASE           (APBPERIPH_BASE + 0x03000)
 #define ACMP01_BASE          (APBPERIPH_BASE + 0x05000)
 #define DAC0_BASE            (APBPERIPH_BASE + 0x07000)
 #define DAC1_BASE            (APBPERIPH_BASE + 0x07040)
 #define I2S0_BASE            (APBPERIPH_BASE + 0x08000)
 #define OTG_BASE             (APBPERIPH_BASE + 0x0D000)
-#define TMR01_BASE           (APBPERIPH_BASE + 0x10000)
+
+#define TMR01_BASE           (APBPERIPH_BASE_S + 0x10000)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#define TMR23_BASE           (APBPERIPH_BASE_NS + 0x11000)
+#else
 #define TMR23_BASE           (APBPERIPH_BASE + 0x11000)
+#endif
+
 #define PWM0_BASE            (APBPERIPH_BASE + 0x18000)
 #define PWM1_BASE            (APBPERIPH_BASE + 0x19000)
 #define BPWM0_BASE           (APBPERIPH_BASE + 0x1A000)
@@ -31287,7 +31308,13 @@ typedef struct
 #define UART2_BASE           (APBPERIPH_BASE + 0x32000)
 #define UART3_BASE           (APBPERIPH_BASE + 0x33000)
 #define UART4_BASE           (APBPERIPH_BASE + 0x34000)
-#define UART5_BASE           (APBPERIPH_BASE + 0x35000)
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#define UART5_BASE           (APBPERIPH_BASE_NS + 0x35000)
+#else
+#define UART5_BASE           (APBPERIPH_BASE + 0x35000)    
+#endif
+
 #define I2C0_BASE            (APBPERIPH_BASE + 0x40000)
 #define I2C1_BASE            (APBPERIPH_BASE + 0x41000)
 #define I2C2_BASE            (APBPERIPH_BASE + 0x42000)
@@ -31318,7 +31345,10 @@ typedef struct
   @{
  */
 
-/** @addtogroup PMODULE_S Secure Peripheral Pointer
+ #define SYS_S               ((SYS_T *) SYS_BASE)                        /*!< System Global Controller Pointer    */
+ #define CLK                 ((CLK_T *) CLK_BASE)                        /*!< System Clock Controller Pointer     */
+ 
+/** @addtogroup PMODULE_NS Secure Peripheral Pointer
  The Declaration of Secure Peripheral Pointer
  @{
 */
@@ -31369,23 +31399,19 @@ typedef struct
 
 #define ACMP01              ((ACMP_T *) ACMP01_BASE)                    /*!< ACMP01 Pointer                      */
 
-#define CLK                 ((CLK_T *) CLK_BASE)                        /*!< System Clock Controller Pointer     */
-
 #define DAC0                ((DAC_T *) DAC0_BASE)                       /*!< DAC0 Pointer                        */
 #define DAC1                ((DAC_T *) DAC1_BASE)                       /*!< DAC1 Pointer                        */
 
 #define EADC                ((EADC_T *) EADC_BASE)                      /*!< EADC Pointer                        */
 
-#define SYS                 ((SYS_T *) SYS_BASE)                        /*!< System Global Controller Pointer    */
-
 #define SYSINT              ((SYS_INT_T *) INT_BASE)                    /*!< Interrupt Source Controller Pointer */
 
 #define FMC                 ((FMC_T *) FMC_BASE)                        /*!< Flash Memory Controller */
 
-#define SDH0                    ((SDH_T *)   SDH0_BASE)
+#define SDH0                ((SDH_T *)   SDH0_BASE)
 #define LCD                 ((LCD_T *)   LCD_BASE)
 
-#define CRPT                                ((CRPT_T *) CRPT_BASE)
+#define CRPT                ((CRPT_T *) CRPT_BASE)
 
 #define BPWM0               ((BPWM_T *) BPWM0_BASE)                     /*!< BPWM0 Pointer                       */
 #define BPWM1               ((BPWM_T *) BPWM1_BASE)                     /*!< BPWM1 Pointer                       */
@@ -31426,81 +31452,8 @@ typedef struct
 
 #define DSRC                ((DSRC_T *)DSRC_BASE)                        /*!< DSRC Pointer                        */
 
-/**@}*/ /* end of group PMODULE_S */
-
-/** @addtogroup PMODULE_NS Non-secure Peripheral Pointer
- The Declaration of Non-secure Peripheral Pointer
- @{
-*/
-
-
-#define PA_NS                  ((GPIO_T *)  (GPIOA_BASE+NS_OFFSET))                     /*!< GPIO PORTA Pointer                        */
-#define PB_NS                  ((GPIO_T *)  (GPIOB_BASE+NS_OFFSET))                     /*!< GPIO PORTB Pointer                        */
-#define PC_NS                  ((GPIO_T *)  (GPIOC_BASE+NS_OFFSET))                     /*!< GPIO PORTC Pointer                        */
-#define PD_NS                  ((GPIO_T *)  (GPIOD_BASE+NS_OFFSET))                     /*!< GPIO PORTD Pointer                        */
-#define PE_NS                  ((GPIO_T *)  (GPIOE_BASE+NS_OFFSET))                     /*!< GPIO PORTE Pointer                        */
-#define PF_NS                  ((GPIO_T *)  (GPIOF_BASE+NS_OFFSET))                     /*!< GPIO PORTF Pointer                        */
-#define PG_NS                  ((GPIO_T *)  (GPIOG_BASE+NS_OFFSET))                     /*!< GPIO PORTF Pointer                        */
-#define UART0_NS               ((UART_T *)  (UART0_BASE+NS_OFFSET))                     /*!< UART0 Pointer                       */
-#define UART1_NS               ((UART_T *)  (UART1_BASE+NS_OFFSET))                     /*!< UART1 Pointer                       */
-#define UART2_NS               ((UART_T *)  (UART2_BASE+NS_OFFSET))                     /*!< UART2 Pointer                       */
-#define UART3_NS               ((UART_T *)  (UART3_BASE+NS_OFFSET))                     /*!< UART3 Pointer                       */
-#define UART4_NS               ((UART_T *)  (UART4_BASE+NS_OFFSET))                     /*!< UART4 Pointer                       */
-#define UART5_NS               ((UART_T *)  (UART5_BASE+NS_OFFSET))                     /*!< UART5 Pointer                       */
-#define TIMER0_NS              ((TIMER_T *) (TMR01_BASE+NS_OFFSET))                     /*!< TIMER0 Pointer                      */
-#define TIMER1_NS              ((TIMER_T *) (TMR01_BASE+NS_OFFSET+0x100))               /*!< TIMER1 Pointer                      */
-#define TIMER2_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET))                     /*!< TIMER2 Pointer                      */
-#define TIMER3_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET+0x100))               /*!< TIMER3 Pointer                      */
-#define WDT_NS                 ((WDT_T *)   (WDT_BASE +NS_OFFSET))                        /*!< Watch Dog Timer Pointer             */
-#define WWDT_NS                ((WWDT_T *)  (WWDT_BASE+NS_OFFSET))                      /*!< Window Watch Dog Timer Pointer      */
-#define SPI0_NS                ((SPI_T *)   (SPI0_BASE+NS_OFFSET))                       /*!< SPI0 Pointer                        */
-#define SPI1_NS                ((SPI_T *)   (SPI1_BASE+NS_OFFSET))                       /*!< SPI1 Pointer                        */
-#define SPI2_NS                ((SPI_T *)   (SPI2_BASE+NS_OFFSET))                       /*!< SPI2 Pointer                        */
-#define SPI3_NS                ((SPI_T *)   (SPI3_BASE+NS_OFFSET))                       /*!< SPI3 Pointer                        */
-#define SPI4_NS                ((SPI_T *)   (SPI4_BASE+NS_OFFSET))                       /*!< SPI4 Pointer                        */
-#define SPI5_NS                ((SPI5_T *)  (SPI5_BASE+NS_OFFSET))                      /*!< SPI5 Pointer                        */
-#define I2S0_NS                ((I2S_T *)   (I2S0_BASE+NS_OFFSET))                       /*!< I2S0 Pointer                        */
-#define I2C0_NS                ((I2C_T *)   (I2C0_BASE+NS_OFFSET))                       /*!< I2C0 Pointer                        */
-#define I2C1_NS                ((I2C_T *)   (I2C1_BASE+NS_OFFSET))                       /*!< I2C1 Pointer                        */
-#define I2C2_NS                ((I2C_T *)   (I2C2_BASE+NS_OFFSET))                       /*!< I2C1 Pointer                        */
-#define QEI0_NS                ((QEI_T *)   (QEI0_BASE+NS_OFFSET))                       /*!< QEI0 Pointer                        */
-#define QEI1_NS                ((QEI_T *)   (QEI1_BASE+NS_OFFSET))                       /*!< QEI1 Pointer                        */
-#define RTC_NS                 ((RTC_T *)   (RTC_BASE +NS_OFFSET))                        /*!< RTC Pointer                         */
-#define ACMP01_NS              ((ACMP_T *)  (ACMP01_BASE+NS_OFFSET))                    /*!< ACMP01 Pointer                      */
-#define DAC0_NS                ((DAC_T *)   (DAC0_BASE+NS_OFFSET))                       /*!< DAC0 Pointer                        */
-#define DAC1_NS                ((DAC_T *)   (DAC1_BASE+NS_OFFSET))                       /*!< DAC1 Pointer                        */
-#define EADC_NS                ((EADC_T *)  (EADC_BASE+NS_OFFSET))                      /*!< EADC Pointer                        */
-#define FMC_NS                 ((FMC_T *)  (FMC_BASE  +NS_OFFSET))                        /*!< Flash Memory Controller */
-#define SDH0_NS                ((SDH_T *)  (SDH0_BASE +NS_OFFSET))
-#define LCD_NS                 ((LCD_T *)   (LCD_BASE +NS_OFFSET))
-#define CRPT_NS                ((CRPT_T *) (CRPT_BASE +NS_OFFSET))
-#define BPWM0_NS               ((BPWM_T *) (BPWM0_BASE+NS_OFFSET))                     /*!< BPWM0 Pointer                       */
-#define BPWM1_NS               ((BPWM_T *) (BPWM1_BASE+NS_OFFSET))                     /*!< BPWM1 Pointer                       */
-#define PWM0_NS                ((PWM_T *)  (PWM0_BASE +NS_OFFSET))                     /*!< PWM0 Pointer                        */
-#define PWM1_NS                ((PWM_T *)  (PWM1_BASE +NS_OFFSET))                     /*!< PWM1 Pointer                        */
-#define SC0_NS                 ((SC_T *)   (SC0_BASE  +NS_OFFSET))                     /*!< SC0 Pointer                         */
-#define SC1_NS                 ((SC_T *)   (SC1_BASE  +NS_OFFSET))                     /*!< SC1 Pointer                         */
-#define SC2_NS                 ((SC_T *)   (SC2_BASE  +NS_OFFSET))                     /*!< SC2 Pointer                         */
-#define EBI_NS                 ((EBI_T *)  (EBI_BASE  +NS_OFFSET))                     /*!< EBI Pointer                         */
-#define CRC_NS                 ((CRC_T *)  (CRC_BASE  +NS_OFFSET))                     /*!< CRC Pointer                         */
-#define USBD_NS                ((USBD_T *) (USBD_BASE +NS_OFFSET))                     /*!< USB Device Pointer                  */
-#define USBH_NS                ((USBH_T *) (USBH_BASE+NS_OFFSET))                      /*!< USBH Pointer                  */
-#define OTG_NS                 ((OTG_T *) (OTG_BASE+NS_OFFSET))                        /*!< OTG Pointer                  */
-#define PDMA1_NS               ((PDMA_T *)   (PDMA1_BASE +NS_OFFSET))                     /*!< PDMA1 Pointer                        */
-#define UI2C0_NS                ((UI2C_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< UI2C0 Pointer                       */
-#define UI2C1_NS                ((UI2C_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< UI2C1 Pointer                       */
-#define UI2C2_NS                ((UI2C_T *)  (USCI2_BASE +NS_OFFSET))                     /*!< UI2C2 Pointer                       */
-#define USPI0_NS                ((USPI_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< USPI0 Pointer                       */
-#define USPI1_NS                ((USPI_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< USPI1 Pointer                       */
-#define UUART0_NS               ((UUART_T *) (USCI0_BASE+NS_OFFSET))                    /*!< UUART0 Pointer                      */
-#define UUART1_NS               ((UUART_T *) (USCI1_BASE+NS_OFFSET))                    /*!< UUART1 Pointer                      */
-#define SCU_NS                 ((SCU_T *)    (SCU_BASE  +NS_OFFSET))                        /*!< SCU Pointer                         */
-#define ECAP0_NS               ((ECAP_T *)   (ECAP0_BASE+NS_OFFSET))                     /*!< ECAP0 Pointer                       */
-#define ECAP1_NS               ((ECAP_T *)   (ECAP1_BASE+NS_OFFSET))                     /*!< ECAP1 Pointer                       */
-#define CAN0_NS                ((CAN_T *)    (CAN0_BASE +NS_OFFSET))                        /*!< CAN0 Pointer                        */
-#define DSRC_NS                ((DSRC_T *)   (DSRC_BASE+NS_OFFSET))                        /*!< DSRC Pointer                        */
-
 /**@}*/ /* end of group PMODULE_NS */
+
 /**@}*/ /* end of group PMODULE */
 
 /* --------------------  End of section using anonymous unions  ------------------- */

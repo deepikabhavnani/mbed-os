@@ -29,12 +29,15 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Miscellaneous Constant Definitions                                                                     */
 /*---------------------------------------------------------------------------------------------------------*/
+#if (__DOMAIN_NS == 1U)
+#define EBI_BANK0_BASE_ADDR     0x70000000UL /*!< EBI bank0 base address for Non-Secure */
+#define EBI_BANK1_BASE_ADDR     0x70100000UL /*!< EBI bank1 base address for Non-Secure */
+#define EBI_BANK2_BASE_ADDR     0x70200000UL /*!< EBI bank2 base address for Non-Secure */    
+#else
 #define EBI_BANK0_BASE_ADDR     0x60000000UL /*!< EBI bank0 base address */
 #define EBI_BANK1_BASE_ADDR     0x60100000UL /*!< EBI bank1 base address */
 #define EBI_BANK2_BASE_ADDR     0x60200000UL /*!< EBI bank2 base address */
-#define EBI_BANK0_BASE_ADDR_NS  0x70000000UL /*!< EBI bank0 base address for Non-Secure */
-#define EBI_BANK1_BASE_ADDR_NS  0x70100000UL /*!< EBI bank1 base address for Non-Secure */
-#define EBI_BANK2_BASE_ADDR_NS  0x70200000UL /*!< EBI bank2 base address for Non-Secure */
+#endif
 #define EBI_MAX_SIZE            0x00100000UL /*!< Maximum EBI size for each bank is 1 MB */
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -97,10 +100,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank0.
   */
 #define EBI0_READ_DATA8(u32Addr)            (*((volatile unsigned char *)(EBI_BANK0_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 8-bit data on EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_READ_DATA8_NS(u32Addr)         (*((volatile unsigned char *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 8-bit data to EBI bank0
@@ -113,10 +113,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank0.
   */
 #define EBI0_WRITE_DATA8(u32Addr, u32Data)      (*((volatile unsigned char *)(EBI_BANK0_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 8-bit data to EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_WRITE_DATA8_NS(u32Addr, u32Data)   (*((volatile unsigned char *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 16-bit data on EBI bank0
@@ -128,10 +125,7 @@ extern "C"
   * @details    This macro is used to read 16-bit data from specify address on EBI bank0.
   */
 #define EBI0_READ_DATA16(u32Addr)           (*((volatile unsigned short *)(EBI_BANK0_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 16-bit data on EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_READ_DATA16_NS(u32Addr)        (*((volatile unsigned short *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 16-bit data to EBI bank0
@@ -144,10 +138,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank0.
   */
 #define EBI0_WRITE_DATA16(u32Addr, u32Data)     (*((volatile unsigned short *)(EBI_BANK0_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 16-bit data to EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_WRITE_DATA16_NS(u32Addr, u32Data)  (*((volatile unsigned short *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 32-bit data on EBI bank0
@@ -159,10 +150,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank0.
   */
 #define EBI0_READ_DATA32(u32Addr)               (*((volatile unsigned int *)(EBI_BANK0_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 32-bit data on EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_READ_DATA32_NS(u32Addr)            (*((volatile unsigned int *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 32-bit data to EBI bank0
@@ -175,10 +163,7 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank0.
   */
 #define EBI0_WRITE_DATA32(u32Addr, u32Data)     (*((volatile unsigned int *)(EBI_BANK0_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 32-bit data to EBI bank0 Macro for Non-Secure
-  */
-#define EBI0_WRITE_DATA32_NS(u32Addr, u32Data)  (*((volatile unsigned int *)(EBI_BANK0_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 8-bit data on EBI bank1
@@ -190,10 +175,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank1.
   */
 #define EBI1_READ_DATA8(u32Addr)                (*((volatile unsigned char *)(EBI_BANK1_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 8-bit data on EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_READ_DATA8_NS(u32Addr)             (*((volatile unsigned char *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 8-bit data to EBI bank1
@@ -206,10 +188,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank1.
   */
 #define EBI1_WRITE_DATA8(u32Addr, u32Data)      (*((volatile unsigned char *)(EBI_BANK1_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 8-bit data to EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_WRITE_DATA8_NS(u32Addr, u32Data)   (*((volatile unsigned char *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 16-bit data on EBI bank1
@@ -221,10 +200,7 @@ extern "C"
   * @details    This macro is used to read 16-bit data from specify address on EBI bank1.
   */
 #define EBI1_READ_DATA16(u32Addr)               (*((volatile unsigned short *)(EBI_BANK1_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 16-bit data on EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_READ_DATA16_NS(u32Addr)            (*((volatile unsigned short *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 16-bit data to EBI bank1
@@ -237,10 +213,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank1.
   */
 #define EBI1_WRITE_DATA16(u32Addr, u32Data)     (*((volatile unsigned short *)(EBI_BANK1_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 16-bit data to EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_WRITE_DATA16_NS(u32Addr, u32Data)  (*((volatile unsigned short *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 32-bit data on EBI bank1
@@ -252,10 +225,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank1.
   */
 #define EBI1_READ_DATA32(u32Addr)               (*((volatile unsigned int *)(EBI_BANK1_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 32-bit data on EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_READ_DATA32_NS(u32Addr)            (*((volatile unsigned int *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 32-bit data to EBI bank1
@@ -268,10 +238,7 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank1.
   */
 #define EBI1_WRITE_DATA32(u32Addr, u32Data)     (*((volatile unsigned int *)(EBI_BANK1_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 32-bit data to EBI bank1 Macro for Non-Secure
-  */
-#define EBI1_WRITE_DATA32_NS(u32Addr, u32Data)  (*((volatile unsigned int *)(EBI_BANK1_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 8-bit data on EBI bank2
@@ -283,10 +250,7 @@ extern "C"
   * @details    This macro is used to read 8-bit data from specify address on EBI bank2.
   */
 #define EBI2_READ_DATA8(u32Addr)                (*((volatile unsigned char *)(EBI_BANK2_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 8-bit data on EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_READ_DATA8_NS(u32Addr)             (*((volatile unsigned char *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 8-bit data to EBI bank2
@@ -299,10 +263,7 @@ extern "C"
   * @details    This macro is used to write 8-bit data to specify address on EBI bank2.
   */
 #define EBI2_WRITE_DATA8(u32Addr, u32Data)      (*((volatile unsigned char *)(EBI_BANK2_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 8-bit data to EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_WRITE_DATA8_NS(u32Addr, u32Data)   (*((volatile unsigned char *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 16-bit data on EBI bank2
@@ -314,10 +275,7 @@ extern "C"
   * @details    This macro is used to read 16-bit data from specify address on EBI bank2.
   */
 #define EBI2_READ_DATA16(u32Addr)               (*((volatile unsigned short *)(EBI_BANK2_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 16-bit data on EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_READ_DATA16_NS(u32Addr)            (*((volatile unsigned short *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 16-bit data to EBI bank2
@@ -330,10 +288,7 @@ extern "C"
   * @details    This macro is used to write 16-bit data to specify address on EBI bank2.
   */
 #define EBI2_WRITE_DATA16(u32Addr, u32Data)     (*((volatile unsigned short *)(EBI_BANK2_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 16-bit data to EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_WRITE_DATA16_NS(u32Addr, u32Data)  (*((volatile unsigned short *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))) = (u32Data))
+
 
 /**
   * @brief      Read 32-bit data on EBI bank2
@@ -345,10 +300,7 @@ extern "C"
   * @details    This macro is used to read 32-bit data from specify address on EBI bank2.
   */
 #define EBI2_READ_DATA32(u32Addr)               (*((volatile unsigned int *)(EBI_BANK2_BASE_ADDR+(u32Addr))))
-/**
-  * @brief      Read 32-bit data on EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_READ_DATA32_NS(u32Addr)            (*((volatile unsigned int *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))))
+
 
 /**
   * @brief      Write 32-bit data to EBI bank2
@@ -361,18 +313,11 @@ extern "C"
   * @details    This macro is used to write 32-bit data to specify address on EBI bank2.
   */
 #define EBI2_WRITE_DATA32(u32Addr, u32Data)     (*((volatile unsigned int *)(EBI_BANK2_BASE_ADDR+(u32Addr))) = (u32Data))
-/**
-  * @brief      Write 32-bit data to EBI bank2 Macro for Non-Secure
-  */
-#define EBI2_WRITE_DATA32_NS(u32Addr, u32Data)  (*((volatile unsigned int *)(EBI_BANK2_BASE_ADDR_NS+(u32Addr))) = (u32Data))
 
 
 void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, uint32_t u32BusMode, uint32_t u32CSActiveLevel);
-void EBI_Open_NS(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, uint32_t u32BusMode, uint32_t u32CSActiveLevel);
 void EBI_Close(uint32_t u32Bank);
-void EBI_Close_NS(uint32_t u32Bank);
 void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32MclkDiv);
-void EBI_SetBusTiming_NS(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32MclkDiv);
 
 /*@}*/ /* end of group EBI_EXPORTED_FUNCTIONS */
 

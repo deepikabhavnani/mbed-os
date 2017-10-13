@@ -44,8 +44,6 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     port_dir(obj, dir);
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
 void port_dir(port_t *obj, PinDirection dir)
 {
     uint32_t i;
@@ -60,7 +58,6 @@ void port_dir(port_t *obj, PinDirection dir)
         }
     }
 }
-#endif
 
 void port_mode(port_t *obj, PinMode mode)
 {
@@ -81,14 +78,15 @@ void port_write(port_t *obj, int value)
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
 #if defined (NVIC_INIT_ITNS0_VAL)
-            if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-            {        
-                GPIO_PIN_DATA_NS(port_index, i) = (value & obj->mask) ? 1 : 0;
-             } else {
-                GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
-             }
-#else
+        if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+        {        
             GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
+        } else {
+            // Secure callable function required : TODO
+            MBED_ASSERT(1);
+        }
+#else
+        GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
 #endif             
         }
     }
@@ -103,14 +101,15 @@ int port_read(port_t *obj)
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
 #if defined (NVIC_INIT_ITNS0_VAL)
-            if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-            {         
-                value = value | (GPIO_PIN_DATA_NS(port_index, i) << i);
-            } else {
-                value = value | (GPIO_PIN_DATA(port_index, i) << i);
-            }
-#else
+        if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+        {         
             value = value | (GPIO_PIN_DATA(port_index, i) << i);
+        } else {
+            // Secure callable function required : TODO
+            MBED_ASSERT(1);
+        }
+#else
+        value = value | (GPIO_PIN_DATA(port_index, i) << i);
 #endif
         }
     }

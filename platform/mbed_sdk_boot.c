@@ -35,6 +35,7 @@ void call_non_secure_rtos(void)
 #ifdef TZ_START_NS
     non_secure_call ns_reset_handler;
 
+    printf("In secure \n\r");
     /* Set non-secure main stack (MSP_NS) */
 #if defined(__ICCARM__)
     asm volatile("MSR     SP_NS, %0" :: "r" (*((uint32_t *)(TZ_START_NS))));

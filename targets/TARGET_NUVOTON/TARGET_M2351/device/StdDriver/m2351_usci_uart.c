@@ -260,7 +260,7 @@ uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate)
     uint32_t u32Tmp, u32Tmp2, u32Min, u32MinClkDiv, u32MinDSCnt;
 
     /* Get PCLK frequency */
-    if( (uuart == UUART0) || (uuart == UUART0_NS) )
+    if(uuart == UUART0)
         u32PDSClk = u32PCLKFreq = CLK_GetPCLK0Freq();
     else
         u32PDSClk = u32PCLKFreq = CLK_GetPCLK1Freq();

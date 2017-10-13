@@ -39,6 +39,8 @@
   * @note       After calling this API, Timer is \b NOT running yet. But could start timer running be calling
   *             \ref TIMER_Start macro or program registers directly.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
@@ -75,6 +77,7 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
 
     return(u32Clk / (u32Cmpr * (u32Prescale + 1UL)));
 }
+#endif
 
 /**
   * @brief      Stop Timer Counting
@@ -85,11 +88,14 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
   *
   * @details    This API stops timer counting and disable all timer interrupt function.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_Close(TIMER_T *timer)
 {
     timer->CTL = 0UL;
     timer->EXTCTL = 0UL;
 }
+#endif
 
 /**
   * @brief      Create a specify Delay Time
@@ -103,6 +109,8 @@ void TIMER_Close(TIMER_T *timer)
   * @note       This API overwrites the register setting of the timer used to count the delay time.
   * @note       This API use polling mode. So there is no need to enable interrupt for the timer module used to generate delay.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
@@ -186,6 +194,7 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
         ;
     }
 }
+#endif
 
 /**
   * @brief      Enable Timer Capture Function
@@ -208,11 +217,14 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
   *             to get current counter value or reset counter value to 0.
   * @note       Timer frequency should be configured separately by using \ref TIMER_Open API, or program registers directly.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_EnableCapture(TIMER_T *timer, uint32_t u32CapMode, uint32_t u32Edge)
 {
     timer->EXTCTL = (timer->EXTCTL & ~(TIMER_EXTCTL_CAPFUNCS_Msk | TIMER_EXTCTL_CAPEDGE_Msk)) |
                     u32CapMode | u32Edge | TIMER_EXTCTL_CAPEN_Msk;
 }
+#endif
 
 /**
   * @brief      Disable Timer Capture Function
@@ -223,10 +235,13 @@ void TIMER_EnableCapture(TIMER_T *timer, uint32_t u32CapMode, uint32_t u32Edge)
   *
   * @details    This API is used to disable the timer capture function.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_DisableCapture(TIMER_T *timer)
 {
     timer->EXTCTL &= ~TIMER_EXTCTL_CAPEN_Msk;
 }
+#endif
 
 /**
   * @brief      Enable Timer Counter Function
@@ -242,11 +257,14 @@ void TIMER_DisableCapture(TIMER_T *timer)
   * @note       Timer compare value should be configured separately by using \ref TIMER_SET_CMP_VALUE macro or program registers directly.
   * @note       While using event counter function, \ref TIMER_TOGGLE_MODE cannot set as timer operation mode.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_EnableEventCounter(TIMER_T *timer, uint32_t u32Edge)
 {
     timer->EXTCTL = (timer->EXTCTL & ~TIMER_EXTCTL_CNTPHASE_Msk) | u32Edge;
     timer->CTL |= TIMER_CTL_EXTCNTEN_Msk;
 }
+#endif
 
 /**
   * @brief      Disable Timer Counter Function
@@ -257,11 +275,13 @@ void TIMER_EnableEventCounter(TIMER_T *timer, uint32_t u32Edge)
   *
   * @details    This API is used to disable the timer event counter function.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_DisableEventCounter(TIMER_T *timer)
 {
     timer->CTL &= ~TIMER_CTL_EXTCNTEN_Msk;
 }
-
+#endif
 /**
   * @brief      Get Timer Clock Frequency
   *
@@ -272,6 +292,7 @@ void TIMER_DisableEventCounter(TIMER_T *timer)
   * @details    This API is used to get the timer clock frequency.
   * @note       This API cannot return correct clock rate if timer source is from external clock input.
   */
+
 uint32_t TIMER_GetModuleClock(TIMER_T *timer)
 {
     uint32_t u32Src, u32Clk;
@@ -285,7 +306,7 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
     {
         u32Src = CLK_GetModuleClockSource(TMR1_MODULE);
     }
-    else if((timer == TIMER2) || (timer == TIMER2_NS))
+    else if(timer == TIMER2)
     {
         u32Src = CLK_GetModuleClockSource(TMR2_MODULE);
     }
@@ -329,6 +350,8 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
   *             The mode used to calculate input event frequency is mentioned as
   *             "Inter Timer Trigger Mode" in Technical Reference Manual.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_EnableFreqCounter(TIMER_T *timer,
                              uint32_t u32DropCount,
                              uint32_t u32Timeout,
@@ -340,8 +363,6 @@ void TIMER_EnableFreqCounter(TIMER_T *timer,
         t = TIMER1;
     else if(timer == TIMER2)
         t = TIMER3;
-    else if(timer == TIMER2_NS)
-        t = TIMER3_NS;
     else
         return ;
 
@@ -349,6 +370,7 @@ void TIMER_EnableFreqCounter(TIMER_T *timer,
     t->EXTCTL = u32EnableInt ? TIMER_EXTCTL_CAPIEN_Msk : 0;
     timer->CTL = TIMER_CTL_INTRGEN_Msk | TIMER_CTL_CNTEN_Msk;
 }
+#endif
 
 /**
   * @brief      Disable Timer Frequency Counter Function
@@ -359,10 +381,13 @@ void TIMER_EnableFreqCounter(TIMER_T *timer,
   *
   * @brief      This function is used to disable the Timer frequency counter function.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_DisableFreqCounter(TIMER_T *timer)
 {
     timer->CTL &= ~TIMER_CTL_INTRGEN_Msk;
 }
+#endif
 
 /**
   * @brief      Set Modules Trigger Source
@@ -376,10 +401,13 @@ void TIMER_DisableFreqCounter(TIMER_T *timer)
   *
   * @brief      This function is used to select the interrupt source used to trigger other modules.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src)
 {
     timer->TRGCTL = (timer->TRGCTL & ~TIMER_TRGCTL_TRGSSEL_Msk) | u32Src;
 }
+#endif
 
 /**
   * @brief      Set Target Modules to Trigger by Timer Interrupt
@@ -395,10 +423,13 @@ void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src)
   *
   * @details    This function is used to set PWM, EADC, DAC and PDMA module trigger by timer interrupt event.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask)
 {
     timer->TRGCTL = (timer->TRGCTL & ~(TIMER_TRGCTL_TRGPWM_Msk | TIMER_TRGCTL_TRGDAC_Msk | TIMER_TRGCTL_TRGEADC_Msk | TIMER_TRGCTL_TRGPDMA_Msk)) | u32Mask;
 }
+#endif
 
 /*@}*/ /* end of group TIMER_EXPORTED_FUNCTIONS */
 
