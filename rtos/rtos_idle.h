@@ -26,11 +26,11 @@
 #define RTOS_IDLE_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * \defgroup rtos_Idle Idle hook function
  * @{
@@ -41,6 +41,18 @@ extern "C" {
  @param fptr Hook function pointer.
  */
 void rtos_attach_idle_hook(void (*fptr)(void));
+/** @}*/
+
+/**
+ * \defgroup mbed_time_idle Idle time function
+ * @{
+ */
+/**
+ @note
+ Returns the time spent in idle thread.
+ @return Idle thread time.
+ */
+uint32_t mbed_time_idle(void);
 /** @}*/
 
 #ifdef __cplusplus

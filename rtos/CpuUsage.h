@@ -17,12 +17,18 @@
 #define CPU_USAGE_H
 
 #include "platform/NonCopyable.h"
-#include "LowPowerTicker.h"
+#include "rtos_idle.h"
+
+#if DEVICE_LOWPOWERTIMER
+#include "drivers/LowPowerTicker.h"
+#define ALIAS_TICKER     LowPowerTicker
+#else
+#include "drivers/Ticker.h"
+#define ALIAS_TICKER     Ticker
+#endif
 
 using namespace mbed;
 
-extern uint32_t mbed_time_idle(void);
-    
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
@@ -40,29 +46,33 @@ public:
      *
      *  @params sample_time - CPU usage is measured every x sample_time in msecs
      */
-    CpuUsage(uint32_t sample_time = 1000) : _sample_time(sample_time * 1000), _usage(0) {
+    CpuUsage(uint32_t sample_time = 1000) : _sample_time(sample_time * 1000), _usage(0)
+    {
         _prev_time_idle = mbed_time_idle();
         _timer.attach_us(callback(this, &CpuUsage::calculate_cpu_usage), (_sample_time));
     }
     
-    ~CpuUsage() {
-    }
+    ~CpuUsage() { }
     
-    uint32_t get_cpu_usage() const {
+    uint32_t get_cpu_usage() const
+    {
         return _usage;
     }
 
 private:
     uint32_t _sample_time;
-    uint32_t _prev_time_idle;
-    LowPowerTicker _timer;
     uint32_t _usage;
 
-    void calculate_cpu_usage(void) {
+    uint32_t _prev_time_idle;
+    ALIAS_TICKER _timer;
+
+    void calculate_cpu_usage(void)
+    {
         uint32_t time_idle = mbed_time_idle();
         _usage = 100 - (time_idle - _prev_time_idle) * 100 / _sample_time;
         _prev_time_idle = time_idle;
     }
+
 };
 
 /** @}*/
