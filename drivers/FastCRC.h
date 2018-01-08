@@ -37,8 +37,9 @@ public:
      * for runtime CRC generation from data input.
      *
      *  @param  polynomial  CRC polynomial
+     *  @param  rom_table   Use ROM (pre-define table, if available)
      */
-    FastCRC(crc_polynomial_type_t polynomial);
+    FastCRC(crc_polynomial_type_t polynomial, bool rom_table=1);
     virtual ~FastCRC();
 
     /** Initialize a CRC module, generate CRC static table

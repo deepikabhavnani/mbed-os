@@ -16,25 +16,75 @@
 
 #include "platform/mbed_assert.h"
 #include "FastCRC.h"
+#include "TableCRC.h"
+
 #include <stdio.h>
 
 namespace mbed {
 
-FastCRC::FastCRC(crc_polynomial_type_t polynomial) :
+FastCRC::FastCRC(crc_polynomial_type_t polynomial, bool rom_table) :
                  _polynomial_type(polynomial), _inital_value(0x0),
                  _final_xor(0x0), _reflect_data(false), _reflect_remainder(false)
 {
+    _rom_table = 0;
+    _crc_table = NULL;
     // Set the non-default polynomial specific parameters
-    if (CRC_16BIT_CCITT == _polynomial_type) {
-        _inital_value = ~(0x0);
-    } else if (CRC_16BIT_IBM == _polynomial_type) {
-        _reflect_data = true;
-        _reflect_remainder = true;
-    } else if (CRC_32BIT_ANSI == _polynomial_type) {
-        _inital_value = ~(0x0);
-        _final_xor  = ~(0x0);
-        _reflect_data = true;
-        _reflect_remainder = true;
+    switch (_polynomial_type) {
+        case CRC_7BIT_SD: {
+#if defined(CRC_7BIT_SD_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint8_t *)_Table_CRC_7Bit_SD;
+#endif
+            break;
+        }
+
+        case CRC_8BIT_CCITT: {
+#if defined(CRC_8BIT_CCITT_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint8_t *)_Table_CRC_8bit_CCITT;
+#endif
+            break;
+        }
+
+        case CRC_16BIT_CCITT: {
+#if defined(CRC_16BIT_CCITT_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint16_t *)_Table_CRC_16bit_CCITT;
+#endif
+            _inital_value = ~(0x0);
+            break;
+        }
+
+        case CRC_16BIT_SD: {
+#if defined(CRC_16BIT_SD_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint16_t *)_Table_CRC_16bit_CCITT;
+#endif
+            break;
+        }
+        case CRC_16BIT_IBM: {
+#if defined(CRC_16BIT_IBM_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint16_t *)_Table_CRC_16bit_IBM;
+#endif
+            _reflect_data = true;
+            _reflect_remainder = true;
+            break;
+        }
+        case CRC_32BIT_ANSI: {
+#if defined(CRC_32BIT_ANSI_TABLE)
+            _rom_table = rom_table;
+            _crc_table = (uint32_t *)_Table_CRC_32bit_ANSI;
+#endif
+            _inital_value = ~(0x0);
+            _final_xor  = ~(0x0);
+            _reflect_data = true;
+            _reflect_remainder = true;
+            break;
+        }
+        default: {
+            break;
+        }
     }
 }
 
@@ -45,34 +95,37 @@ FastCRC::~FastCRC()
 
 int32_t FastCRC::init(void)
 {
-    uint32_t crc;
-    uint8_t data_size = get_data_size();
-    crc_width_t width = get_width();
-    uint32_t polynomial = get_polynomial();
+    if (0 == _rom_table) {
+        uint32_t crc;
+        uint8_t data_size = get_data_size();
+        crc_width_t width = get_width();
+        uint32_t polynomial = get_polynomial();
 
-    _crc_table = new uint32_t[64*data_size];
-    uint8_t *crc_table = (uint8_t *)_crc_table;
+        uint8_t *crc_table = new uint8_t[256*data_size];
+        _crc_table = (uint8_t *)crc_table;
 
-    if (width < 8) {
-        polynomial <<= (8 - width);
-    }
-
-    for (int32_t dividend = 0; dividend < 256; ++dividend) {
         if (width < 8) {
-            crc = dividend;
-        } else {
-            crc = dividend << (width - 8);
-        }
-        for (uint8_t bit = 8; bit > 0; --bit) {
-            if (crc & get_top_bit()) {
-                crc = (crc << 1) ^ polynomial;
-            } else {
-                crc = (crc << 1);
-            }
+            polynomial <<= (8 - width);
         }
 
-        for (int i = 0; i < data_size; i++) {
-            crc_table[(dividend*data_size)+i] = (crc >> (8*i)) & 0xFF;
+        for (int32_t dividend = 0; dividend < 256; ++dividend) {
+            if (width < 8) {
+                crc = dividend;
+            } else {
+                crc = dividend << (width - 8);
+            }
+
+            for (uint8_t bit = 8; bit > 0; --bit) {
+                if (crc & get_top_bit()) {
+                    crc = (crc << 1) ^ polynomial;
+                } else {
+                    crc = (crc << 1);
+                }
+            }
+
+            for (int i = 0; i < data_size; i++) {
+                crc_table[(dividend*data_size)+i] = (crc >> (8*i)) & 0xFF;
+            }
         }
     }
     return 0;
@@ -80,7 +133,9 @@ int32_t FastCRC::init(void)
 
 int32_t FastCRC::deinit(void)
 {
-    delete []_crc_table;
+    if (0 == _rom_table) {
+        delete []_crc_table;
+    }
     return 0;
 }
 
@@ -129,12 +184,12 @@ int32_t FastCRC::compute(void *buffer, crc_data_size_t size, uint32_t *crc)
     int32_t status;
     *crc = _inital_value;
     status = compute_partial(buffer, size, crc);
+
     crc_width_t width = this->get_width();
     if (width < 8) {
         *crc >>= (8 - width);
     }
     *crc = (reflect_remainder(*crc) ^ _final_xor) & get_crc_mask();
-
     return status;
 }
 
@@ -153,6 +208,7 @@ int32_t FastCRC::compute_partial_stop(uint32_t *crc)
         *crc >>= (8 - width);
     }
     *crc = (reflect_remainder(*crc) ^ _final_xor) & get_crc_mask();
+
     return 0;
 }
 
