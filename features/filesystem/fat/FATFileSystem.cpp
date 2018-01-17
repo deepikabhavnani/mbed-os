@@ -162,7 +162,7 @@ void ff_memfree(void *p)
 // Implementation of diskio functions (see ChaN/diskio.h)
 static WORD disk_get_sector_size(BYTE pdrv)
 {
-    WORD ssize = _ffs[pdrv]->get_erase_size();
+    QWORD ssize = _ffs[pdrv]->get_erase_size();
     if (ssize < 512) {
         ssize = 512;
     }
@@ -170,7 +170,7 @@ static WORD disk_get_sector_size(BYTE pdrv)
     MBED_ASSERT(ssize >= FF_MIN_SS && ssize <= FF_MAX_SS);
     MBED_ASSERT(_ffs[pdrv]->get_read_size() <= _ffs[pdrv]->get_erase_size());
     MBED_ASSERT(_ffs[pdrv]->get_program_size() <= _ffs[pdrv]->get_erase_size());
-    return ssize;
+    return (WORD)ssize;
 }
 
 static DWORD disk_get_sector_count(BYTE pdrv)
@@ -195,7 +195,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    DWORD ssize = disk_get_sector_size(pdrv);
+    WORD ssize = disk_get_sector_size(pdrv);
     bd_addr_t addr = (bd_addr_t)sector*ssize;
     bd_size_t size = (bd_size_t)count*ssize;
     int err = _ffs[pdrv]->read(buff, addr, size);
@@ -205,7 +205,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    DWORD ssize = disk_get_sector_size(pdrv);
+    WORD ssize = disk_get_sector_size(pdrv);
     bd_addr_t addr = (bd_addr_t)sector*ssize;
     bd_size_t size = (bd_size_t)count*ssize;
     int err = _ffs[pdrv]->erase(addr, size);
@@ -253,7 +253,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
                 return RES_NOTRDY;
             } else {
                 DWORD *sectors = (DWORD*)buff;
-                DWORD ssize = disk_get_sector_size(pdrv);
+                WORD ssize = disk_get_sector_size(pdrv);
                 bd_addr_t addr = (bd_addr_t)sectors[0]*ssize;
                 bd_size_t size = (bd_size_t)(sectors[1]-sectors[0]+1)*ssize;
                 int err = _ffs[pdrv]->trim(addr, size);
@@ -664,10 +664,10 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
 
     lock();
 
-    if (offset < dh->dptr) {
+    if ((DWORD)offset < dh->dptr) {
         f_rewinddir(dh);
     }
-    while (dh->dptr < offset) {
+    while (dh->dptr < (DWORD)offset) {
         FILINFO finfo;
         FRESULT res;
 
