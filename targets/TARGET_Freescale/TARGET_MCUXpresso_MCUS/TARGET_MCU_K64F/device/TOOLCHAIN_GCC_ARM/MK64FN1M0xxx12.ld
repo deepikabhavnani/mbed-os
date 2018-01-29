@@ -71,6 +71,14 @@ __heap_size__ = 0x6000;
   #define MBED_APP_SIZE 0x100000
 #endif
 
+#if !defined(MBED_LOGGING_START)
+    #define MBED_LOGGING_START  0x3F000000
+#endif
+
+#if !defined(MBED_LOGGING_SIZE)
+  #define MBED_LOGGING_SIZE     0xFFFFFF
+#endif
+
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
@@ -83,6 +91,7 @@ MEMORY
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x410, LENGTH = MBED_APP_SIZE - 0x410
   m_data                (RW)  : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
   m_data_2              (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00030000
+  m_logging             (RX)  : ORIGIN = MBED_LOGGING_START, LENGTH = 0xFFFFFF
 }
 
 /* Define output sections */
@@ -364,6 +373,7 @@ SECTIONS
     *(m_usb_global)
   }
 
+
   /* Initializes stack on the end of block */
   __StackTop = ORIGIN(m_data_2) + LENGTH(m_data_2);
   __StackLimit = __StackTop - STACK_SIZE;
@@ -373,6 +383,13 @@ SECTIONS
 
   ASSERT(__StackLimit >= __HeapLimit, "Region m_data_2 overflowed with stack and heap")
 
+  .mbed_logging MBED_LOGGING_START :
+  {
+    KEEP(*(.keep.log_id))
+    KEEP(*(.keep.log_size))
+    KEEP(*(.keep.log_str))
+  } > m_logging
+
   /* Provide the physical memory boundaries for uVisor. */
   __uvisor_flash_start = ORIGIN(m_interrupts);
   __uvisor_flash_end = ORIGIN(m_text) + LENGTH(m_text);
@@ -380,4 +397,5 @@ SECTIONS
   __uvisor_sram_end = ORIGIN(m_data_2) + LENGTH(m_data_2);
   __uvisor_public_sram_start = __uvisor_sram_start;
   __uvisor_public_sram_end = __uvisor_sram_end;
+
 }
