@@ -385,9 +385,7 @@ SECTIONS
 
   .mbed_logging MBED_LOGGING_START :
   {
-    KEEP(*(.keep.log_id))
-    KEEP(*(.keep.log_size))
-    KEEP(*(.keep.log_str))
+    KEEP(*(.keep.log_data))
   } > m_logging
 
   /* Provide the physical memory boundaries for uVisor. */

@@ -35,21 +35,30 @@ extern "C" {
 #ifndef MBED_CONFIG_MAX_LOG_LEVEL
 #define MBED_CONFIG_MAX_LOG_LEVEL           5
 #endif
-#ifndef MBED_CONFIG_LOG_BUF_SIZE
-#define MBED_CONFIG_LOG_BUF_SIZE            512
+
+#ifndef MBED_CONFIG_MAX_LOG_ID_ARGS
+#define MBED_CONFIG_MAX_LOG_ID_ARGS         10
 #endif
 
+#ifndef MBED_CONFIG_MAX_LOG_STR_SIZE
+#define MBED_CONFIG_MAX_LOG_STR_SIZE        64
+#endif
+
+#ifndef MBED_CONFIG_LOG_MAX_BUFFER_SIZE
+#define MBED_CONFIG_LOG_MAX_BUFFER_SIZE     1024
+#endif
+    
 #define SEPARATOR                 " "
 #define FMT_SEP                   SEPARATOR ":" SEPARATOR
 
-#define GET_STRING_LEN_(x)        sizeof(x)
+#define GET_STRING_LEN_(x)        (sizeof(x) - 1)
 #define GET_STRING_LEN(x)         GET_STRING_LEN_(x)
 #define GET_STRING_2(x)           #x
 #define GET_STRING(x)             GET_STRING_2(x)
 #if defined(__ARMCC_VERSION)
-#define FILE_INFO               __MODULE__ SEPARATOR GET_STRING(__LINE__)
+#define FILE_INFO                 __MODULE__ SEPARATOR GET_STRING(__LINE__)
 #else
-#define FILE_INFO               __BASE_FILE__ SEPARATOR GET_STRING(__LINE__)
+#define FILE_INFO                 __BASE_FILE__ SEPARATOR GET_STRING(__LINE__)
 #endif
 
 typedef enum log_level {
@@ -77,30 +86,31 @@ typedef enum log_level {
 #define GET_NTH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, N, ...)   N
 #define COUNT_VARARGS(...)      GET_NTH_ARG(__VA_ARGS__, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 
-#define TERMINATING_STR        ":;: "
-#define APPEND_END_STR(x)       x TERMINATING_STR
+#define TERMINATING_STR        "END;"
+#define APPEND_END_STR(x)      (x TERMINATING_STR)
 
-typedef struct trace_id {
-    uint32_t t_id;
-    uint32_t strLen;
-    char *s;
-}trace_id_t;
+typedef struct trace_id_data {
+    uint8_t argCount;
+    int32_t *args;
+}trace_id_data_t;
 
 // Macros to log ID based data
-#define MBED_LOG_ID_3(cond, ...)                       do { if(cond) {log_id_data(__VA_ARGS__);}} while(0);
-#define MBED_LOG_ID_2(cond, counter, args, fmt, ...)   { volatile static const __attribute__((section(".keep.log_id"))) uint32_t id ## counter = counter; \
-                                                         volatile static const __attribute__((section(".keep.log_size"))) uint32_t len ## counter = GET_STRING_LEN(fmt); \
-                                                         volatile static const __attribute__((section(".keep.log_str"))) char str ## counter[] = APPEND_END_STR(fmt); \
+#define MBED_LOG_ID_3(cond, ...)                       do { if(cond) {log_buffer_id_data(__VA_ARGS__);}} while(0);
+#define MBED_LOG_ID_2(cond, counter, args, fmt, ...)   { volatile static const __attribute__((section(".keep.log_data"))) char str ## counter[] = APPEND_END_STR(fmt); \
+                                                         volatile static const __attribute__((section(".keep.log_data"))) uint32_t len ## counter = GET_STRING_LEN(fmt); \
+                                                         volatile static const __attribute__((section(".keep.log_data"))) uint32_t id ## counter = counter; \
                                                          MBED_LOG_ID_3(cond, args, counter, ##__VA_ARGS__); \
                                                        }
-#define MBED_LOG_ID_1(cond, counter, ...)     MBED_LOG_ID_2(cond, counter, COUNT_VARARGS(__VA_ARGS__), ##__VA_ARGS__)
+#define MBED_LOG_ID_1(cond, counter, ...)              MBED_LOG_ID_2(cond, counter, COUNT_VARARGS(__VA_ARGS__), ##__VA_ARGS__)
                                                   
 // Macros to log string data
-#define MBED_LOG_STR(cond, ...)             do { if(cond) {log_string_data(__VA_ARGS__);}} while(0);
-#define MBED_LOG_STR_1(cond, fmt, ...)      MBED_LOG_STR(cond, fmt "\n", ##__VA_ARGS__)
+#define MBED_LOG_STR(cond, ...)                        do { if(cond) {log_buffer_string_data(__VA_ARGS__);}} while(0);
+#define MBED_LOG_STR_1(cond, fmt, ...)                 MBED_LOG_STR(cond, fmt "\n", ##__VA_ARGS__)
 
-void log_id_data(uint8_t argCount, ...);
-void log_string_data(const char *format, ...);
+void log_dump_str_data(void *data);
+void log_dump_id_data(void *data);
+void log_buffer_id_data(uint8_t argCount, ...);
+void log_buffer_string_data(const char *format, ...);
 
 #ifdef __cplusplus
 }

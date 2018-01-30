@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#define MBED_ID_BASED_TRACING               1
+//#define MBED_ID_BASED_TRACING               1
 
 /** Information level log
  *
