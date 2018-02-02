@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#define MBED_ID_BASED_TRACING               1
+//#define MBED_ID_BASED_TRACING               1
 
 /** Information level log
  *
@@ -40,9 +40,9 @@ extern "C" {
  **/
 #if MBED_CONFIG_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
-#define info(mod, fmt, ...)   MBED_LOG_ID_1(1, __COUNTER__, mod LOG_INFO FILE_INFO FMT_SEP fmt, ##__VA_ARGS__)
+#define info(mod, fmt, ...)   MBED_LOG_ID_1(1, __COUNTER__, TRACE_ID(mod,__COUNTER__, __LINE__), LOG_INFO_ FILE_INFO_ FMT_SEP fmt, ##__VA_ARGS__)
 #else
-#define info(mod, fmt, ...)   MBED_LOG_STR_1(1, "%-4.4s" LOG_INFO FILE_INFO FMT_SEP fmt, mod, ##__VA_ARGS__)
+#define info(mod, fmt, ...)   MBED_LOG_STR_1(1, LOG_INFO_ "%-20.20s %-7d" FMT_SEP fmt, FILE_NAME_, __LINE__, ##__VA_ARGS__)
 #endif
 #else
 #define info(mod, ...)
@@ -56,9 +56,9 @@ extern "C" {
  **/
 #if MBED_CONFIG_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
-#define info_if(mod, condition, fmt, ...)   MBED_LOG_ID_1(condition, __COUNTER__, mod LOG_INFO FILE_INFO FMT_SEP fmt, ##__VA_ARGS__)
+#define info_if(mod, condition, fmt, ...)   MBED_LOG_ID_1(condition, __COUNTER__, TRACE_ID(mod,__COUNTER__, __LINE__), LOG_INFO_ FILE_INFO_ FMT_SEP fmt, ##__VA_ARGS__)
 #else
-#define info_if(mod, condition, fmt, ...)   MBED_LOG_STR_1(condition, "%-4.4s" LOG_INFO FILE_INFO FMT_SEP fmt, mod, ##__VA_ARGS__)
+#define info_if(mod, condition, fmt, ...)   MBED_LOG_STR_1(condition, LOG_INFO_ "%-20.20s %-7d" FMT_SEP fmt, FILE_NAME_, __LINE__, ##__VA_ARGS__)
 #endif
 #else
 #define info_if(mod, condition, ...)

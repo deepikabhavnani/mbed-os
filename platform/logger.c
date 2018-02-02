@@ -21,10 +21,6 @@
 extern "C" {
 #endif
 
-#ifndef MBED_CONFIG_DEFAULT_MOD_STRING
-#define MBED_CONFIG_DEFAULT_MOD_STRING     "GEN"
-#endif
-
 void log_string_data(const char *format, ...)
 {
     va_list args;
@@ -39,7 +35,7 @@ void log_id_data(uint8_t argCount, ...)
     va_list args;
     va_start(args, argCount);
     for (uint8_t i = 0; i < argCount; i++) {
-        printf("%d ", va_arg(args, int));
+        printf("0x%lx ", va_arg(args, uint32_t));
     }
     printf("\n");
     va_end(args);

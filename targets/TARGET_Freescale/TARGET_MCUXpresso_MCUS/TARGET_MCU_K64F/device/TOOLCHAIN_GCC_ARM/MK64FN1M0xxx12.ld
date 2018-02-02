@@ -373,7 +373,6 @@ SECTIONS
     *(m_usb_global)
   }
 
-
   /* Initializes stack on the end of block */
   __StackTop = ORIGIN(m_data_2) + LENGTH(m_data_2);
   __StackLimit = __StackTop - STACK_SIZE;
@@ -385,9 +384,7 @@ SECTIONS
 
   .mbed_logging MBED_LOGGING_START :
   {
-    KEEP(*(.keep.log_id))
-    KEEP(*(.keep.log_size))
-    KEEP(*(.keep.log_str))
+    KEEP(*(.keep.log_data))
   } > m_logging
 
   /* Provide the physical memory boundaries for uVisor. */
