@@ -326,7 +326,7 @@
 //   <o.31> PWM1_P2           <0=> Secure <1=> Non-Secure
 //
 */
-#define NVIC_INIT_ITNS0_VAL      0x3F0040
+#define NVIC_INIT_ITNS0_VAL      0x3F0000
 
 /*
     Initialize ITNS 1 (Interrupts 0..31)
@@ -584,7 +584,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.26>  BPWM0      <0=> Secure <1=> Non-Secure
 //   <o.27>  BPWM1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET2_VAL      0x00020002
+#define SCU_INIT_PNSSET2_VAL      0x00020000
 /*
     PNSSET3
 */
