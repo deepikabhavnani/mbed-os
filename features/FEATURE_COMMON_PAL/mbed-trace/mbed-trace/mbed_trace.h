@@ -120,7 +120,36 @@ extern "C" {
 #define TRACE_LEVEL_CMD           0x01
 
 #ifndef MBED_TRACE_MAX_LEVEL
-#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
+#define MBED_TRACE_MAX_LEVEL MBED_CONF_MAX_LOG_LEVEL
+#endif
+
+//usage macros:
+#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_DEBUG
+#define tr_debug(...)           mbed_tracef(LOG_DEBUG_,   TRACE_GROUP, __VA_ARGS__)   //!< Print debug message
+#else
+#define tr_debug(...)
+#endif
+
+#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_INFO
+#define tr_info(...)            mbed_tracef(LOG_INFO_,    TRACE_GROUP, __VA_ARGS__)   //!< Print info message
+#else
+#define tr_info(...)
+#endif
+
+#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_WARN
+#define tr_warning(...)         mbed_tracef(LOG_WARN_,    TRACE_GROUP, __VA_ARGS__)   //!< Print warning message
+#define tr_warn(...)            mbed_tracef(LOG_WARN_,    TRACE_GROUP, __VA_ARGS__)   //!< Alternative warning message
+#else
+#define tr_warning(...)
+#define tr_warn(...)
+#endif
+
+#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_ERROR
+#define tr_error(...)           mbed_tracef(LOG_ERR_,   TRACE_GROUP, __VA_ARGS__)   //!< Print Error Message
+#define tr_err(...)             mbed_tracef(LOG_ERR_,   TRACE_GROUP, __VA_ARGS__)   //!< Alternative error message
+#else
+#define tr_error(...)
+#define tr_err(...)
 #endif
 
 #define tr_cmdline(...)         mbed_tracef(TRACE_LEVEL_CMD,     TRACE_GROUP, __VA_ARGS__)   //!< Special print for cmdline. See more from TRACE_LEVEL_CMD -level
@@ -258,7 +287,20 @@ void mbed_trace_include_filters_set(char* filters);
 /** get trace include filters
  */
 const char* mbed_trace_include_filters_get(void);
-
+/**
+ * General trace function
+ * This should be used every time when user want to print out something important thing
+ * Usage e.g.
+ *   mbed_tracef( TRACE_LEVEL_INFO, "mygr", "Hello world!");
+ *
+ * @param dlevel debug level
+ * @param grp    trace group
+ * @param fmt    trace format (like printf)
+ * @param ...    variable arguments related to fmt
+ */
+#if defined(FEA_TRACE_SUPPORT) || MBED_CONF_MBED_TRACE_ENABLE || YOTTA_CFG_MBED_TRACE || (defined(YOTTA_CFG) && !defined(NDEBUG))
+#define mbed_tracef(dlevel, grp, fmt, ...)      MBED_LOG(__VA_ARGS__)
+#endif
 /**
  * General trace function
  * This should be used every time when user want to print out something important thing
@@ -355,7 +397,6 @@ char* mbed_trace_array(const uint8_t* buf, uint16_t len);
 #undef mbed_trace_exclude_filters_get
 #undef mbed_trace_include_filters_set
 #undef mbed_trace_include_filters_get
-#undef mbed_tracef
 #undef mbed_vtracef
 #undef mbed_trace_last
 #undef mbed_trace_ipv6
@@ -381,7 +422,7 @@ char* mbed_trace_array(const uint8_t* buf, uint16_t len);
 #define mbed_trace_include_filters_set(...)         ((void) 0)
 #define mbed_trace_include_filters_get(...)         ((const char *) 0)
 #define mbed_trace_last(...)                        ((const char *) 0)
-#define mbed_tracef(...)                            ((void) 0)
+#define mbed_tracef(...)
 #define mbed_vtracef(...)                           ((void) 0)
 /**
  * These helper functions accumulate strings in a buffer that is only flushed by actual trace calls. Using these
