@@ -304,13 +304,7 @@ static void mbed_trace_default_print(const char *str)
 {
     puts(str);
 }
-void mbed_tracef(uint8_t dlevel, const char *grp, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    mbed_vtracef(dlevel, grp, fmt, ap);
-    va_end(ap);
-}
+
 void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
 {
     if ( m_trace.mutex_wait_f ) {

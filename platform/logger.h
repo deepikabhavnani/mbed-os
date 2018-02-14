@@ -51,11 +51,11 @@ extern "C" {
 #define FILE_INFO_                  __BASE_FILE__ " " MBED_STRINGIFY(__LINE__) " "
 #endif
 
-#define LOG_LEVEL_ERR_CRITICAL      0
-#define LOG_LEVEL_ERR               1
-#define LOG_LEVEL_WARN              2
-#define LOG_LEVEL_DEBUG             3
-#define LOG_LEVEL_INFO              4
+#define LOG_LEVEL_ERR_CRITICAL      0x1
+#define LOG_LEVEL_ERR               0x2
+#define LOG_LEVEL_WARN              0x4
+#define LOG_LEVEL_INFO              0x8
+#define LOG_LEVEL_DEBUG             0x10
 
 // Log-Level Strings
 #define LOG_ERR_CRITICAL_        "CRT"

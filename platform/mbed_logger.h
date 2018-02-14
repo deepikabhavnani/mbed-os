@@ -162,6 +162,20 @@ extern "C" {
 #define tr_info_if(mod, condition, ...)
 #endif
 
+/** General trace function
+ * Generic fucntion to print user data
+ *
+ * @param dlevel debug level
+ * @param mod    Module name
+ * @param fmt    trace format (like printf)
+ * @param ...    variable arguments related to fmt
+ */
+#if MBED_ID_BASED_TRACING
+#define mbed_tracef(dlevel, mod, fmt, ...)              MBED_LOG_ID_1(mod, fmt, dlevel, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#else
+#define mbed_tracef(dlevel, mod, fmt, ...)              MBED_LOG_STR_1(mod, fmt, dlevel, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#endif
+
 #ifdef __cplusplus
 }
 #endif

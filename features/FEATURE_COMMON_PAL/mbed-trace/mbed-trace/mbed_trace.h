@@ -57,6 +57,7 @@ extern "C" {
 #endif
 
 #include <stdarg.h>
+#include "platform/mbed_logger.h"
 
 #ifndef YOTTA_CFG_MBED_TRACE
 #define YOTTA_CFG_MBED_TRACE 0
@@ -120,35 +121,6 @@ extern "C" {
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
-#endif
-
-//usage macros:
-#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_DEBUG
-#define tr_debug(...)           mbed_tracef(TRACE_LEVEL_DEBUG,   TRACE_GROUP, __VA_ARGS__)   //!< Print debug message
-#else
-#define tr_debug(...)
-#endif
-
-#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_INFO
-#define tr_info(...)            mbed_tracef(TRACE_LEVEL_INFO,    TRACE_GROUP, __VA_ARGS__)   //!< Print info message
-#else
-#define tr_info(...)
-#endif
-
-#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_WARN
-#define tr_warning(...)         mbed_tracef(TRACE_LEVEL_WARN,    TRACE_GROUP, __VA_ARGS__)   //!< Print warning message
-#define tr_warn(...)            mbed_tracef(TRACE_LEVEL_WARN,    TRACE_GROUP, __VA_ARGS__)   //!< Alternative warning message
-#else
-#define tr_warning(...)
-#define tr_warn(...)
-#endif
-
-#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_ERROR
-#define tr_error(...)           mbed_tracef(TRACE_LEVEL_ERROR,   TRACE_GROUP, __VA_ARGS__)   //!< Print Error Message
-#define tr_err(...)             mbed_tracef(TRACE_LEVEL_ERROR,   TRACE_GROUP, __VA_ARGS__)   //!< Alternative error message
-#else
-#define tr_error(...)
-#define tr_err(...)
 #endif
 
 #define tr_cmdline(...)         mbed_tracef(TRACE_LEVEL_CMD,     TRACE_GROUP, __VA_ARGS__)   //!< Special print for cmdline. See more from TRACE_LEVEL_CMD -level
@@ -286,22 +258,7 @@ void mbed_trace_include_filters_set(char* filters);
 /** get trace include filters
  */
 const char* mbed_trace_include_filters_get(void);
-/**
- * General trace function
- * This should be used every time when user want to print out something important thing
- * Usage e.g.
- *   mbed_tracef( TRACE_LEVEL_INFO, "mygr", "Hello world!");
- *
- * @param dlevel debug level
- * @param grp    trace group
- * @param fmt    trace format (like printf)
- * @param ...    variable arguments related to fmt
- */
-#if defined(__GNUC__) || defined(__CC_ARM)
-void mbed_tracef(uint8_t dlevel, const char* grp, const char *fmt, ...) __attribute__ ((__format__(__printf__, 3, 4)));
-#else
-void mbed_tracef(uint8_t dlevel, const char* grp, const char *fmt, ...);
-#endif
+
 /**
  * General trace function
  * This should be used every time when user want to print out something important thing
