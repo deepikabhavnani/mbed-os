@@ -299,7 +299,7 @@ const char* mbed_trace_include_filters_get(void);
  * @param ...    variable arguments related to fmt
  */
 #if defined(FEA_TRACE_SUPPORT) || MBED_CONF_MBED_TRACE_ENABLE || YOTTA_CFG_MBED_TRACE || (defined(YOTTA_CFG) && !defined(NDEBUG))
-#define mbed_tracef(dlevel, grp, fmt, ...)      MBED_LOG(__VA_ARGS__)
+#define mbed_tracef(dlevel, grp, fmt, ...)      MBED_LOG(dlevel, grp, fmt, ##__VA_ARGS__)
 #endif
 /**
  * General trace function
