@@ -59,11 +59,12 @@ void log_buffer_id_data(uint8_t argCount, ...)
     uint32_t checksum = 0;
 
     data = (uint32_t)(time/1000);
-    log_buffer.push(data);
-    checksum ^= data;
 
     va_list args;
     va_start(args, argCount);
+    core_util_critical_section_enter();
+    log_buffer.push(data);
+    checksum ^= data;
     for (uint8_t i = 0; i < argCount; i++) {
         data = va_arg(args, uint32_t);
         log_buffer.push(data);
@@ -71,6 +72,7 @@ void log_buffer_id_data(uint8_t argCount, ...)
     }
     log_buffer.push(checksum);
     log_buffer.push(0x0);
+    core_util_critical_section_exit();
     va_end(args);
 }
 
@@ -102,10 +104,12 @@ void log_buffer_string_data(const char *format, ...)
     count = strlen(one_line);
     snprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), "\n");
     count = strlen(one_line);
-    while (count) {
+
+    core_util_critical_section_enter();
+    while (count--) {
         log_buffer.push(one_line[bytes_written++]);
-        count--;
     }
+    core_util_critical_section_exit();
     va_end(args);
 }
 #endif
