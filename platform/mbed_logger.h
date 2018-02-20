@@ -18,6 +18,43 @@
 /** @{*/
 /**
  * \defgroup platform_log_api Logging API functions
+ *
+ * Example: Logging module usage
+ * @code
+ *
+ *  #include "mbed.h"
+ *  int main() {
+ *      MBED_CRIT("main", "This is critical error. Action Required: %s", "Restart");
+ *      MBED_ERR("main", "Error performing XYZ operation, errno = %d", -10);
+ *      MBED_WARN("main", "This is warning message");
+ *      MBED_DBG_IF("main", 1, "%d %s ", 1, "hello");
+ *      MBED_INFO("main", "%s %s 0x%lx", "world", "!", 2);
+ *  }
+ *
+ * @endcode
+ * 
+ * Example: Prints in interrupt context using logging module
+ * @code
+ *
+ *  #include "mbed.h"
+ *
+ *  void periodicCallback(void)
+ *  {
+ *      MBED_WARN("ISR", "Print in interrupt context");
+ *  }
+ *
+ *  int main() {
+ *      Ticker ticker1;
+ *      ticker1.attach_us(periodicCallback, 500000);
+ *      int count = 1; 
+ *      while(count++) {
+ *          wait(0.2);
+ *          MBED_DBG_IF("main", (0 == count%10), "Count = %d", count);
+ *      }
+ *  }
+ *
+ * @endcode
+ *
  * @{
  */
 #ifndef MBED_LOGGER_H
@@ -35,7 +72,7 @@ extern "C" {
 #endif
 
 #ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL             LOG_LEVEL_WARN
+#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_WARN
 #endif
 
 /** Critical level log
