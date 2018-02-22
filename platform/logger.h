@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include "platform/mbed_preprocessor.h"
@@ -92,6 +93,7 @@ typedef struct trace_id {
 
 void log_buffer_id_data(uint8_t argCount, ...);
 void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+void log_buffer_string_vdata(const char *format, va_list args);
 
 #ifdef __cplusplus
 }

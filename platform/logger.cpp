@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING)
+#if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
 #include <string.h>
 #include "platform/mbed_logger.h"
 #include "platform/CircularBuffer.h"
@@ -43,7 +43,7 @@ void log_thread(void)
     while (1) {
         while (!log_buffer.empty()) {
             log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
             fprintf(stderr, "0x%x ", data);
 #endif
         }
@@ -83,7 +83,7 @@ void log_thread(void)
     while (1) {
         while (!log_buffer.empty()) {
             log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
             fputc(data, stderr);
 #endif
         }
@@ -93,13 +93,19 @@ void log_thread(void)
 
 void log_buffer_string_data(const char *format, ...)
 {
+    va_list args;
+    va_start(args, format);
+    log_buffer_string_vdata(format, args);
+    va_end(args);
+}
+
+void log_buffer_string_vdata(const char *format, va_list args)
+{
     volatile uint64_t time = ticker_read_us(log_ticker);
     char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
     uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "%-8lld ", time);
     uint8_t bytes_written = 0;
 
-    va_list args;
-    va_start(args, format);
     vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
     count = strlen(one_line);
     snprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), "\n");
@@ -110,7 +116,6 @@ void log_buffer_string_data(const char *format, ...)
         log_buffer.push(one_line[bytes_written++]);
     }
     core_util_critical_section_exit();
-    va_end(args);
 }
 #endif
 
