@@ -408,7 +408,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS2_VAL      0x000
+#define NVIC_INIT_ITNS2_VAL      0x100
 
 
 /*
