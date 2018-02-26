@@ -184,6 +184,7 @@ void pre_main (void);
 
 osThreadAttr_t _main_thread_attr;
 
+void mbed_logging_start(void);
 /** The main thread's stack size can be configured by the application, if not explicitly specified it'll default to 4K */
 #ifndef MBED_CONF_APP_MAIN_STACK_SIZE
 #define MBED_CONF_APP_MAIN_STACK_SIZE 4096
@@ -195,7 +196,7 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
-#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
+#if !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
 osThreadAttr_t _log_thread_attr;
 #ifndef MBED_CONF_APP_LOG_STACK_SIZE
 #define MBED_CONF_APP_LOG_STACK_SIZE    768
@@ -208,7 +209,6 @@ osThreadAttr_t _log_thread_attr;
 MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
 mbed_rtos_storage_thread_t _log_obj;
 void log_thread(void);
-
 #endif
 
 /*
@@ -347,7 +347,7 @@ void mbed_start_main(void)
 
 void mbed_logging_start(void)
 {
-#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
+#if !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
     // Create an additional logging thread
     _log_thread_attr.stack_mem = _log_stack;
     _log_thread_attr.stack_size = sizeof(_log_stack);
@@ -408,7 +408,6 @@ void pre_main()
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     $Super$$__cpp_initialize__aeabi_();
-    mbed_logging_start();
     main();
 }
 
@@ -429,7 +428,6 @@ void pre_main (void)
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
-    mbed_logging_start();
     main(0, NULL);
 }
 
@@ -587,7 +585,6 @@ void pre_main(void)
     env_mutex_id = osMutexNew(&env_mutex_attr);
 
     __libc_init_array();
-    mbed_logging_start();
     main(0, NULL);
 }
 
@@ -669,7 +666,6 @@ void pre_main(void)
     }
 
     mbed_main();
-    mbed_logging_start();
     main();
 }
 

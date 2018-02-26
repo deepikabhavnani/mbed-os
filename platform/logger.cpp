@@ -37,6 +37,19 @@ const ticker_data_t *const log_ticker = get_us_ticker_data();
 extern "C" {
 #endif
 
+
+void mbed_logging_init(void)
+{
+#if defined(MBED_CONF_RTOS_PRESENT)
+    void mbed_logging_start(void);
+    static int mbed_logging_init = 0;
+    if (!mbed_logging_init) {
+        mbed_logging_start();
+        mbed_logging_init = 1;
+    }
+#endif
+}
+
 #if defined (MBED_ID_BASED_TRACING)
 void log_thread(void)
 {
@@ -55,6 +68,7 @@ void log_thread(void)
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
 void log_buffer_id_data(uint8_t argCount, ...)
 {
+    mbed_logging_init();
     volatile uint64_t time = ticker_read_us(log_ticker);
     uint32_t data = 0;
     uint32_t checksum = 0;
@@ -79,7 +93,7 @@ void log_buffer_id_data(uint8_t argCount, ...)
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    mbed_logging_init();
     volatile uint64_t time = ticker_read_us(log_ticker);
     uint32_t data;
 
@@ -95,7 +109,6 @@ void log_assert(const char *format, ...)
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
-#endif
 }
 
 #else
@@ -115,6 +128,7 @@ void log_thread(void)
 
 void log_buffer_string_data(const char *format, ...)
 {
+    mbed_logging_init();
     va_list args;
     va_start(args, format);
     log_buffer_string_vdata(format, args);
@@ -123,6 +137,7 @@ void log_buffer_string_data(const char *format, ...)
 
 void log_buffer_string_vdata(const char *format, va_list args)
 {
+    mbed_logging_init();    
     volatile uint64_t time = ticker_read_us(log_ticker);
     char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
     uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "%-8lld ", time);
@@ -142,7 +157,7 @@ void log_buffer_string_vdata(const char *format, va_list args)
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    mbed_logging_init(); 
     volatile uint64_t time = ticker_read_us(log_ticker);
 #define ASSERT_BUF_LENGTH   10
     char data[ASSERT_BUF_LENGTH];
@@ -170,7 +185,6 @@ void log_assert(const char *format, ...)
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
-#endif
 }
 
 #endif
