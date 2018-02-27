@@ -44,6 +44,9 @@ typedef struct {
 // Target flash configuration
 struct flash_s {
     const flash_target_config_t *target_config;
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
+    const flash_target_config_t *target_config_ns;
+#endif
     const flash_algo_t *flash_algo;
 };
 
