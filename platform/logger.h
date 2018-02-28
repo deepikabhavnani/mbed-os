@@ -50,18 +50,25 @@ extern "C" {
 #define FILE_NAME_                  __BASE_FILE__
 #endif
 
-#define LOG_LEVEL_ERR_CRITICAL      0
-#define LOG_LEVEL_ERR               1
-#define LOG_LEVEL_WARN              2
-#define LOG_LEVEL_DEBUG             3
-#define LOG_LEVEL_INFO              4
+#define LOG_LEVEL_ERR_CRITICAL      0x0
+#define LOG_LEVEL_GEN               0x1
+#define LOG_LEVEL_ERR               0x2
+#define LOG_LEVEL_WARN              0x4
+#define LOG_LEVEL_INFO              0x8
+#define LOG_LEVEL_DEBUG             0x10
 
 // Log-Level Strings
-#define LOG_ERR_CRITICAL_        "CRT"
-#define LOG_ERR_                 "ERR"
-#define LOG_WARN_                "WRN"
-#define LOG_DEBUG_               "DBG"
-#define LOG_INFO_                "INF"
+#define LOG_GEN_                 "GEN "
+#define LOG_ERR_CRITICAL_        "CRT "
+#define LOG_ERR_                 "ERR "
+#define LOG_WARN_                "WARN"
+#define LOG_DEBUG_               "DBG "
+#define LOG_INFO_                "INF0"
+
+#define GET_LOG_STRING(ll)      ((ll > LOG_LEVEL_INFO) ? LOG_DEBUG_ : \
+                                ((ll > LOG_LEVEL_WARN) ? LOG_INFO_  : \
+                                ((ll > LOG_LEVEL_ERR)  ? LOG_WARN_  : \
+                                ((ll > LOG_LEVEL_GEN)  ? LOG_ERR_   : LOG_GEN_))))
 
 #define GET_MODULE_ID_(a, b, c, d)   (375 + (a << 1) + (b << 2) + (c >> 2) + (d >> 1))
 #define GET_MODULE_ID(x)        (GET_MODULE_ID_(x[0], x[1], x[2], x[3]))
@@ -85,15 +92,18 @@ typedef struct trace_id {
                                                        MBED_LOG_ID_4(args, id, ##__VA_ARGS__); \
                                                       })
 #define MBED_LOG_ID_2(counter, id, ...)               MBED_LOG_ID_3(counter, id, MBED_COUNT_VA_ARGS(__VA_ARGS__), ##__VA_ARGS__)
-#define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), mod " " f " " MBED_STRINGIFY(l) " : " fmt", ##__VA_ARGS__)
+#define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), mod " " f " " MBED_STRINGIFY(l) " : " fmt, ##__VA_ARGS__)
 
 // Macros to log string data
 #define MBED_LOG_STR(...)                             log_buffer_string_data(__VA_ARGS__)
-#define MBED_LOG_STR_1(mod, fmt, ll, ...)             MBED_LOG_STR("[%-3.3s] [%-4.4s] : " fmt, ll, mod, ##__VA_ARGS__)
+#define MBED_LOG_STR_1(mod, fmt, ll, ...)             MBED_LOG_STR("[%-4.4s][%-4.4s]: " fmt, ll, mod, ##__VA_ARGS__)
 
 // Assert string
 #define MBED_LOG_ASSERT(...)                          log_assert(__VA_ARGS__)
-#define MBED_LOG_ASSERT_1(mod, fmt, ll, f, l, ...)    MBED_LOG_ASSERT("[%-3.3s] [%-4.4s] [%-15s %5d]: " fmt, ll, mod, f, l, ##__VA_ARGS__)
+#define MBED_LOG_ASSERT_1(mod, fmt, ll, f, l, ...)    MBED_LOG_ASSERT("[%-4.4s][%-4.4s][%-15s][%5d]: " fmt, ll, mod, f, l, ##__VA_ARGS__)
+
+#define MBED_LOG_VSTR_2(fmt1, ap)                     log_buffer_string_vdata(fmt1, ap)
+#define MBED_LOG_VSTR_1(ll, mod, fmt, ap)             MBED_LOG_VSTR_2("[" ll "][" mod "]: " fmt, ap)
 
 void log_buffer_id_data(uint8_t argCount, ...);
 void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));

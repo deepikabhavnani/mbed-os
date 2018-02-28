@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -593,3 +596,5 @@ char *mbed_trace_array(const uint8_t *buf, uint16_t len)
     m_trace.tmp_data_ptr = wptr;
     return str;
 }
+
+#endif
