@@ -79,7 +79,7 @@ void log_buffer_id_data(uint8_t argCount, ...)
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
     volatile uint64_t time = ticker_read_us(log_ticker);
     uint32_t data;
 
@@ -91,7 +91,7 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n %-8lld ", time);
+    mbed_error_printf("\n[%-8lld]", time);
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
@@ -125,7 +125,7 @@ void log_buffer_string_vdata(const char *format, va_list args)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
     char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
-    uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "%-8lld ", time);
+    uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "[%-8lld]", time);
     uint8_t bytes_written = 0;
 
     vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
@@ -142,7 +142,7 @@ void log_buffer_string_vdata(const char *format, va_list args)
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
     volatile uint64_t time = ticker_read_us(log_ticker);
 #define ASSERT_BUF_LENGTH   10
     char data[ASSERT_BUF_LENGTH];
@@ -166,7 +166,7 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n%-8lld ", time);
+    mbed_error_printf("\n[%-8lld]", time);
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
