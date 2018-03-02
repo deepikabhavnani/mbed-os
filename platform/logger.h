@@ -41,21 +41,22 @@ extern "C" {
 #define MBED_CONF_LOG_MAX_BUFFER_SIZE       1024
 #endif
 
-#define LOG_TOTAL_BUFFER_SIZE       MBED_CONF_LOG_MAX_BUFFER_SIZE
-#define LOG_SINGLE_STR_SIZE         MBED_CONF_MAX_LOG_STR_SIZE
+#define LOG_TOTAL_BUFFER_SIZE    MBED_CONF_LOG_MAX_BUFFER_SIZE
+#define LOG_SINGLE_STR_SIZE      MBED_CONF_MAX_LOG_STR_SIZE
 
 #if defined(__ARMCC_VERSION)
-#define FILE_NAME_                  __MODULE__
+#define FILE_NAME_               __MODULE__
 #else
-#define FILE_NAME_                  __BASE_FILE__
+#define FILE_NAME_               __BASE_FILE__
 #endif
 
-#define LOG_LEVEL_ERR_CRITICAL      0x0
-#define LOG_LEVEL_GEN               0x1
-#define LOG_LEVEL_ERR               0x2
-#define LOG_LEVEL_WARN              0x4
-#define LOG_LEVEL_INFO              0x8
-#define LOG_LEVEL_DEBUG             0x10
+#define LOG_LEVEL_ERR_CRITICAL   0x0
+#define LOG_LEVEL_GEN            0x1
+#define LOG_LEVEL_ERR            0x2
+#define LOG_LEVEL_WARN           0x4
+#define LOG_LEVEL_INFO           0x8
+#define LOG_LEVEL_DEBUG          0x10
+#define LOG_LEVEL_TRACE          0x20
 
 // Log-Level Strings
 #define LOG_GEN_                 "GEN "
@@ -64,6 +65,7 @@ extern "C" {
 #define LOG_WARN_                "WARN"
 #define LOG_DEBUG_               "DBG "
 #define LOG_INFO_                "INF0"
+#define LOG_TRACE_               "TRAC"
 
 #define GET_LOG_STRING(ll)      ((ll > LOG_LEVEL_INFO) ? LOG_DEBUG_ : \
                                 ((ll > LOG_LEVEL_WARN) ? LOG_INFO_  : \
@@ -78,14 +80,9 @@ extern "C" {
 #define SET_LINE_NUM(z)         ((z & 0xFFFF) << 16)
 #define TRACE_ID_(x,y,z)        (SET_MODULE(x) | SET_COUNTER(y) | SET_LINE_NUM(z))
 
-typedef struct trace_id {
-    uint32_t t_id;
-    uint32_t strLen;
-    char *s;
-}trace_id_t;
-
 // Macros to log ID based data
 #define MBED_LOG_ID_4(...)                           log_buffer_id_data(__VA_ARGS__)
+// Data dumped in special section is : Unique ID, format string length and format string
 #define MBED_LOG_ID_3(counter, id, args, fmt, ...)   ({volatile static const __attribute__((section(".keep.log_data"))) char str##counter[] = fmt; \
                                                        volatile static const __attribute__((section(".keep.log_data"))) uint32_t len##counter = MBED_STRLEN(fmt); \
                                                        volatile static const __attribute__((section(".keep.log_data"))) uint32_t c##counter = id; \
