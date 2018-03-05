@@ -17,12 +17,13 @@
 #if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
 #include <string.h>
 #include "platform/mbed_logger.h"
-#include "platform/CircularBuffer.h"
-#include "platform/mbed_wait_api.h"
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_interface.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/CircularBuffer.h"
+#include "mbed_events.h"
 
 using namespace mbed;
 
@@ -31,24 +32,22 @@ CircularBuffer <uint32_t, (MBED_CONF_LOG_MAX_BUFFER_SIZE/4)> log_buffer;
 #else
 CircularBuffer <char, MBED_CONF_LOG_MAX_BUFFER_SIZE> log_buffer;
 #endif
-const ticker_data_t *const log_ticker = get_us_ticker_data();
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+const ticker_data_t *const log_ticker = get_us_ticker_data();
+static EventQueue *mbed_log_equeue;
+
 #if defined (MBED_ID_BASED_TRACING)
 void log_thread(void)
 {
-    uint32_t data = 0;
-    while (1) {
-        while (!log_buffer.empty()) {
-            log_buffer.pop(data);
+    while (!log_buffer.empty()) {
+        log_buffer.pop(data);
 #if DEVICE_STDIO_MESSAGES
-            fprintf(stderr, "0x%x ", data);
+        fprintf(stderr, "0x%x ", data);
 #endif
-        }
-        wait_ms(1);
     }
 }
 
@@ -102,14 +101,11 @@ void log_assert(const char *format, ...)
 void log_thread(void)
 {
     char data;
-    while (1) {
-        while (!log_buffer.empty()) {
-            log_buffer.pop(data);
+    while (!log_buffer.empty()) {
+        log_buffer.pop(data);
 #if DEVICE_STDIO_MESSAGES
-            fputc(data, stderr);
+        fputc(data, stderr);
 #endif
-        }
-        wait_ms(1);
     }
 }
 
@@ -174,6 +170,13 @@ void log_assert(const char *format, ...)
 }
 
 #endif
+
+void mbed_logging_start(void)
+{
+    mbed_log_equeue = mbed_event_queue();
+    MBED_ASSERT(mbed_log_equeue != NULL);
+    mbed_log_equeue->call_every(100, log_thread);
+}
 
 #ifdef __cplusplus
 }
