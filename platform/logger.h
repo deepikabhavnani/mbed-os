@@ -108,6 +108,16 @@ void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(
 void log_buffer_string_vdata(const char *format, va_list args);
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 
+// Helper functions : Note helper functions are not ISR safe.
+char* mbed_log_array(const uint8_t* buf, uint32_t len);
+char* mbed_log_ipv6(const uint8_t* addr_ptr);
+char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
+
+void mbed_log_helper_lock(void);
+void mbed_log_helper_unlock(void);
+int mbed_log_valid_helper_data(void);
+char* mbed_log_get_helper_data(void);
+
 #ifdef __cplusplus
 }
 #endif

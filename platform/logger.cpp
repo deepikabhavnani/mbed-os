@@ -23,6 +23,8 @@
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_interface.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 using namespace mbed;
 
@@ -31,7 +33,7 @@ CircularBuffer <uint32_t, (MBED_CONF_LOG_MAX_BUFFER_SIZE/4)> log_buffer;
 #else
 CircularBuffer <char, MBED_CONF_LOG_MAX_BUFFER_SIZE> log_buffer;
 #endif
-const ticker_data_t *const log_ticker = get_us_ticker_data();
+static const ticker_data_t *const log_ticker = get_us_ticker_data();
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,7 +100,7 @@ void log_assert(const char *format, ...)
 #endif
 }
 
-#else
+#else // String based implementation
 void log_thread(void)
 {
     char data;
@@ -130,13 +132,21 @@ void log_buffer_string_vdata(const char *format, va_list args)
 
     vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
     count = strlen(one_line);
-    snprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), "\n");
-    count = strlen(one_line);
 
     core_util_critical_section_enter();
     while (count--) {
         log_buffer.push(one_line[bytes_written++]);
     }
+    if (mbed_log_valid_helper_data()) {
+        char *str = mbed_log_get_helper_data();
+        bytes_written = 0;
+        count = strlen(str);
+        while (count--) {
+            log_buffer.push(str[bytes_written++]);
+        }
+        mbed_log_helper_unlock();
+    }
+    log_buffer.push('\n');
     core_util_critical_section_exit();
 }
 

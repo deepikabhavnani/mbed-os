@@ -39,6 +39,9 @@ void log_buffer_string_vdata(const char *format, va_list args)
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     vfprintf(stderr, format, args);
     fputc('\n', stderr);
+    if (mbed_log_valid_helper_data()) {
+        mbed_log_helper_unlock();
+    }
 #endif
 }
 

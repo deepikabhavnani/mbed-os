@@ -73,7 +73,7 @@ extern "C" {
 #endif
 
 #ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_WARN
+#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_DEBUG
 #endif
 
 /** Critical level log
