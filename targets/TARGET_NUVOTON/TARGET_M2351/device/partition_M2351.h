@@ -367,7 +367,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS1_VAL      0x1C
+#define NVIC_INIT_ITNS1_VAL      0x3C
 
 /*
     Initialize ITNS 2 (Interrupts 0..31)
@@ -603,7 +603,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.20>  UART4      <0=> Secure <1=> Non-Secure
 //   <o.21>  UART5      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET3_VAL      0x00010000
+#define SCU_INIT_PNSSET3_VAL      0x00030000
 /*
     PNSSET4
 */
