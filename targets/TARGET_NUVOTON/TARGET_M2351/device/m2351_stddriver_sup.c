@@ -17,7 +17,7 @@
 #include <arm_cmse.h>
 #include <stdbool.h>
 #include "cmsis.h"
-#include "partition_m2351.h"
+#include "partition_M2351.h"
 #include "m2351_stddriver_sup.h"
 #include "mbed_error.h"
 
