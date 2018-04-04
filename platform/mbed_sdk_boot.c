@@ -56,7 +56,7 @@ void call_non_secure_rtos(void)
 MBED_WEAK void mbed_main(void) 
 {
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
-    call_non_secure_rtos();
+    //call_non_secure_rtos();
 #endif
 }
 
