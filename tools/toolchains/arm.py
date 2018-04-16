@@ -14,11 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, relpath
-from os import makedirs, write, curdir
+from os.path import join, dirname, splitext, basename, exists, relpath, isfile
+from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
+from shutil import rmtree
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -196,7 +200,7 @@ class ARM(mbedToolchain):
         Side Effects:
         This method MAY write a new scatter file to disk
         """
-        with open(scatter_file, "rb") as input:
+        with open(scatter_file, "r") as input:
             lines = input.readlines()
             if (lines[0].startswith(self.SHEBANG) or
                 not lines[0].startswith("#!")):
@@ -206,7 +210,7 @@ class ARM(mbedToolchain):
                 self.SHEBANG += " -I %s" % relpath(dirname(scatter_file),
                                                    base_path)
                 if self.need_update(new_scatter, [scatter_file]):
-                    with open(new_scatter, "wb") as out:
+                    with open(new_scatter, "w") as out:
                         out.write(self.SHEBANG)
                         out.write("\n")
                         out.write("".join(lines[1:]))
@@ -229,6 +233,11 @@ class ARM(mbedToolchain):
         cmd_pre = self.ld + args
         cmd = self.hook.get_cmdline_linker(cmd_pre)
 
+        # Create Secure library
+        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            secure_file = join(dirname(output), "cmse_lib.o")
+            cmd.extend(["--import_cmse_lib_out=%s" % secure_file])
+
         if self.RESPONSE_FILES:
             cmd_linker = cmd[0]
             link_files = self.get_link_file(cmd[1:])
@@ -248,9 +257,18 @@ class ARM(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
-        bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
+        # On .hex format, combine multiple .hex files (for multiple load regions) into one 
+        bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
+
+        # remove target binary file/path
+        if exists(bin):
+            if isfile(bin):
+                remove(bin)
+            else:
+                rmtree(bin)
+
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
@@ -309,7 +327,6 @@ class ARMC6(ARM_STD):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        build_dir = kwargs['build_dir']
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
 
@@ -346,12 +363,12 @@ class ARMC6(ARM_STD):
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.flags['common'].append("-mcmse")
-
-        # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            secure_file = join(build_dir, "cmse_lib.o")
-            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-
+        
+        # Add linking time preprocessor macro __DOMAIN_NS
+        if target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS":
+            define_string = self.make_ld_define("__DOMAIN_NS", 1)
+            self.flags["ld"].append(define_string)
+            
         asm_cpu = {
             "Cortex-M0+": "Cortex-M0",
             "Cortex-M4F": "Cortex-M4.fp",
