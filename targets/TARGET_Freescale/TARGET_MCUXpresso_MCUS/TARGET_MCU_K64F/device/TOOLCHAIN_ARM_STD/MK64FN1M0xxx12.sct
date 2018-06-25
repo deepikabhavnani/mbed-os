@@ -80,7 +80,10 @@
 #define m_data_size                    (0x00010000 - m_interrupts_ram_size)
 
 #define m_data_2_start                 0x20000000
-#define m_data_2_size                  0x00030000
+#define m_data_2_size                  0x0002F800
+
+#define evr_data_start                 0x2002F800
+#define evr_data_size                  0x00000800
 
 /* Sizes */
 #if (defined(__stack_size__))
@@ -121,5 +124,8 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; lo
     .ANY (+RW +ZI)
   }
   RW_IRAM1 ImageLimit(RW_m_data_2) { ; Heap region growing up
+  }
+  RW_IRAM2 evr_data_start UNINIT evr_data_size {
+    EventRecorder.o (+ZI)
   }
 }

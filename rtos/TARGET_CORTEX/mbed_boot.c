@@ -172,6 +172,10 @@
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif
+#ifdef RTE_Compiler_EventRecorder
+#include "EventRecorder.h"
+#endif
+
 /* Heap limits - only used if set */
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
@@ -395,6 +399,13 @@ void pre_main (void)
 
     __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
 
+#ifdef RTE_Compiler_EventRecorder
+    EventRecorderInitialize(EventLevelError, 1);  // initialize and start Event Recorder
+    EventRecorderEnable (EventRecordAPI, 0x80, 0xFE);
+    EventRecorderStart();
+    
+#endif
+    
     main(0, NULL);
 }
 
