@@ -98,13 +98,14 @@
 LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; load region size_region
   VECTOR_ROM m_interrupts_start m_interrupts_size { ; load address = execution address
     * (RESET,+FIRST)
+    .ANY2 (+RO)
   }
   ER_m_flash_config m_flash_config_start FIXED m_flash_config_size { ; load address = execution address
     * (FlashConfig)
   }
   ER_IROM1 m_text_start m_text_size { ; load address = execution address
     * (InRoot$$Sections)
-    .ANY (+RO)
+    .ANY1 (+RO)
   }
 
 #if (defined(__ram_vector_table__))

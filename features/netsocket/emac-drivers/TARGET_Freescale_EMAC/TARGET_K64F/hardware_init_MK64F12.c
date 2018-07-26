@@ -31,6 +31,10 @@
 #include "fsl_port.h"
 #include "fsl_sysmpu.h"
 
+void ENET_Transmit_IRQHandler(void);
+void ENET_Receive_IRQHandler(void);
+void ENET_Error_IRQHandler(void);
+
 /* Initialize the region 1, master 0, 1, 2, 3 -  core access rights supervisior r/w/x , user r/w/x. */
 sysmpu_rwxrights_master_access_control_t right =
 {
@@ -109,6 +113,11 @@ void kinetis_init_eth_hardware(void)
 
     /* Select the Ethernet timestamp clock source */
     CLOCK_SetEnetTime0Clock(0x2);
+
+    /* Set interrupt handlers */
+    NVIC_SetVector(ENET_Transmit_IRQn, (uint32_t)ENET_Transmit_IRQHandler);
+    NVIC_SetVector(ENET_Receive_IRQn, (uint32_t)ENET_Receive_IRQHandler);
+    NVIC_SetVector(ENET_Error_IRQn, (uint32_t)ENET_Error_IRQHandler);
 }
 
 /*******************************************************************************
