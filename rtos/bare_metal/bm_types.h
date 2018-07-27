@@ -28,8 +28,17 @@
 typedef struct {
     uint32_t count;
     const char *name;
-    bool allocated;
+    bool user_mem;
 } os_mutex_t;
+
+
+typedef struct {
+    const char *name;
+    uint16_t  tokens;
+    uint16_t  max_tokens;
+    uint8_t  state;
+    bool user_mem;
+} os_semaphore_t;
 
 typedef void* os_semaphore_t;
 typedef void* os_thread_t;

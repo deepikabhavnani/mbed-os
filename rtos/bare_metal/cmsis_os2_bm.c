@@ -495,14 +495,14 @@ osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id)
 osMutexId_t osMutexNew (const osMutexAttr_t *attr)
 {
     os_mutex_t *mut;
-    bool allocate = attr->cb_mem && (attr->cb_size >= sizeof(os_mutex_t));
-    if (allocate) {
+    bool user_mem = attr->cb_mem && (attr->cb_size >= sizeof(os_mutex_t));
+    if (user_mem) {
         mut = (os_mutex_t *)attr->cb_mem;
     } else {
         mut = malloc(sizeof(os_mutex_t));
     }
     memset(mut, 0, sizeof(os_mutex_t));
-    mut->allocated = allocate;
+    mut->user_mem = user_mem;
     mut->name = attr->name;
 
     return (osMutexId_t)mut;
@@ -555,7 +555,7 @@ osThreadId_t osMutexGetOwner (osMutexId_t mutex_id)
 osStatus_t osMutexDelete (osMutexId_t mutex_id)
 {
     os_mutex_t *mut = (os_mutex_t *)mutex_id;
-    if (mut->allocated) {
+    if (!mut->user_mem) {
         free(mut);
     }
 
@@ -572,8 +572,28 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id)
 /// \return semaphore ID for reference by other functions or NULL in case of error.
 osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
 {
-    //TODO
-    return (osSemaphoreId_t)0;
+    os_semaphore_t *semaphore;
+    
+    // Check parameters
+    if ((max_count == 0U) || (max_count > 255) || (initial_count > max_count))
+    {
+        return NULL;
+    }
+
+    bool user_mem = attr->cb_mem && (attr->cb_size >= sizeof(os_semaphore_t));
+    if (user_mem) {
+        semaphore = (os_semaphore_t *)attr->cb_mem;
+    } else {
+        semaphore = malloc(sizeof(os_semaphore_t));
+    }
+    memset(semaphore, 0, sizeof(os_semaphore_t));
+
+    semaphore->name = attr->name;
+    semaphore->tokens      = (uint16_t)initial_count;
+    semaphore->max_tokens  = (uint16_t)max_count;
+    semaphore->state       = 1;
+        
+    return (osSemaphoreId_t)semaphore;
 }
  
 /// Get name of a Semaphore object.
@@ -581,16 +601,48 @@ osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, cons
 /// \return name as NULL terminated string.
 const char *osSemaphoreGetName (osSemaphoreId_t semaphore_id)
 {
-    //TODO
-    return 0;
+    os_semaphore_t *semaphore = (os_semaphore_t *)semaphore_id;
+    return semaphore->name;
 }
- 
+
+
+
+void try_sem_acquire() {
+    // try to acquire
+    if (atomic_dec16_nz(&semaphore->tokens) != 0U) {
+        // done acquire
+        return osOK;
+    }
+}
+
 /// Acquire a Semaphore token or timeout if no tokens are available.
 /// \param[in]     semaphore_id  semaphore ID obtained by \ref osSemaphoreNew.
 /// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
 /// \return status code that indicates the execution status of the function.
 osStatus_t osSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout)
 {
+    os_semaphore_t *semaphore = (os_semaphore_t *)semaphore_id;
+    LowPowerTimer sem_timer;
+    int pending = timeout;
+    sem_timer.start();
+
+    do {
+        // try to acquire
+        if (atomic_dec16_nz(&semaphore->tokens) != 0U) {
+            // done acquire
+            sem_timer.stop();
+            return osOK;
+        }
+        if (timeout !=0) && (timeout > sem_timer.read_us()) {
+            sem_timer.stop();
+            break;
+        }
+        pending -= sem_timer.read_us();
+        int wait_time = pending < 1000 ? pending : 1000;
+        wait_us(wait_time);
+        // sleep
+    }while(1)
+
     return osError;
 }
  
@@ -599,7 +651,10 @@ osStatus_t osSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osSemaphoreRelease (osSemaphoreId_t semaphore_id)
 {
-    //TODO
+    os_semaphore_t *semaphore = (os_semaphore_t *)semaphore_id;
+    if (atomic_inc16_lt(&semaphore->tokens, semaphore->max_tokens) < semaphore->max_tokens) {
+       return osOK;
+    }
     return osError;
 }
  
@@ -608,8 +663,8 @@ osStatus_t osSemaphoreRelease (osSemaphoreId_t semaphore_id)
 /// \return number of tokens available.
 uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id)
 {
-    //TODO
-    return 0;
+    os_semaphore_t *semaphore = (os_semaphore_t *)semaphore_id;
+    return semaphore->tokens;
 }
  
 /// Delete a Semaphore object.
@@ -617,8 +672,11 @@ uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id)
 {
-    //TODO
-    return osError;
+    os_semaphore_t *semaphore = (os_semaphore_t *)semaphore_id;
+    if (!semaphore->user_mem) {
+        free(semaphore);
+    }
+    return osOK;
 }
  
  
