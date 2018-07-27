@@ -31,7 +31,6 @@ typedef struct {
     bool user_mem;
 } os_mutex_t;
 
-
 typedef struct {
     const char *name;
     uint16_t  tokens;
@@ -40,11 +39,16 @@ typedef struct {
     bool user_mem;
 } os_semaphore_t;
 
-typedef void* os_semaphore_t;
+typedef struct {
+    const char *name;
+    uint8_t state;
+    uint32_t event_flags;
+    boool user_mem;
+} os_event_flags_t;
+ 
 typedef void* os_thread_t;
 typedef void* os_memory_pool_t;
 typedef void* os_message_queue_t;
-typedef void* os_event_flags_t;
 typedef void* os_message_t;
 typedef void* os_timer_t;
 

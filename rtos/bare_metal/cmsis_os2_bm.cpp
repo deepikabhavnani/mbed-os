@@ -424,8 +424,23 @@ osStatus_t osTimerDelete (osTimerId_t timer_id)
 /// \return event flags ID for reference by other functions or NULL in case of error.
 osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr)
 {
-    //TODO
-    return (osEventFlagsId_t)0;
+    os_event_flags_t *ef_id;
+    if (core_util_is_isr_active) {
+        return (osEventFlagsId_t)0;
+    }
+
+    bool user_mem = attr->cb_mem && (attr->cb_size >= sizeof(os_event_flags_t));
+    if (user_mem) {
+        ef_id = (os_event_flags_t *)attr->cb_mem;
+    } else {
+        ef_id = (os_event_flags_t *)malloc(sizeof(os_event_flags_t));
+    }
+    memset(ef_id, 0, sizeof(os_semaphore_t));
+    ef_id->name         = attr->name;
+    ef_id->event_flags  = 0;
+    ef_id->state        = 1;
+        
+    return (osEventFlagsId_t)ef_id;
 }
  
 /// Get name of an Event Flags object.
@@ -433,8 +448,8 @@ osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr)
 /// \return name as NULL terminated string.
 const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
 {
-    //TODO
-    return 0;
+    os_event_flags_t *event_flag = (os_event_flags_t *)ef_id;
+    return event_flag->name;
 }
  
 /// Set the specified Event Flags.
@@ -443,8 +458,13 @@ const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
 /// \return event flags after setting or error code if highest bit set.
 uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)
 {
-    //TODO
-    return 0;
+    os_event_flags_t *ef = (os_event_flags_t *)ef_id;
+
+    core_util_critical_section_enter();
+    ef->event_flags |= flags;
+    core_util_critical_section_exit();
+
+    return ef->event_flags;
 }
  
 /// Clear the specified Event Flags.
@@ -453,8 +473,13 @@ uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)
 /// \return event flags before clearing or error code if highest bit set.
 uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)
 {
-    //TODO
-    return 0;
+    os_event_flags_t *ef = (os_event_flags_t *)ef_id;
+
+    core_util_critical_section_enter();
+    ef->event_flags &= ~flags;
+    core_util_critical_section_exit();
+
+    return ef->event_flags;
 }
  
 /// Get the current Event Flags.
@@ -462,8 +487,8 @@ uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)
 /// \return current event flags.
 uint32_t osEventFlagsGet (osEventFlagsId_t ef_id)
 {
-    //TODO
-    return 0;
+    os_event_flags_t *ef = (os_event_flags_t *)ef_id;
+    return ef->event_flags;
 }
  
 /// Wait for one or more Event Flags to become signaled.
@@ -474,8 +499,32 @@ uint32_t osEventFlagsGet (osEventFlagsId_t ef_id)
 /// \return event flags before clearing or error code if highest bit set.
 uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout)
 {
-    //TODO
-    return 0;
+    os_event_flags_t *ef = (os_event_flags_t *)ef_id;
+    mbed::LowPowerTimer ef_timer;
+    int pending = timeout;
+    ef_timer.start();
+    do {
+        core_util_critical_section_enter();
+        uint32_t event_flags;
+        event_flags = ef->event_flags;
+        if ((((options & osFlagsWaitAll) != 0U) && ((event_flags & flags) != flags)) ||
+            (((options & osFlagsWaitAll) == 0U) && ((event_flags & flags) == 0U))) {
+            event_flags = 0U;
+        } else {
+            ef->event_flags &= ~flags;
+        }
+
+        core_util_critical_section_exit();
+
+        if ((timeout !=0) && (timeout > ef_timer.read_us())) {
+            ef_timer.stop();
+            break;
+        }
+        pending -= ef_timer.read_us();
+        int wait_time = pending < 1000 ? pending : 1000;
+        wait_us(wait_time);
+        // sleep
+    } while(1);
 }
  
 /// Delete an Event Flags object.
@@ -483,8 +532,11 @@ uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t opti
 /// \return status code that indicates the execution status of the function.
 osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id)
 {
-    //TODO
-    return osError;
+    os_event_flags_t *ef = (os_event_flags_t *)ef_id;
+    if (!ef_id->user_mem) {
+        free(ef_id);
+    }
+    return osOK;
 }
  
 //  ==== Mutex Management Functions ====
