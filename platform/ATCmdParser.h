@@ -260,6 +260,10 @@ public:
      * @param ... arguments to printf
      * @return number of bytes written or -1 on failure
      */
+#ifdef printf
+#undef  printf
+#endif
+
     int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
 
     int vprintf(const char *format, va_list args);
