@@ -8,6 +8,8 @@
 #include "utest/unity_handler.h"
 #include <stddef.h>
 
+#if MBED_CONF_MBED_UNITY_ENABLE
+
 /* If omitted from header, declare overrideable prototypes here so they're ready for use */
 #ifdef UNITY_OMIT_OUTPUT_CHAR_HEADER_DECLARATION
 int UNITY_OUTPUT_CHAR(int);
@@ -1318,3 +1320,4 @@ int UnityEnd(void)
 }
 
 /*-----------------------------------------------*/
+#endif

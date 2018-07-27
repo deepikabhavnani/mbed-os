@@ -1,4 +1,10 @@
 {
     "name": "utest",
-    "macros": ["UNITY_INCLUDE_CONFIG_H"]
+    "macros": ["UNITY_INCLUDE_CONFIG_H"],
+    "config": {
+        "enable": {
+            "help": "Enable utest",
+            "value": 1
+        }
+    }
 }

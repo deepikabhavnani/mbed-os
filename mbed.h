@@ -104,4 +104,8 @@
 using namespace mbed;
 using namespace std;
 
+#ifdef NDEBUG
+//#define printf(...)   ((int) 0)
+#endif
+
 #endif

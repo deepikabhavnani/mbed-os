@@ -22,6 +22,7 @@
 #include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
 
+#if MBED_CONF_MBED_UTEST_ENABLE
 using namespace utest::v1;
 
 static void selftest_failure_handler(const failure_t);
@@ -145,3 +146,4 @@ utest::v1::status_t utest::v1::greentea_case_failure_continue_handler(const Case
     UTEST_LOG_FUNCTION();
     return verbose_case_failure_handler(source, failure);
 }
+#endif

@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#if MBED_CONF_MBED_UTEST_ENABLE
 using namespace utest::v1;
 
 namespace
@@ -373,3 +374,4 @@ void Harness::run_next_case()
         exit(test_failed);
     }
 }
+#endif

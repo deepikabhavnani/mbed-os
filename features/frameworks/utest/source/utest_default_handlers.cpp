@@ -21,6 +21,7 @@
 #include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
 
+#if MBED_CONF_MBED_UTEST_ENABLE
 using namespace utest::v1;
 
 static void test_failure_handler(const failure_t failure);
@@ -102,3 +103,4 @@ utest::v1::status_t utest::v1::verbose_case_failure_handler(const Case *const /*
     if (failure.reason & REASON_IGNORE) return STATUS_IGNORE;
     return STATUS_CONTINUE;
 }
+#endif

@@ -11,6 +11,7 @@
 #define UNITY_FRAMEWORK_H
 #define UNITY
 
+#include "unity_config.h"
 #ifdef __cplusplus
 extern "C"
 {

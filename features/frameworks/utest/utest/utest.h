@@ -22,6 +22,15 @@
 #ifndef UTEST_H
 #define UTEST_H
 
+#ifndef MBED_CONF_MBED_UTEST_ENABLE
+#define MBED_CONF_MBED_UTEST_ENABLE     1
+#endif
+
+#ifdef NDEBUG
+#undef MBED_CONF_MBED_UTEST_ENABLE
+#define MBED_CONF_MBED_UTEST_ENABLE     0
+#endif
+
 #include "utest/utest_types.h"
 #include "utest/utest_case.h"
 #include "utest/utest_default_handlers.h"

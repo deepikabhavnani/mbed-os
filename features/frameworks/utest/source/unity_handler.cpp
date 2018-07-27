@@ -21,6 +21,7 @@
 #include "utest/unity_handler.h"
 #include "greentea-client/greentea_serial.h"
 
+#if MBED_CONF_MBED_UTEST_ENABLE
 void utest_unity_assert_failure(void)
 {
     UTEST_LOG_FUNCTION();
@@ -36,6 +37,5 @@ void utest_unity_ignore_failure(void)
 void utest_safe_putc(int chr)
 {
     greentea_serial->putc(chr);
-}    
-
-
+}
+#endif

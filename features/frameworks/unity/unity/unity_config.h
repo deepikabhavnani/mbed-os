@@ -22,6 +22,15 @@
 #ifndef UNITY_CONFIG_H
 #define UNITY_CONFIG_H
 
+#ifndef MBED_CONF_MBED_UNITY_ENABLE
+#define MBED_CONF_MBED_UNITY_ENABLE     1
+#endif
+
+#ifdef NDEBUG
+#undef MBED_CONF_MBED_UNITY_ENABLE
+#define MBED_CONF_MBED_UNITY_ENABLE     0
+#endif
+
 /* When using unity with the mbed RTOS printing to the serial port using the stdlib is not 
    allowed as it causes a hardfault. Unity has the following define to control how failure
    messages are written:

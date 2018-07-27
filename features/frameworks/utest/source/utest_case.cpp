@@ -19,6 +19,7 @@
  #include "utest/utest_case.h"
  #include "utest/utest_serial.h"
 
+#if MBED_CONF_MBED_UTEST_ENABLE
 using namespace utest::v1;
 
 // case_t factory used by Case contructor
@@ -193,3 +194,4 @@ bool
 Case::is_empty() const {
     return !(handler || control_handler || repeat_count_handler || setup_handler || teardown_handler);
 }
+#endif

@@ -1,0 +1,9 @@
+{
+    "name": "unity",
+    "config": {
+        "enable": {
+            "help": "Enable unity",
+            "value": 1
+        }
+    }
+}

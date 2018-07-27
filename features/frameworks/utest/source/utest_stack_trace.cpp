@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if MBED_CONF_MBED_UTEST_ENABLE
 #ifdef UTEST_STACK_TRACE
  
 #include "greentea-client/test_env.h"
@@ -61,4 +62,5 @@ void utest_dump_trace()
     utest_printf("==================================================================\n");
 }
 
+#endif
 #endif
