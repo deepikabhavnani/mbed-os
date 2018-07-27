@@ -40,7 +40,7 @@ extern "C" {
  implementation specific, header file, therefore limiting scope of possible changes.
  */
 
-#include "pthread_types.h"
+#include "bm_types.h"
 
 #define OS_STACK_SIZE                   4096
 

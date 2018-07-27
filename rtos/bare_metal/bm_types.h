@@ -17,14 +17,20 @@
  *
  */
 
-#ifndef PTHREAD_TYPES_H_
-#define PTHREAD_TYPES_H_
+#ifndef BM_TYPES_H_
+#define BM_TYPES_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "cmsis_os2.h"
 
-typedef void* os_mutex_t;
+typedef struct {
+    uint32_t count;
+    const char *name;
+    bool allocated;
+} os_mutex_t;
+
 typedef void* os_semaphore_t;
 typedef void* os_thread_t;
 typedef void* os_memory_pool_t;

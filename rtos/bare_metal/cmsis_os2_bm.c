@@ -18,59 +18,11 @@
  */
 
 #include "cmsis_os2.h"
-#include "pthread_types.h"
+#include "bm_types.h"
 #include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <errno.h>
+#include <string.h>
 
-typedef struct {
-  const char *name;
-  pthread_mutex_t pt_mutex;
-  pthread_t pt_owner;
-} _mutex_t;
-
-typedef struct {
-  const char *name;
-  osThreadFunc_t func;
-  void *argument;
-  pthread_t pt_thread;
-} _thread_t;
-
-static void check_return(int val)
-{
-    if (val) {
-        printf("ERROR!\r\n");
-    }
-}
-
-static void sim_util_timespec_increment(struct timespec *ts, uint32_t time_ms)
-{
-    ts->tv_sec += time_ms / 1000;
-    ts->tv_nsec += (time_ms % 1000) * 1000000;
-    if (ts->tv_nsec >= 1000000000) {
-        ts->tv_nsec -= 1000000000;
-        ts->tv_sec += 1;
-    }
-}
-
-static pthread_key_t key_thread_local;
-static void *thread_start(void* arg)
-{
-    _thread_t *thread = (_thread_t *)arg;
-    int ret;
-    ret = pthread_setspecific(key_thread_local, arg);
-    check_return(ret);
-    thread->func(thread->argument);
-    osThreadExit();
-    return 0;
-}
-
-// TODO - problems:
-// -Mutexes are not robust so current kill mechanism in thread.h won't work
-// -Cannot get the owner of a mutex
-// -Cannot get the state of a thread
+#define OS_ASSERT(...)
 
 //  ==== Kernel Management Functions ====
  
@@ -78,8 +30,7 @@ static void *thread_start(void* arg)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osKernelInitialize (void)
 {
-    pthread_key_create(&key_thread_local, 0);
-    //TODO - setup thread info for this thread
+    //TODO
     return osError;
 }
  
@@ -90,6 +41,7 @@ osStatus_t osKernelInitialize (void)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size)
 {
+    //TODO
     return osError;
 }
  
@@ -104,6 +56,7 @@ osKernelState_t osKernelGetState (void)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osKernelStart (void)
 {
+    //TODO
     return osError;
 }
  
@@ -119,7 +72,7 @@ int32_t osKernelLock (void)
 /// \return previous lock state (1 - locked, 0 - not locked, error code if negative).
 int32_t osKernelUnlock (void)
 {
-    // Can't implement with pthreads
+    //TODO
     return 0;
 }
  
@@ -128,7 +81,7 @@ int32_t osKernelUnlock (void)
 /// \return new lock state (1 - locked, 0 - not locked, error code if negative).
 int32_t osKernelRestoreLock (int32_t lock)
 {
-    // Can't implement with pthreads
+    //TODO
     return 0;
 }
  
@@ -136,7 +89,7 @@ int32_t osKernelRestoreLock (int32_t lock)
 /// \return time in ticks, for how long the system can sleep or power-down.
 uint32_t osKernelSuspend (void)
 {
-    // Can't implement with pthreads
+    //TODO
     return 0;
 }
  
@@ -144,7 +97,7 @@ uint32_t osKernelSuspend (void)
 /// \param[in]     sleep_ticks   time in ticks for how long the system was in sleep or power-down mode.
 void osKernelResume (uint32_t sleep_ticks)
 {
-    // Can't implement with pthreads
+    //TODO
     (void)sleep_ticks;
 }
  
@@ -152,7 +105,7 @@ void osKernelResume (uint32_t sleep_ticks)
 /// \return RTOS kernel current tick count.
 uint64_t osKernelGetTickCount (void)
 {
-    // TODO - return ms since powerup?
+    //TODO
     return 0;
 }
  
@@ -160,6 +113,7 @@ uint64_t osKernelGetTickCount (void)
 /// \return frequency of the kernel tick.
 uint32_t osKernelGetTickFreq (void)
 {
+    //TODO
     return 1000;
 }
  
@@ -167,6 +121,7 @@ uint32_t osKernelGetTickFreq (void)
 /// \return RTOS kernel current system timer count as 32-bit value.
 uint32_t osKernelGetSysTimerCount (void)
 {
+    //TODO
     return osKernelGetTickCount() & 0xFFFFFFFF;
 }
  
@@ -187,31 +142,8 @@ uint32_t osKernelGetSysTimerFreq (void)
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr)
 {
-    pthread_attr_t pt_attr;
-    _thread_t *thread;
-    int ret;
-    ret = pthread_attr_init(&pt_attr);
-    check_return(ret);
-
-    if (attr->attr_bits & osThreadJoinable) {
-        ret = pthread_attr_setdetachstate(&pt_attr, PTHREAD_CREATE_JOINABLE);
-    } else {
-        ret = pthread_attr_setdetachstate(&pt_attr, PTHREAD_CREATE_DETACHED);
-    }
-    check_return(ret);
-
-    //TODO, optional - set priority
-
-    thread = malloc(sizeof(_thread_t));
-    thread->name = attr->name;
-    thread->func = func;
-    thread->argument = argument;
-    ret = pthread_create(&thread->pt_thread, &pt_attr, thread_start, (void *)thread);
-    check_return(ret);
-
-    ret = pthread_attr_destroy(&pt_attr);
-    check_return(ret);
-    return (osThreadId_t)thread;
+    //TODO
+    return (osThreadId_t)NULL;
 }
 
 osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context)
@@ -225,15 +157,16 @@ osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osTh
 /// \return name as NULL terminated string.
 const char *osThreadGetName (osThreadId_t thread_id)
 {
-    _thread_t *thread = (_thread_t *)thread_id;
-    return thread->name;
+    //TODO
+    return NULL;
 }
 
 /// Return the thread ID of the current running thread.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadGetId (void)
 {
-    return (osThreadId_t)pthread_getspecific(key_thread_local);
+    //TODO
+    return (osThreadId_t)0;
 }
 
 /// Get current thread state of a thread.
@@ -250,7 +183,7 @@ osThreadState_t osThreadGetState (osThreadId_t thread_id)
 /// \return stack size in bytes.
 uint32_t osThreadGetStackSize (osThreadId_t thread_id)
 {
-    // Not implementing
+    //TODO
     return 0;
 }
  
@@ -259,7 +192,7 @@ uint32_t osThreadGetStackSize (osThreadId_t thread_id)
 /// \return remaining stack space in bytes.
 uint32_t osThreadGetStackSpace (osThreadId_t thread_id)
 {
-    // Not implementing
+    //TODO
     return 0;
 }
  
@@ -294,7 +227,7 @@ osStatus_t osThreadYield (void)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osThreadSuspend (osThreadId_t thread_id)
 {
-    // Can't implement with pthreads
+    //TODO
     return osError;
 }
  
@@ -303,7 +236,7 @@ osStatus_t osThreadSuspend (osThreadId_t thread_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osThreadResume (osThreadId_t thread_id)
 {
-    // Can't implement with pthreads
+    //TODO
     return osError;
 }
  
@@ -321,18 +254,14 @@ osStatus_t osThreadDetach (osThreadId_t thread_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osThreadJoin (osThreadId_t thread_id)
 {
-    _thread_t *thread = (_thread_t *)thread_id;
-    int ret;
-    ret = pthread_join(thread->pt_thread, NULL);
-    check_return(ret);
-    return ret ? osError : 0;
+    //TODO
+    return osError;
 }
  
 /// Terminate execution of current running thread.
 __NO_RETURN void osThreadExit (void)
 {
-    // TODO - release mutextes held by this thread?
-    pthread_exit(0);
+    //TODO
     while (1) {
         // Should never reach here
     }
@@ -343,7 +272,7 @@ __NO_RETURN void osThreadExit (void)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osThreadTerminate (osThreadId_t thread_id)
 {
-    // Can't implement with pthreads
+    //TODO
     return osError;
 }
  
@@ -374,6 +303,7 @@ uint32_t osThreadEnumerate (osThreadId_t *thread_array, uint32_t array_items)
 /// \return thread flags after setting or error code if highest bit set.
 uint32_t osThreadFlagsSet (osThreadId_t thread_id, uint32_t flags)
 {
+    //TODO
     return 0;
 }
  
@@ -382,6 +312,7 @@ uint32_t osThreadFlagsSet (osThreadId_t thread_id, uint32_t flags)
 /// \return thread flags before clearing or error code if highest bit set.
 uint32_t osThreadFlagsClear (uint32_t flags)
 {
+    //TODO
     return 0;
 }
  
@@ -389,6 +320,7 @@ uint32_t osThreadFlagsClear (uint32_t flags)
 /// \return current thread flags.
 uint32_t osThreadFlagsGet (void)
 {
+    //TODO
     return 0;
 }
  
@@ -399,6 +331,7 @@ uint32_t osThreadFlagsGet (void)
 /// \return thread flags before clearing or error code if highest bit set.
 uint32_t osThreadFlagsWait (uint32_t flags, uint32_t options, uint32_t timeout)
 {
+    //TODO
     return 0;
 }
  
@@ -410,12 +343,7 @@ uint32_t osThreadFlagsWait (uint32_t flags, uint32_t options, uint32_t timeout)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osDelay (uint32_t ticks)
 {
-    int ret;
-    struct timespec ts = {0, 0};
-    struct timespec remaining;
-    sim_util_timespec_increment(&ts, ticks);
-    ret = nanosleep(&ts, &remaining);
-    check_return(ret);
+    //TODO
     return osOK;
 }
  
@@ -424,6 +352,7 @@ osStatus_t osDelay (uint32_t ticks)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osDelayUntil (uint64_t ticks)
 {
+    //TODO
     return osError;
 }
  
@@ -438,6 +367,7 @@ osStatus_t osDelayUntil (uint64_t ticks)
 /// \return timer ID for reference by other functions or NULL in case of error.
 osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)
 {
+    //TODO
     return (osTimerId_t)0;
 }
  
@@ -446,6 +376,7 @@ osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, 
 /// \return name as NULL terminated string.
 const char *osTimerGetName (osTimerId_t timer_id)
 {
+    //TODO
     return 0;
 }
  
@@ -455,6 +386,7 @@ const char *osTimerGetName (osTimerId_t timer_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks)
 {
+    //TODO
     return osError;
 }
  
@@ -463,6 +395,7 @@ osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osTimerStop (osTimerId_t timer_id)
 {
+    //TODO
     return osError;
 }
  
@@ -479,6 +412,7 @@ uint32_t osTimerIsRunning (osTimerId_t timer_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osTimerDelete (osTimerId_t timer_id)
 {
+    //TODO
     return osError;
 }
  
@@ -490,6 +424,7 @@ osStatus_t osTimerDelete (osTimerId_t timer_id)
 /// \return event flags ID for reference by other functions or NULL in case of error.
 osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr)
 {
+    //TODO
     return (osEventFlagsId_t)0;
 }
  
@@ -498,6 +433,7 @@ osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr)
 /// \return name as NULL terminated string.
 const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
 {
+    //TODO
     return 0;
 }
  
@@ -507,6 +443,7 @@ const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
 /// \return event flags after setting or error code if highest bit set.
 uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)
 {
+    //TODO
     return 0;
 }
  
@@ -516,6 +453,7 @@ uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)
 /// \return event flags before clearing or error code if highest bit set.
 uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)
 {
+    //TODO
     return 0;
 }
  
@@ -524,6 +462,7 @@ uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)
 /// \return current event flags.
 uint32_t osEventFlagsGet (osEventFlagsId_t ef_id)
 {
+    //TODO
     return 0;
 }
  
@@ -535,6 +474,7 @@ uint32_t osEventFlagsGet (osEventFlagsId_t ef_id)
 /// \return event flags before clearing or error code if highest bit set.
 uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout)
 {
+    //TODO
     return 0;
 }
  
@@ -543,6 +483,7 @@ uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t opti
 /// \return status code that indicates the execution status of the function.
 osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id)
 {
+    //TODO
     return osError;
 }
  
@@ -553,47 +494,18 @@ osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id)
 /// \return mutex ID for reference by other functions or NULL in case of error.
 osMutexId_t osMutexNew (const osMutexAttr_t *attr)
 {
-    pthread_mutexattr_t pt_attr;
-    _mutex_t *mutex;
-    int ret;
-
-    ret = pthread_mutexattr_init(&pt_attr);
-    check_return(ret);
-
-    if (attr->attr_bits & osMutexRecursive) {
-        ret = pthread_mutexattr_settype(&pt_attr, PTHREAD_MUTEX_RECURSIVE);
+    os_mutex_t *mut;
+    bool allocate = attr->cb_mem && (attr->cb_size >= sizeof(os_mutex_t));
+    if (allocate) {
+        mut = (os_mutex_t *)attr->cb_mem;
     } else {
-        ret = pthread_mutexattr_settype(&pt_attr, PTHREAD_MUTEX_NORMAL);
+        mut = malloc(sizeof(os_mutex_t));
     }
-    check_return(ret);
+    memset(mut, 0, sizeof(os_mutex_t));
+    mut->allocated = allocate;
+    mut->name = attr->name;
 
-
-//TODO
-
-//    if (attr->attr_bits & osMutexRobust) {
-//        ret = pthread_mutexattr_setrobust(&pt_attr, PTHREAD_MUTEX_ROBUST);
-//    } else {
-//        ret = pthread_mutexattr_setrobust(&pt_attr, PTHREAD_MUTEX_STALLED);
-//    }
-//    check_return(ret);
-
-    if (attr->attr_bits & osMutexPrioInherit) {
-        ret = pthread_mutexattr_setprioceiling(&pt_attr, PTHREAD_PRIO_INHERIT);
-    } else {
-        ret = pthread_mutexattr_setprioceiling(&pt_attr, PTHREAD_PRIO_NONE);
-    }
-    check_return(ret);
-
-    mutex = malloc(sizeof(_mutex_t));
-    mutex->pt_owner = (pthread_t)0;
-    mutex->name = attr->name;
-    pthread_mutex_init(&mutex->pt_mutex, &pt_attr);
-    check_return(ret);
-
-    ret = pthread_mutexattr_destroy(&pt_attr);
-    check_return(ret);
-
-    return mutex;
+    return (osMutexId_t)mut;
 }
  
 /// Get name of a Mutex object.
@@ -601,8 +513,8 @@ osMutexId_t osMutexNew (const osMutexAttr_t *attr)
 /// \return name as NULL terminated string.
 const char *osMutexGetName (osMutexId_t mutex_id)
 {
-    _mutex_t *mutex = (_mutex_t*)mutex_id;
-    return mutex->name;
+    os_mutex_t *mut = (os_mutex_t *)mutex_id;
+    return mut->name;
 }
  
 /// Acquire a Mutex or timeout if it is locked.
@@ -611,24 +523,9 @@ const char *osMutexGetName (osMutexId_t mutex_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)
 {
-    int ret;
-    _mutex_t *mutex = (_mutex_t*)mutex_id;
-    if (timeout) {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        sim_util_timespec_increment(&ts, timeout);
-        ret = pthread_mutex_timedlock(&mutex->pt_mutex, &ts);
-        if (ETIMEDOUT == ret) {
-            return osErrorTimeout;
-        } else if (ret) {
-            return osError;
-        }
-    } else {
-        ret = pthread_mutex_lock(&mutex->pt_mutex);
-        if (ret) {
-            return osError;
-        }
-    }
+    //TODO - ISR check
+    os_mutex_t *mut = (os_mutex_t *)mutex_id;
+    mut->count++;
     return osOK;
 }
  
@@ -637,10 +534,10 @@ osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMutexRelease (osMutexId_t mutex_id)
 {
-    _mutex_t *mutex = (_mutex_t*)mutex_id;
-    int ret;
-    ret = pthread_mutex_unlock(&mutex->pt_mutex);
-    return ret ? osError : osOK;
+    os_mutex_t *mut = (os_mutex_t *)mutex_id;
+    OS_ASSERT(mut->count > 0);
+    mut->count--;
+    return osOK;
 }
  
 /// Get Thread which owns a Mutex object.
@@ -657,10 +554,12 @@ osThreadId_t osMutexGetOwner (osMutexId_t mutex_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMutexDelete (osMutexId_t mutex_id)
 {
-    _mutex_t *mutex = (_mutex_t*)mutex_id;
-    pthread_mutex_destroy(&mutex->pt_mutex);
-    free(mutex);
-    return osError;
+    os_mutex_t *mut = (os_mutex_t *)mutex_id;
+    if (mut->allocated) {
+        free(mut);
+    }
+
+    return osOK;
 }
  
  
@@ -673,6 +572,7 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id)
 /// \return semaphore ID for reference by other functions or NULL in case of error.
 osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
 {
+    //TODO
     return (osSemaphoreId_t)0;
 }
  
@@ -681,6 +581,7 @@ osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, cons
 /// \return name as NULL terminated string.
 const char *osSemaphoreGetName (osSemaphoreId_t semaphore_id)
 {
+    //TODO
     return 0;
 }
  
@@ -698,6 +599,7 @@ osStatus_t osSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osSemaphoreRelease (osSemaphoreId_t semaphore_id)
 {
+    //TODO
     return osError;
 }
  
@@ -706,6 +608,7 @@ osStatus_t osSemaphoreRelease (osSemaphoreId_t semaphore_id)
 /// \return number of tokens available.
 uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id)
 {
+    //TODO
     return 0;
 }
  
@@ -714,6 +617,7 @@ uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id)
 {
+    //TODO
     return osError;
 }
  
@@ -727,6 +631,7 @@ osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id)
 /// \return memory pool ID for reference by other functions or NULL in case of error.
 osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr)
 {
+    //TODO
     return (osMemoryPoolId_t)0;
 }
  
@@ -735,6 +640,7 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
 /// \return name as NULL terminated string.
 const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return 0;
 }
  
@@ -744,6 +650,7 @@ const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id)
 /// \return address of the allocated memory block or NULL in case of no memory is available.
 void *osMemoryPoolAlloc (osMemoryPoolId_t mp_id, uint32_t timeout)
 {
+    //TODO
     return 0;
 }
  
@@ -753,6 +660,7 @@ void *osMemoryPoolAlloc (osMemoryPoolId_t mp_id, uint32_t timeout)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMemoryPoolFree (osMemoryPoolId_t mp_id, void *block)
 {
+    //TODO
     return osError;
 }
  
@@ -761,6 +669,7 @@ osStatus_t osMemoryPoolFree (osMemoryPoolId_t mp_id, void *block)
 /// \return maximum number of memory blocks.
 uint32_t osMemoryPoolGetCapacity (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return 0;
 }
  
@@ -769,6 +678,7 @@ uint32_t osMemoryPoolGetCapacity (osMemoryPoolId_t mp_id)
 /// \return memory block size in bytes.
 uint32_t osMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return 0;
 }
  
@@ -777,6 +687,7 @@ uint32_t osMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id)
 /// \return number of memory blocks used.
 uint32_t osMemoryPoolGetCount (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return 0;
 }
  
@@ -785,6 +696,7 @@ uint32_t osMemoryPoolGetCount (osMemoryPoolId_t mp_id)
 /// \return number of memory blocks available.
 uint32_t osMemoryPoolGetSpace (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return 0;
 }
  
@@ -793,6 +705,7 @@ uint32_t osMemoryPoolGetSpace (osMemoryPoolId_t mp_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMemoryPoolDelete (osMemoryPoolId_t mp_id)
 {
+    //TODO
     return osError;
 }
  
@@ -806,6 +719,7 @@ osStatus_t osMemoryPoolDelete (osMemoryPoolId_t mp_id)
 /// \return message queue ID for reference by other functions or NULL in case of error.
 osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr)
 {
+    //TODO
     return (osMessageQueueId_t)0;
 }
  
@@ -814,6 +728,7 @@ osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, con
 /// \return name as NULL terminated string.
 const char *osMessageQueueGetName (osMessageQueueId_t mq_id)
 {
+    //TODO
     return 0;
 }
  
@@ -825,6 +740,7 @@ const char *osMessageQueueGetName (osMessageQueueId_t mq_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout)
 {
+    //TODO
     return osError;
 }
  
@@ -836,6 +752,7 @@ osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uin
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout)
 {
+    //TODO
     return osError;
 }
  
@@ -844,6 +761,7 @@ osStatus_t osMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8_t *
 /// \return maximum number of messages.
 uint32_t osMessageQueueGetCapacity (osMessageQueueId_t mq_id)
 {
+    //TODO
     return 0;
 }
  
@@ -852,6 +770,7 @@ uint32_t osMessageQueueGetCapacity (osMessageQueueId_t mq_id)
 /// \return maximum message size in bytes.
 uint32_t osMessageQueueGetMsgSize (osMessageQueueId_t mq_id)
 {
+    //TODO
     return 0;
 }
  
@@ -860,6 +779,7 @@ uint32_t osMessageQueueGetMsgSize (osMessageQueueId_t mq_id)
 /// \return number of queued messages.
 uint32_t osMessageQueueGetCount (osMessageQueueId_t mq_id)
 {
+    //TODO
     return 0;
 }
  
@@ -868,6 +788,7 @@ uint32_t osMessageQueueGetCount (osMessageQueueId_t mq_id)
 /// \return number of available slots for messages.
 uint32_t osMessageQueueGetSpace (osMessageQueueId_t mq_id)
 {
+    //TODO
     return 0;
 }
  
@@ -876,6 +797,7 @@ uint32_t osMessageQueueGetSpace (osMessageQueueId_t mq_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMessageQueueReset (osMessageQueueId_t mq_id)
 {
+    //TODO
     return osError;
 }
  
@@ -884,5 +806,6 @@ osStatus_t osMessageQueueReset (osMessageQueueId_t mq_id)
 /// \return status code that indicates the execution status of the function.
 osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id)
 {
+    //TODO
     return osError;
 }

@@ -19,11 +19,17 @@
 #include <stdint.h>
 #include "cmsis.h"
 
-/* This startup is for mbed 2 baremetal. There is no config for RTOS for mbed 2,
- * therefore we protect this file with MBED_CONF_RTOS_PRESENT
- * Note: The new consolidated started for mbed OS is in rtos/mbed_boot code file.
- */
-#if !defined(MBED_CONF_RTOS_PRESENT)
+#include "mbed_rtos_storage.h"
+#include "cmsis_os2.h"
+#include "bm_types.h"
+
+os_mutex_t singleton_mutex_data = {
+        0,
+        "singleton_mutex",
+        false
+};
+osMutexId_t singleton_mutex_id = (osMutexId_t)&singleton_mutex_data;
+
 
 /* mbed_main is a function that is called before main()
  * mbed_sdk_init() is also a function that is called before main(), but unlike
@@ -83,6 +89,11 @@ void _platform_post_stackheap_init(void)
     mbed_sdk_init();
 }
 
+void __aeabi_assert(const char *expr, const char *file, int line)
+{
+
+}
+
 #elif defined (__GNUC__)
 
 extern int __real_main(void);
@@ -108,7 +119,5 @@ int __low_level_init(void)
     mbed_copy_nvic();
     return 1;
 }
-
-#endif
 
 #endif
