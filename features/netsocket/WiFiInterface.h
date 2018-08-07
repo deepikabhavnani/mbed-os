@@ -21,6 +21,7 @@
 #include <string.h>
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
+#include "WiFiInterfaceStats.h"
 
 /** WiFiInterface class
  *
@@ -120,6 +121,7 @@ protected:
      * @return pointer to interface, if any
      */
     static WiFiInterface *get_target_default_instance();
+    mbed::WiFiInterfaceStats stats;
 };
 
 #endif
