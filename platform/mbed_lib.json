@@ -64,6 +64,26 @@
         "max-error-filename-len": {
             "help": "Sets the maximum length of buffer used for capturing the filename in error context. This needs error-filename-capture-enabled feature.",
             "value": 16
+        },
+        
+        "mbed-trace-enable": {
+            "help": "Used to globally enable traces.",
+            "value": true
+        },
+        
+        "mbed-trace-group": {
+            "help": "Default trace group string",
+            "value": "trace"
+        },
+        
+        "mbed-trace-level": {
+            "help": "Default trace level",
+            "value": 2
+        },
+        
+        "mbed-trace-fea-ipv6": {
+            "help": "Used to globally disable ipv6 tracing features.",
+            "value": null
         }
     },
     "target_overrides": {

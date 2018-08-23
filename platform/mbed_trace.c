@@ -31,12 +31,6 @@
 #include "mbed-client-libservice/common_functions.h"
 #endif
 
-#if defined(YOTTA_CFG_MBED_TRACE_MEM)
-#define MBED_TRACE_MEM_INCLUDE      YOTTA_CFG_MBED_TRACE_MEM_INCLUDE
-#define MBED_TRACE_MEM_ALLOC        YOTTA_CFG_MBED_TRACE_MEM_ALLOC
-#define MBED_TRACE_MEM_FREE         YOTTA_CFG_MBED_TRACE_MEM_FREE
-#else /* YOTTA_CFG_MEMLIB */
-// Default options
 #ifndef MBED_TRACE_MEM_INCLUDE
 #define MBED_TRACE_MEM_INCLUDE   <stdlib.h>
 #endif
@@ -47,7 +41,6 @@
 #ifndef MBED_TRACE_MEM_FREE
 #define MBED_TRACE_MEM_FREE  free
 #endif
-#endif /* YOTTA_CFG_MEMLIB */
 
 #define VT100_COLOR_ERROR "\x1b[31m"
 #define VT100_COLOR_WARN  "\x1b[33m"
@@ -57,9 +50,6 @@
 /** default max trace line size in bytes */
 #ifdef MBED_TRACE_LINE_LENGTH
 #define DEFAULT_TRACE_LINE_LENGTH         MBED_TRACE_LINE_LENGTH
-#elif defined YOTTA_CFG_MBED_TRACE_LINE_LENGTH
-#warning YOTTA_CFG_MBED_TRACE_LINE_LENGTH is deprecated and will be removed in the future! Use MBED_TRACE_LINE_LENGTH instead.
-#define DEFAULT_TRACE_LINE_LENGTH         YOTTA_CFG_MBED_TRACE_LINE_LENGTH
 #else
 #define DEFAULT_TRACE_LINE_LENGTH         1024
 #endif
@@ -68,12 +58,6 @@
     trace_ipv6, trace_ipv6_prefix and trace_array */
 #ifdef MBED_TRACE_TMP_LINE_LENGTH
 #define DEFAULT_TRACE_TMP_LINE_LEN        MBED_TRACE_TMP_LINE_LENGTH
-#elif defined YOTTA_CFG_MBED_TRACE_TMP_LINE_LEN
-#warning The YOTTA_CFG_MBED_TRACE_TMP_LINE_LEN flag is deprecated and will be removed in the future! Use MBED_TRACE_TMP_LINE_LENGTH instead.
-#define DEFAULT_TRACE_TMP_LINE_LEN        YOTTA_CFG_MBED_TRACE_TMP_LINE_LEN
-#elif defined YOTTA_CFG_MTRACE_TMP_LINE_LEN
-#warning The YOTTA_CFG_MTRACE_TMP_LINE_LEN flag is deprecated and will be removed in the future! Use MBED_TRACE_TMP_LINE_LENGTH instead.
-#define DEFAULT_TRACE_TMP_LINE_LEN        YOTTA_CFG_MTRACE_TMP_LINE_LEN
 #else
 #define DEFAULT_TRACE_TMP_LINE_LEN        128
 #endif

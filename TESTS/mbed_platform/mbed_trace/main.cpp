@@ -173,7 +173,7 @@ TEST(trace, PreInitConfiguration)
     STRCMP_EQUAL(expectedStr, buf);
 }
 
-#if YOTTA_CFG_MBED_TRACE_FEA_IPV6 == 1
+#if MBED_CONF_PLATFORM_MBED_TRACE_FEA_IPV6 == 1
 ip6tos_stub_def_t ip6tos_stub; // extern variable
 
 TEST(trace, ipv6)
@@ -224,7 +224,7 @@ TEST(trace, active_level_all_ipv6)
   CHECK(memcmp(ip6tos_stub.input_array, arr, 16) == 0);
   STRCMP_EQUAL("[DBG ][mygr]: my addr: 2001:db8::1:0:0:1", buf);
 }
-#endif //YOTTA_CFG_MBED_TRACE_FEA_IPV6
+#endif
 
 TEST(trace, config_change)
 {

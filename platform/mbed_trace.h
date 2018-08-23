@@ -36,8 +36,6 @@
  *          return 0;
  *      }
  * \endcode
- * Activate with compiler flag: YOTTA_CFG_MBED_TRACE
- * Configure trace line buffer size with compiler flag: YOTTA_CFG_MBED_TRACE_LINE_LENGTH. Default length: 1024.
  * Limit the size of flash by setting MBED_TRACE_MAX_LEVEL value. Default is TRACE_LEVEL_DEBUG (all included)
  *
  */
@@ -48,33 +46,18 @@
 extern "C" {
 #endif
 
-#ifdef YOTTA_CFG
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#else
+#ifndef MBED_CONF_PLATFORM_MBED_TRACE_FEA_IPV6
+#define MBED_CONF_PLATFORM_MBED_TRACE_FEA_IPV6 1
+#endif
+
+#ifdef MBED_CONF_PLATFORM_MBED_TRACE_FEA_IPV6
 #include "ns_types.h"
 #endif
 
 #include <stdarg.h>
 
-#ifndef YOTTA_CFG_MBED_TRACE
-#define YOTTA_CFG_MBED_TRACE 0
-#endif
-
-#ifndef YOTTA_CFG_MBED_TRACE_FEA_IPV6
-#define YOTTA_CFG_MBED_TRACE_FEA_IPV6 1
-#else
-#warning YOTTA_CFG_MBED_TRACE_FEA_IPV6 is deprecated and will be removed in the future! Use MBED_CONF_MBED_TRACE_FEA_IPV6 instead.
-#define MBED_CONF_MBED_TRACE_FEA_IPV6 YOTTA_CFG_MBED_TRACE_FEA_IPV6
-#endif
-
-#ifndef MBED_CONF_MBED_TRACE_ENABLE
-#define MBED_CONF_MBED_TRACE_ENABLE 0
-#endif
-
-#ifndef MBED_CONF_MBED_TRACE_FEA_IPV6
-#define MBED_CONF_MBED_TRACE_FEA_IPV6 1
+#ifndef MBED_CONF_PLATFORM_MBED_TRACE_ENABLE
+#define MBED_CONF_PLATFORM_MBED_TRACE_ENABLE 0
 #endif
 
 /** 3 upper bits are trace modes related,
@@ -118,8 +101,12 @@ extern "C" {
 /** special level for cmdline. Behaviours like "plain mode" */
 #define TRACE_LEVEL_CMD           0x01
 
+#ifndef MBED_CONF_MBED_TRACE_ENABLE
+#define MBED_CONF_MBED_TRACE_ENABLE     TRACE_LEVEL_ERROR
+#endif
+
 #ifndef MBED_TRACE_MAX_LEVEL
-#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
+#define MBED_TRACE_MAX_LEVEL            MBED_CONF_MBED_TRACE_ENABLE
 #endif
 
 //usage macros:
@@ -169,10 +156,8 @@ extern "C" {
  */
 
 #ifndef TRACE_GROUP
-#ifdef YOTTA_CFG_MBED_TRACE_GROUP
-#define TRACE_GROUP_STR_HELPER(x) #x
-#define TRACE_GROUP_STR(x) TRACE_GROUP_STR_HELPER(x)
-#define TRACE_GROUP TRACE_GROUP_STR(YOTTA_CFG_MBED_TRACE_GROUP)
+#ifdef MBED_CONF_PLATFORM_MBED_TRACE_GROUP
+#define TRACE_GROUP MBED_CONF_PLATFORM_MBED_TRACE_GROUP
 #endif
 #endif
 
@@ -328,7 +313,7 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap);
  *  Get last trace from buffer
  */
 const char* mbed_trace_last(void);
-#if MBED_CONF_MBED_TRACE_FEA_IPV6 == 1
+#if MBED_CONF_PLATFORM_MBED_TRACE_FEA_IPV6 == 1
 /**
  * mbed_tracef helping function for convert ipv6
  * table to human readable string.
@@ -376,7 +361,7 @@ char* mbed_trace_array(const uint8_t* buf, uint16_t len);
  * If tracing is disabled, the dummies will hide the real functions. The real functions can still be reached by
  * surrounding the name of the function with brackets, e.g. "(mbed_tracef)(dlevel, grp, "like so");"
  * */
-#if defined(FEA_TRACE_SUPPORT) || MBED_CONF_MBED_TRACE_ENABLE || YOTTA_CFG_MBED_TRACE || (defined(YOTTA_CFG) && !defined(NDEBUG))
+#if defined(FEA_TRACE_SUPPORT) || MBED_CONF_PLATFORM_MBED_TRACE_ENABLE || !defined(NDEBUG)
 // Make sure FEA_TRACE_SUPPORT is always set whenever traces are enabled.
 #ifndef FEA_TRACE_SUPPORT
 #define FEA_TRACE_SUPPORT

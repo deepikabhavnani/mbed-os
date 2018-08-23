@@ -95,6 +95,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "platform/DeepSleepLock.h"
 #include "platform/mbed_stats.h"
+#include "platform/mbed_trace.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"
