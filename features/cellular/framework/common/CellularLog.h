@@ -22,7 +22,7 @@
 #define FEA_TRACE_SUPPORT
 #endif
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #ifndef TRACE_GROUP
 #define TRACE_GROUP  "CELL"
 #endif // TRACE_GROUP

@@ -25,7 +25,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "LoRaMacCommand.h"
 #include "LoRaMac.h"
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #define TRACE_GROUP "LMACC"
 
 /**

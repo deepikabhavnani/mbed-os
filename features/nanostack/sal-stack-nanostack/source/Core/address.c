@@ -1389,7 +1389,7 @@ int8_t addr_interface_select_source(protocol_interface_info_entry_t *cur, uint8_
 // This last function must always be compiled with tracing enabled
 #ifndef FEA_TRACE_SUPPORT
 #define FEA_TRACE_SUPPORT 1
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #endif
 char* trace_sockaddr(const sockaddr_t* addr, bool panid_prefix)
 {

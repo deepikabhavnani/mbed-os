@@ -24,7 +24,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdlib.h>
 #include "LoRaMac.h"
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #define TRACE_GROUP "LMAC"
 
 using namespace events;

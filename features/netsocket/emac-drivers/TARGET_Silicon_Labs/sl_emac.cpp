@@ -31,7 +31,7 @@
 
 #include <stdlib.h>
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #define TRACE_GROUP "SEth"
 
 #define FLAG_TX     1

@@ -17,7 +17,7 @@
 #define MBED_CONF_MBED_TRACE_ENABLE 1
 #define MBED_CONF_MBED_TRACE_FEA_IPV6 1
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #include "ip6tos_stub.h"
 
 int main(int ac, char **av)

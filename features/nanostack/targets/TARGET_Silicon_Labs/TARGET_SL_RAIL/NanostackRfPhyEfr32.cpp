@@ -24,7 +24,7 @@
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_toolchain.h"
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #define  TRACE_GROUP  "SLRF"
 
 /* Enable debug printing with SL_RADIO_DEBUG, override debug printer with SL_DEBUG_PRINT. */

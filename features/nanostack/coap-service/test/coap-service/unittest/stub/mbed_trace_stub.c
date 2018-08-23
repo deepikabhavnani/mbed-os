@@ -24,7 +24,7 @@
 #define YOTTA_CFG_MBED_TRACE_FEA_IPV6 1
 #endif
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #if YOTTA_CFG_MBED_TRACE_FEA_IPV6 == 1
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/common_functions.h"

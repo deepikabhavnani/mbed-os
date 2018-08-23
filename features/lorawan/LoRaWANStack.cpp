@@ -30,7 +30,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "LoRaWANStack.h"
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"
 
 #define INVALID_PORT                0xFF

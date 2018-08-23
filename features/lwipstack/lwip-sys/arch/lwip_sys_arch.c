@@ -563,7 +563,7 @@ static sys_thread_data_t thread_pool[SYS_THREAD_POOL_N];
 #include <stdbool.h>
 
 #if MBED_CONF_LWIP_USE_MBED_TRACE
-#include "mbed-trace/mbed_trace.h"
+#include "mbed_trace.h"
 
 void lwip_mbed_tracef_debug(const char *fmt, ...)
 {
