@@ -335,7 +335,7 @@ private:
     // Bus speed configuration
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
     qspi_bus_width_t _address_width; //Bus width for Address phase
-    qspi_address_size_t _address_size; // number of bytes for address
+    qspi_bus_width_t _alt_width;  //Bus width for Alt phase
     qspi_bus_width_t _data_width; //Bus width for Data phase
     int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
 
