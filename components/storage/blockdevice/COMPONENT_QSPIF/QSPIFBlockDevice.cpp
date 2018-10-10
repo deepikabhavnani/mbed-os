@@ -34,6 +34,7 @@ using namespace mbed;
 #define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
 #define QSPI_MAX_STATUS_REGISTER_SIZE 2
+#define QSPI_MAX_CONFIG_REGISTER_0_SIZE 2
 #ifndef UINT64_MAX
 #define UINT64_MAX -1
 #endif
@@ -95,6 +96,7 @@ enum qspif_default_instructions {
     QSPIF_RSTEN = 0x66, // Reset Enable
     QSPIF_RST = 0x99, // Reset
     QSPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
+    QSPIF_RDCR0 = 0x15, // Command for reading configuration register
 };
 
 // Local Function
@@ -815,14 +817,17 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
     int sr_read_size = QSPI_MAX_STATUS_REGISTER_SIZE;
     int sr_write_size = QSPI_MAX_STATUS_REGISTER_SIZE;
 
-    char status_reg_setup[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
-    char status_reg[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
+    char status_reg_setup[QSPI_MAX_STATUS_REGISTER_SIZE+QSPI_MAX_CONFIG_REGISTER_0_SIZE] = {0};
+    char status_reg[QSPI_MAX_STATUS_REGISTER_SIZE+QSPI_MAX_CONFIG_REGISTER_0_SIZE] = {0};
     unsigned int write_register_inst = QSPIF_WRSR;
     unsigned int read_register_inst = QSPIF_RDSR;
 
     // QUAD Enable procedure is specified by 3 bits
     uint8_t qer_value = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_QER_BYTE] & 0x70) >> 4;
 
+    // Configure  BUS Mode to 1_1_1 for all commands other than Read
+    _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
+                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
 
     switch (qer_value) {
         case 0:
@@ -831,13 +836,21 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
 
         case 1:
         case 4:
-            status_reg_setup[1] = 0x02;  //Bit 1 of Status Reg 2
+            status_reg_setup[1] = 0x02;  // Bit 1 of Status Reg 2
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
 
         case 2:
+            if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_RDCR0, QSPI_NO_ADDRESS_COMMAND, 
+                    NULL, 0, status_reg + QSPI_MAX_STATUS_REGISTER_SIZE, 
+                    QSPI_MAX_CONFIG_REGISTER_0_SIZE) ) {
+                tr_debug("Reading Config Register 0 Success: value = 0x%x", (int)status_reg[QSPI_MAX_STATUS_REGISTER_SIZE]);
+            } else {
+                tr_error("Reading Status Register failed");
+                return -1;
+            }
+            sr_write_size = QSPI_MAX_STATUS_REGISTER_SIZE+QSPI_MAX_CONFIG_REGISTER_0_SIZE;
             status_reg_setup[0] = 0x40; // Bit 6 of Status Reg 1
-            sr_write_size = 1;
             tr_debug("Setting QE Bit, Bit 6 of Status Reg 1");
             break;
 
@@ -848,25 +861,22 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             read_register_inst = 0x3F;
             tr_debug("Setting QE Bit, Bit 7 of Status Reg 1");
             break;
+
         case 5:
             status_reg_setup[1] = 0x2; // Bit 1 of status Reg 2
             read_register_inst = 0x35;
             sr_read_size = 1;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2 -special read command");
             break;
+
         default:
             tr_warning("_setQuadEnable - Unsuported QER configuration");
             break;
     }
 
-    // Configure  BUS Mode to 1_1_1 for all commands other than Read
-    _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
-
-    // Read Status Register
+    // Read Register
     if (QSPI_STATUS_OK == _qspi_send_general_command(read_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
-            status_reg,
-            sr_read_size) ) {  // store received values in status_value
+            status_reg, sr_read_size) ) {  // store received values in status_value
         tr_debug("Reading Status Register Success: value = 0x%x", (int)status_reg[0]);
     } else {
         tr_error("Reading Status Register failed");
