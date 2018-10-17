@@ -39,10 +39,14 @@ typedef enum {
     STATS_STORAGE_GEN = 0x40,
     
     STATS_NW_GEN = 0x60,
-    STATS_NW_EMAC,
-    STATS_NW_WIFI,
-    STATS_NW_MESH,
-    STATS_NW_CELLULAR,    
+    STATS_NW_INTERFACE_EMAC,
+    STATS_NW_INTERFACE_WIFI,
+    STATS_NW_INTERFACE_MESH,
+    STATS_NW_INTERFACE_CELLULAR,
+
+    STATS_NW_STACK_LWIP,
+    STATS_NW_STACK_WIFI,
+
 }mbed_stats_type_t;
 
 typedef struct  {
@@ -61,9 +65,18 @@ public:
     /**
      *  Get all the information related to stats recorded in class
      *
-     *  @param stats    A pointer to the data structure to fill
+     *  @param stats   A pointer to the data structure to fill
+     *  @param count    
      */
     static int get_each(stats_info_t *stats, int count);
+
+    /**
+     *  Get all the information related to stats type passed
+     *
+     *  @param stats   A pointer to the data structure to fill
+     *  @param type    
+     *  @param count   
+     */
     static int get_each(stats_info_t *stats, mbed_stats_type_t type, int count);
 
     virtual void read_stats(stats_info_t* stats) = 0;

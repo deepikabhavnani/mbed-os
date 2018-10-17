@@ -2,7 +2,7 @@
 #ifndef WIFI_INTERFACE_STATS_H
 #define WIFI_INTERFACE_STATS_H
 
-#ifdef MBED_NW_STATS_ENABLED
+#ifdef  NOT_NOW //MBED_NW_STATS_ENABLED
 
 #include "platform/StatsList.h"
 

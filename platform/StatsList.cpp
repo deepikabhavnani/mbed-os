@@ -27,7 +27,6 @@ StatsList::StatsList()
     _mutex->lock();
     _next = _head;
     _head = this;
-    _next = NULL;
     _mutex->unlock();
 }
 
@@ -63,6 +62,30 @@ int StatsList::get_each(stats_info_t *stats, int count)
     }
     _mutex->unlock();
     return i;
+}
+
+int StatsList::get_each(stats_info_t *stats, mbed_stats_type_t type, int count)
+{    
+    MBED_ASSERT(stats != NULL);
+    stats_info_t *info = (stats_info_t *)stats;
+    int type_count = 0;
+    memset(info, 0, count * sizeof(stats_info_t));
+
+    _mutex->lock();
+    StatsList *list = _head;
+    
+    int i;
+    for (i = 0; (type_count < count) && (list != NULL); i++) {
+        list->read_stats(&info[type_count]);
+        if (type == info[type_count].stats_type) {
+            type_count++;
+        } else {
+            info[type_count].buf_size = 0;
+        }
+        list = list->_next;
+    }
+    _mutex->unlock();
+    return type_count;
 }
 
 } // namespace mbed

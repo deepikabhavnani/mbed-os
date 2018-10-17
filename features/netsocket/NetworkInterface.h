@@ -319,21 +319,5 @@ protected:
      */
     static NetworkInterface *get_target_default_instance();
 };
-    
-#ifdef MBED_NW_STATS_ENABLED
-typedef struct {    
-    uint32_t pkt_xmit;             /* Transmitted packets. */
-    uint32_t pkt_recv;             /* Received packets. */
-    uint32_t pkt_fwd;              /* Forwarded packets. */
-    uint32_t pkt_drop;             /* Dropped packets. */    
-    uint16_t sock_open;            /* Number of sockets opened */
-    uint16_t chkerr;           /* Checksum error. */
-    uint16_t lenerr;           /* Invalid length error. */
-    uint16_t memerr;           /* Out of memory error. */
-    uint16_t proterr;          /* Protocol error. */
-    uint16_t opterr;           /* Error in options. */
-    uint16_t err;              /* Misc error. */
-}nw_common_stats_t;
-#endif
 
 #endif

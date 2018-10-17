@@ -27,7 +27,7 @@
 #include "netsocket/EMAC.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "LWIPMemoryManager.h"
-
+#include "LWIPStackStats.h"
 
 class LWIP : public OnboardNetworkStack, private mbed::NonCopyable<LWIP> {
 public:
@@ -517,6 +517,12 @@ private:
     LWIPMemoryManager memory_manager;
     osThreadId tcpip_thread_id;
     rtos::Mutex adaptation;
+    
+#ifdef MBED_NW_STATS_ENABLED
+protected: 
+    LWIPStackStats stats;
+#endif
+
 };
 
 #endif /* LWIPSTACK_H_ */

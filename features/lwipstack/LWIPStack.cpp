@@ -36,7 +36,6 @@
 #include "lwip-sys/arch/sys_arch.h"
 
 #include "LWIPStack.h"
-#include "EMACInterfaceStats.h"
 
 #ifndef LWIP_SOCKET_MAX_MEMBERSHIPS
     #define LWIP_SOCKET_MAX_MEMBERSHIPS 4
@@ -172,6 +171,7 @@ LWIP::LWIP()
     tcpip_init(&LWIP::tcpip_init_irq, this);
     tcpip_inited.wait(0);
 
+    stats.log_stack_addr((uint32_t)this);
     // Zero out socket set
     arena_init();
 }
@@ -192,6 +192,7 @@ nsapi_error_t LWIP::get_dns_server(int index, SocketAddress *address)
             dns_entries++;
         }
     }
+    LWIP_STAT_INC(stats, addr_err);
     return NSAPI_ERROR_NO_ADDRESS;
 }
 
@@ -212,6 +213,7 @@ nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
 {
     lwip_callback *cb = new (std::nothrow) lwip_callback;
     if (!cb) {
+        LWIP_STAT_INC(stats, mem_err);
         return NSAPI_ERROR_NO_MEMORY;
     }
 
@@ -219,6 +221,7 @@ nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
     cb->callback = func;
 
     if (tcpip_callback_with_block(LWIP::tcpip_thread_callback, cb, 1) != ERR_OK) {
+        LWIP_STAT_INC(stats, mem_err);
         return NSAPI_ERROR_NO_MEMORY;
     }
 
@@ -267,6 +270,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     // allocate a socket
     struct mbed_lwip_socket *s = arena_alloc();
     if (!s) {
+        LWIP_STAT_INC(stats, socket_err);
         return NSAPI_ERROR_NO_SOCKET;
     }
 
@@ -281,6 +285,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 
     if (!s->conn) {
         arena_dealloc(s);
+        LWIP_STAT_INC(stats, socket_err);
         return NSAPI_ERROR_NO_SOCKET;
     }
 
@@ -288,9 +293,9 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     *(struct mbed_lwip_socket **)handle = s;
 
     if (proto == NSAPI_TCP) {
-        EMAC_STAT_INC(tcp.sock_open);
+        LWIP_STAT_INC(stats, tcp.sock_open);
     } else {
-        EMAC_STAT_INC(udp.sock_open);
+        LWIP_STAT_INC(stats, udp.sock_open);
     }
     return 0;
 }
@@ -300,9 +305,9 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
-        EMAC_STAT_DEC(tcp.sock_open);
+        LWIP_STAT_DEC(stats, tcp.sock_open);
     } else {
-        EMAC_STAT_DEC(udp.sock_open);
+        LWIP_STAT_DEC(stats, udp.sock_open);
     }
     netbuf_delete(s->buf);
     err_t err = netconn_delete(s->conn);
@@ -320,15 +325,18 @@ nsapi_error_t LWIP::socket_bind(nsapi_socket_t handle, const SocketAddress &addr
         (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
 #endif
         (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
     nsapi_addr_t addr = address.get_addr();
     if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
     if (!ip_addr_isany_val(ip_addr) && !is_local_addr(&ip_addr)) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -342,6 +350,7 @@ nsapi_error_t LWIP::socket_listen(nsapi_socket_t handle, int backlog)
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (s->conn->pcb.tcp->local_port == 0) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -359,6 +368,7 @@ nsapi_error_t LWIP::socket_connect(nsapi_socket_t handle, const SocketAddress &a
 
     nsapi_addr_t addr = address.get_addr();
     if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -375,10 +385,12 @@ nsapi_error_t LWIP::socket_accept(nsapi_socket_t server, nsapi_socket_t *handle,
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)server;
     struct mbed_lwip_socket *ns = arena_alloc();
     if (!ns) {
+        LWIP_STAT_INC(stats, socket_err);
         return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (s->conn->pcb.tcp->state != LISTEN) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -419,6 +431,12 @@ nsapi_size_or_error_t LWIP::socket_send(nsapi_socket_t handle, const void *data,
     if (err != ERR_OK) {
         return err_remap(err);
     }
+    
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
+        LWIP_STAT_ADD(stats, tcp.pkt_xmit, bytes_written);
+    } else {
+        LWIP_STAT_ADD(stats, udp.pkt_xmit, bytes_written);
+    }
 
     return (nsapi_size_or_error_t)bytes_written;
 }
@@ -443,6 +461,12 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
         netbuf_delete(s->buf);
         s->buf = 0;
     }
+    
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
+        LWIP_STAT_ADD(stats, tcp.pkt_recv, recv);
+    } else {
+        LWIP_STAT_ADD(stats, udp.pkt_recv, recv);
+    }
 
     return recv;
 }
@@ -454,6 +478,7 @@ nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAdd
 
     nsapi_addr_t addr = address.get_addr();
     if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        LWIP_STAT_INC(stats, param_err);
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -470,7 +495,13 @@ nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAdd
     if (err != ERR_OK) {
         return err_remap(err);
     }
-
+    
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
+        LWIP_STAT_ADD(stats, tcp.pkt_xmit, size);
+    } else {
+        LWIP_STAT_ADD(stats, udp.pkt_xmit, size);
+    }
+    
     return size;
 }
 
@@ -493,6 +524,12 @@ nsapi_size_or_error_t LWIP::socket_recvfrom(nsapi_socket_t handle, SocketAddress
 
     u16_t recv = netbuf_copy(buf, data, (u16_t)size);
     netbuf_delete(buf);
+
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
+        LWIP_STAT_ADD(stats, tcp.pkt_recv, recv);
+    } else {
+        LWIP_STAT_ADD(stats, udp.pkt_recv, recv);
+    }
 
     return recv;
 }
@@ -523,6 +560,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 #if LWIP_TCP
         case NSAPI_KEEPALIVE:
             if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
+                LWIP_STAT_INC(stats, err);
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -531,6 +569,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
         case NSAPI_KEEPIDLE:
             if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
+                LWIP_STAT_INC(stats, err);
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -539,6 +578,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
         case NSAPI_KEEPINTVL:
             if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
+                LWIP_STAT_INC(stats, err);
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -548,6 +588,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
         case NSAPI_REUSEADDR:
             if (optlen != sizeof(int)) {
+                LWIP_STAT_INC(stats, err);
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -561,6 +602,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
         case NSAPI_ADD_MEMBERSHIP:
         case NSAPI_DROP_MEMBERSHIP: {
             if (optlen != sizeof(nsapi_ip_mreq_t)) {
+                LWIP_STAT_INC(stats, param_err);
                 return NSAPI_ERROR_PARAMETER;
             }
             err_t igmp_err;
@@ -568,6 +610,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
             /* Check interface address type matches group, or is unspecified */
             if (imr->imr_interface.version != NSAPI_UNSPEC && imr->imr_interface.version != imr->imr_multiaddr.version) {
+                LWIP_STAT_INC(stats, param_err);
                 return NSAPI_ERROR_PARAMETER;
             }
 
@@ -576,12 +619,14 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
             /* Convert the group address */
             if (!convert_mbed_addr_to_lwip(&multi_addr, &imr->imr_multiaddr)) {
+                LWIP_STAT_INC(stats, param_err);
                 return NSAPI_ERROR_PARAMETER;
             }
 
             /* Convert the interface address, or make sure it's the correct sort of "any" */
             if (imr->imr_interface.version != NSAPI_UNSPEC) {
                 if (!convert_mbed_addr_to_lwip(&if_addr, &imr->imr_interface)) {
+                    LWIP_STAT_INC(stats, param_err);
                     return NSAPI_ERROR_PARAMETER;
                 }
             } else {
@@ -596,13 +641,16 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                     // First multicast join on this socket, allocate space for membership tracking
                     s->multicast_memberships = (nsapi_ip_mreq_t*)malloc(sizeof(nsapi_ip_mreq_t) * LWIP_SOCKET_MAX_MEMBERSHIPS);
                     if (!s->multicast_memberships) {
+                        LWIP_STAT_INC(stats, mem_err);
                         return NSAPI_ERROR_NO_MEMORY;
                     }
                 } else if(s->multicast_memberships_count == LWIP_SOCKET_MAX_MEMBERSHIPS) {
+                    LWIP_STAT_INC(stats, mem_err);
                     return NSAPI_ERROR_NO_MEMORY;
                 }
 
                 if (member_pair_index != -1) {
+                    LWIP_STAT_INC(stats, addr_err);
                     return NSAPI_ERROR_ADDRESS_IN_USE;
                 }
 
@@ -630,6 +678,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 }
             } else {
                 if (member_pair_index == -1) {
+                    LWIP_STAT_INC(stats, addr_err);
                     return NSAPI_ERROR_NO_ADDRESS;
                 }
 
@@ -656,12 +705,14 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
          }
 
         default:
+            LWIP_STAT_INC(stats, err);
             return NSAPI_ERROR_UNSUPPORTED;
     }
 }
 
 nsapi_error_t LWIP::getsockopt(nsapi_socket_t handle, int level, int optname, void *optval, unsigned *optlen)
 {
+    LWIP_STAT_INC(stats, err);
     return NSAPI_ERROR_UNSUPPORTED;
 }
 

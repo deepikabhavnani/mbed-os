@@ -124,7 +124,7 @@ protected:
 
 #ifdef MBED_NW_STATS_ENABLED
 protected:
-    mbed::WiFiInterfaceStats stats;
+//    mbed::WiFiInterfaceStats stats;
 #endif
 };
 

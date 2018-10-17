@@ -16,10 +16,6 @@
 
 #include "EMACInterface.h"
 
-#ifdef MBED_NW_STATS_ENABLED
-nw_emac_info_t EMACInterfaceStats::_emac_stats = {0};
-#endif
-
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _emac(emac),
@@ -80,6 +76,7 @@ nsapi_error_t EMACInterface::connect()
             _interface->get_gateway(_gateway, sizeof(_gateway));
             stats.log_status((uint8_t)_interface->get_connection_status());
         }
+        stats.log_stack_addr((uint32_t)&_stack);
         stats.log_ip(_ip_address);
         stats.log_gateway(_gateway);
         stats.log_netmask(_netmask);

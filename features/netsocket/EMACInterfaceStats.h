@@ -1,3 +1,18 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef EMAC_INTERFACE_STATS_H
 #define EMAC_INTERFACE_STATS_H
@@ -12,17 +27,14 @@
 #include <stdlib.h>
 
 typedef struct {
-    uint32_t connect_status : 8;
-    uint32_t dhcp : 1;
-    uint32_t resv : 23;
+    uint32_t stack_addr;
     uint8_t ip[NSAPI_IPv6_SIZE];
     uint8_t gateway[NSAPI_IPv4_SIZE];
     uint8_t netmask[NSAPI_IPv4_SIZE];
     uint8_t mac[NSAPI_MAC_SIZE];
-    nw_common_stats_t tcp;
-    nw_common_stats_t udp;
+    uint8_t connect_status;
+    bool dhcp;
 }nw_emac_info_t;
-
 
 /** EMACInterfaceStats class
  *
@@ -71,54 +83,25 @@ public:
         _emac_stats.connect_status = connect_status;
     }
 
-    static void emac_log_add(uint32_t *member, uint32_t count)
+    inline void log_stack_addr(uint32_t addr)
     {
-        (*member) += count;
+        _emac_stats.stack_addr = addr;
     }
     
-    static void emac_log_add(uint16_t *member, uint16_t count)
-    {
-        (*member) += count;
-    }
+private:
+    nw_emac_info_t _emac_stats;
 
-    static void emac_log_assign(uint32_t *member, uint32_t count)
-    {
-        (*member) = count;
-    }
-
-    static void emac_log_sub(uint32_t *member, uint32_t count)
-    {
-        (*member) -= count;
-    }
-
-    static void emac_log_sub(uint16_t *member, uint16_t count)
-    {
-        (*member) -= count;
-    }
-
-public:
-    static nw_emac_info_t _emac_stats;
 protected:
     void read_stats(mbed::stats_info_t* stats)
     {
         MBED_ASSERT(stats != NULL);
-        stats->stats_type = mbed::STATS_NW_EMAC;
+        stats->stats_type = mbed::STATS_NW_INTERFACE_EMAC;
         stats->buf_size = sizeof(nw_emac_info_t);
         stats->buf = (void *)&_emac_stats;
     }
 };
 
-#define EMAC_STAT_INC(x)         EMACInterfaceStats::emac_log_add(&(EMACInterfaceStats::_emac_stats.x), 1)
-#define EMAC_STAT_DEC(x)         EMACInterfaceStats::emac_log_sub(&(EMACInterfaceStats::_emac_stats.x), 1)
-#define EMAC_STAT_ADD(x, n)      EMACInterfaceStats::emac_log_add(&(EMACInterfaceStats::_emac_stats.x), n)
-#define EMAC_STAT_ASSIGN(x, n)   EMACInterfaceStats::emac_log_assign(&(EMACInterfaceStats::_emac_stats.x), n)
-#else
-#define EMAC_STAT_INC(x)
-#define EMAC_STAT_DEC(x)
-#define EMAC_STAT_ADD(x, n)
-#define EMAC_STAT_ASSIGN(x, n) 
 #endif
-
 #endif
 
 /** @}*/
