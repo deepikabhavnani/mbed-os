@@ -176,7 +176,7 @@ protected:
 
 #ifdef MBED_NW_STATS_ENABLED
 protected: 
-    mbed::EMACInterfaceStats stats;
+    EMACInterfaceStats stats;
 #endif
 
     

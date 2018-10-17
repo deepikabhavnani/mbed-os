@@ -72,52 +72,52 @@ public:
     
     inline void log_xmit(uint32_t count)
     {
-        _stats.nw_stats.xmit += count;
+//        _stats.nw_stats.xmit += count;
     }
     
     inline void log_recv(uint32_t count)
     {
-        _stats.nw_stats.recv += count;
+  //      _stats.nw_stats.recv += count;
     }
     
     inline void log_fwd(uint32_t count)
     {
-        _stats.nw_stats.fwd += count;
+//        _stats.nw_stats.fwd += count;
     }
 
     inline void log_drop(uint32_t count)
     {
-        _stats.nw_stats.drop += count;
+//        _stats.nw_stats.drop += count;
     }
 
     inline void log_chkerr()
     {
-        ++_stats.nw_stats.chkerr;
+//        ++_stats.nw_stats.chkerr;
     }
 
     inline void log_lenerr()
     {
-        ++_stats.nw_stats.lenerr;
+//        ++_stats.nw_stats.lenerr;
     }
 
     inline void log_memerr()
     {
-        ++_stats.nw_stats.memerr;
+ //       ++_stats.nw_stats.memerr;
     }
 
     inline void log_proterr()
     {
-        ++_stats.nw_stats.proterr;
+  //      ++_stats.nw_stats.proterr;
     }
 
     inline void log_opterr()
     {
-        ++_stats.nw_stats.opterr;
+//        ++_stats.nw_stats.opterr;
     }
 
     inline void log_err()
     {
-        ++_stats.nw_stats.err;
+//        ++_stats.nw_stats.err;
     }
     
 protected:

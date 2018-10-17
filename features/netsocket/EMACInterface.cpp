@@ -16,6 +16,10 @@
 
 #include "EMACInterface.h"
 
+#ifdef MBED_NW_STATS_ENABLED
+nw_emac_info_t EMACInterfaceStats::_emac_stats = {0};
+#endif
+
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _emac(emac),

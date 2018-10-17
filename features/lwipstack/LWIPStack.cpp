@@ -36,6 +36,7 @@
 #include "lwip-sys/arch/sys_arch.h"
 
 #include "LWIPStack.h"
+#include "EMACInterfaceStats.h"
 
 #ifndef LWIP_SOCKET_MAX_MEMBERSHIPS
     #define LWIP_SOCKET_MAX_MEMBERSHIPS 4
@@ -285,6 +286,12 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 
     netconn_set_recvtimeout(s->conn, 1);
     *(struct mbed_lwip_socket **)handle = s;
+
+    if (proto == NSAPI_TCP) {
+        EMAC_STAT_INC(tcp.sock_open);
+    } else {
+        EMAC_STAT_INC(udp.sock_open);
+    }
     return 0;
 }
 
@@ -292,6 +299,11 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
 {
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
+        EMAC_STAT_DEC(tcp.sock_open);
+    } else {
+        EMAC_STAT_DEC(udp.sock_open);
+    }
     netbuf_delete(s->buf);
     err_t err = netconn_delete(s->conn);
     arena_dealloc(s);
