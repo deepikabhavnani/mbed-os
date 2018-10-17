@@ -2,6 +2,8 @@
 #ifndef WIFI_INTERFACE_STATS_H
 #define WIFI_INTERFACE_STATS_H
 
+#ifdef MBED_NW_STATS_ENABLED
+
 #include "platform/StatsList.h"
 
 #include <stdint.h>
@@ -9,6 +11,22 @@
 #include <stdlib.h>
 
 namespace mbed {
+
+typedef struct {
+    uint32_t type : 3;
+    uint32_t connected : 1;
+    uint32_t firmware_ok : 1;
+    uint32_t resv : 3;
+    uint32_t sec_type : 8;
+    uint32_t channel : 8;
+    uint32_t rssi : 8;
+    uint8_t ip[16];
+    uint8_t gateway[16];
+    uint8_t netmask[16];
+    uint8_t mac[18];
+    uint8_t ssid[33];
+    nw_common_stats_t nw_stats;
+}nw_wifi_info_t;
 
 /** WiFiInterfaceStats class
  *
@@ -19,8 +37,8 @@ class WiFiInterfaceStats: public StatsList
 {
 public:
     
-    WiFiInterfaceStats() : StatsList(STATS_NW_WIFI) {
-        memset(&_stats, 0, sizeof(interface_info_t));
+    WiFiInterfaceStats() : StatsList() {
+        memset(&_stats, 0, sizeof(nw_wifi_info_t));
     }
 
     inline void log_ip(uint8_t *ip)
@@ -49,31 +67,75 @@ public:
     
     inline void log_status(bool connected)
     {
-        _stats.is_connected = connected;
-    }
-
-    inline void log_data_sent(uint32_t count)
-    {
-        _stats.data_sent += count;
+        _stats.connected = connected;
     }
     
-    inline void log_data_recv(uint32_t count)
+    inline void log_xmit(uint32_t count)
     {
-        _stats.data_recv += count;
+        _stats.nw_stats.xmit += count;
+    }
+    
+    inline void log_recv(uint32_t count)
+    {
+        _stats.nw_stats.recv += count;
+    }
+    
+    inline void log_fwd(uint32_t count)
+    {
+        _stats.nw_stats.fwd += count;
+    }
+
+    inline void log_drop(uint32_t count)
+    {
+        _stats.nw_stats.drop += count;
+    }
+
+    inline void log_chkerr()
+    {
+        ++_stats.nw_stats.chkerr;
+    }
+
+    inline void log_lenerr()
+    {
+        ++_stats.nw_stats.lenerr;
+    }
+
+    inline void log_memerr()
+    {
+        ++_stats.nw_stats.memerr;
+    }
+
+    inline void log_proterr()
+    {
+        ++_stats.nw_stats.proterr;
+    }
+
+    inline void log_opterr()
+    {
+        ++_stats.nw_stats.opterr;
+    }
+
+    inline void log_err()
+    {
+        ++_stats.nw_stats.err;
     }
     
 protected:
-    void read_stats(void* stats) {
+    void read_stats(stats_info_t* stats)
+    {
         MBED_ASSERT(stats != NULL);
-        memcpy((void *)stats, (void *)&_stats, sizeof(interface_info_t));
+        stats->stats_type = STATS_NW_WIFI;
+        stats->buf_size = sizeof(nw_wifi_info_t);
+        memcpy((void *)&stats->buf, (void *)&_stats, sizeof(nw_wifi_info_t));
     }
 
 private:
-    interface_info_t _stats;
+    nw_wifi_info_t _stats;
 };
 
 } // namespace mbed
 
+#endif
 #endif
 
 /** @}*/

@@ -26,6 +26,7 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_stats.h"
 
 namespace mbed {
 
@@ -38,55 +39,23 @@ typedef enum {
     STATS_STORAGE_GEN = 0x40,
     
     STATS_NW_GEN = 0x60,
-    STATS_NW_ETH,
+    STATS_NW_EMAC,
     STATS_NW_WIFI,
     STATS_NW_MESH,
     STATS_NW_CELLULAR,    
 }mbed_stats_type_t;
 
 typedef struct  {
-}eth_info_t;
-
-typedef struct  {
-    uint8_t ssid[33];
-    uint8_t sec_type;
-    int8_t rssi;
-    uint8_t channel;
-    bool firmware_ok;
-}wifi_info_t;
-
-typedef struct  {
-}mesh_info_t;
-
-typedef struct  {
-    const uint8_t *apn;
-    const uint8_t *uname;
-}cellular_info_t;
-
-typedef union {
-    eth_info_t eth_info;
-    wifi_info_t wifi_info;
-    mesh_info_t mesh_info;
-    cellular_info_t cellular_info;
-}iface_info_t;
-
-typedef struct  {
-    uint8_t ip[16];
-    uint8_t gateway[16];
-    uint8_t netmask[16];
-    uint8_t mac[18];
-    bool is_connected;
-    uint32_t data_sent;
-    uint32_t data_recv;
-    iface_info_t info;
-}interface_info_t; 
+    mbed_stats_type_t stats_type;
+    uint32_t buf_size;
+    void *buf;
+}stats_info_t;
 
 class StatsList
 {
 public:
     
     StatsList();
-    StatsList(mbed_stats_type_t type);
 
     ~StatsList();
     /**
@@ -94,16 +63,15 @@ public:
      *
      *  @param stats    A pointer to the data structure to fill
      */
-    static int get_each(void *stats, int count);
-    
-    virtual void read_stats(void* stats) = 0;
+    static int get_each(stats_info_t *stats, int count);
+    static int get_each(stats_info_t *stats, mbed_stats_type_t type, int count);
+
+    virtual void read_stats(stats_info_t* stats) = 0;
 
 private:
     static StatsList *_head;
     static SingletonPtr<PlatformMutex> _mutex;
-
     StatsList   *_next;
-    mbed_stats_type_t _type;
 };
 
 } // namespace mbed

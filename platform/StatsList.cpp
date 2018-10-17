@@ -21,11 +21,7 @@ namespace mbed {
 StatsList *StatsList::_head = NULL;
 SingletonPtr<PlatformMutex> StatsList::_mutex;
 
-StatsList::StatsList() 
-{
-}
-
-StatsList::StatsList(mbed_stats_type_t type)
+StatsList::StatsList()
 {
     // Add to head of list
     _mutex->lock();
@@ -51,18 +47,18 @@ StatsList::~StatsList()
     _mutex->unlock();
 }
 
-int StatsList::get_each(void *stats, int count)
+int StatsList::get_each(stats_info_t *stats, int count)
 {    
     MBED_ASSERT(stats != NULL);
-    interface_info_t *info = (interface_info_t *)stats;
-    memset(info, 0, count * sizeof(interface_info_t));
+    stats_info_t *info = (stats_info_t *)stats;
+    memset(info, 0, count * sizeof(stats_info_t));
 
     _mutex->lock();
     StatsList *list = _head;
     
     int i;
     for (i = 0; (i < count) && (list != NULL); i++) {
-        list->read_stats((void *)&info[i]);
+        list->read_stats(&info[i]);
         list = list->_next;
     }
     _mutex->unlock();

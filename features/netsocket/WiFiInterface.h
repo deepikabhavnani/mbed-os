@@ -121,7 +121,11 @@ protected:
      * @return pointer to interface, if any
      */
     static WiFiInterface *get_target_default_instance();
+
+#ifdef MBED_NW_STATS_ENABLED
+protected:
     mbed::WiFiInterfaceStats stats;
+#endif
 };
 
 #endif

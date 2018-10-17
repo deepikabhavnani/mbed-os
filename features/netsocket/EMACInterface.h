@@ -21,6 +21,7 @@
 #include "rtos.h"
 #include "EMAC.h"
 #include "OnboardNetworkStack.h"
+#include "EMACInterfaceStats.h"
 
 
 /** EMACInterface class
@@ -172,6 +173,13 @@ protected:
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+
+#ifdef MBED_NW_STATS_ENABLED
+protected: 
+    mbed::EMACInterfaceStats stats;
+#endif
+
+    
 };
 
 #endif

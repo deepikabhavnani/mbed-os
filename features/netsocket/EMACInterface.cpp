@@ -51,8 +51,9 @@ nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
 
 nsapi_error_t EMACInterface::connect()
 {
+    nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_interface) {
-        nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
+        err = _stack.add_ethernet_interface(_emac, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
             _interface = NULL;
             return err;
@@ -60,20 +61,41 @@ nsapi_error_t EMACInterface::connect()
         _interface->attach(_connection_status_cb);
     }
 
-    return _interface->bringup(_dhcp,
+    err = _interface->bringup(_dhcp,
                                _ip_address[0] ? _ip_address : 0,
                                _netmask[0] ? _netmask : 0,
                                _gateway[0] ? _gateway : 0,
                                DEFAULT_STACK,
                                _blocking);
+#ifdef MBED_NW_STATS_ENABLED
+    if (err == NSAPI_ERROR_OK) {
+        if (_interface) {
+            _interface->get_ip_address(_ip_address, sizeof(_ip_address));
+            _interface->get_mac_address(_mac_address, sizeof(_mac_address));
+            _interface->get_netmask(_netmask, sizeof(_netmask));
+            _interface->get_gateway(_gateway, sizeof(_gateway));
+            stats.log_status((uint8_t)_interface->get_connection_status());
+        }
+        stats.log_ip(_ip_address);
+        stats.log_gateway(_gateway);
+        stats.log_netmask(_netmask);
+        stats.log_mac(_mac_address);
+        stats.log_dhcp(_dhcp);
+    }
+#endif
+    return err;
 }
 
 nsapi_error_t EMACInterface::disconnect()
 {
+    nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
     if (_interface) {
-        return _interface->bringdown();
+        err = _interface->bringdown();
     }
-    return NSAPI_ERROR_NO_CONNECTION;
+#ifdef MBED_NW_STATS_ENABLED
+    stats.log_status((uint8_t)NSAPI_STATUS_DISCONNECTED);
+#endif
+    return err;
 }
 
 const char *EMACInterface::get_mac_address()
