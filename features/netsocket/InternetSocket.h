@@ -26,6 +26,7 @@
 #include "rtos/EventFlags.h"
 #include "Callback.h"
 #include "mbed_toolchain.h"
+#include "SocketStats.h"
 
 /** Socket implementation that uses IP network stack.
  * Not to be directly used by applications. Cannot be directly instantiated.
@@ -170,6 +171,8 @@ protected:
     static const int READ_FLAG     = 0x1u;
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
+
+    SocketStats _socket_stats;
 
 #endif //!defined(DOXYGEN_ONLY)
 };
