@@ -2003,6 +2003,48 @@
         "device_has_remove": ["QSPI"],
         "release_versions": ["2", "5"]
     },
+    "LPC55S69": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M33FD-NS",
+        "default_toolchain": "ARMC6",
+        "supported_toolchains": ["ARMC6", "GCC_ARM"],
+        "OUTPUT_EXT": "hex",
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "LPCXpresso",
+            "LPC"
+        ],
+        "is_disk_virtual": true,
+        "macros": [
+            "CPU_LPC55S69JBD100_cm33_core0",
+            "MBED_TZ_DEFAULT_ACCESS=1",
+            "MBED_FAULT_HANDLER_DISABLED",
+            "FSL_RTOS_MBED"
+        ],
+        "inherits": ["Target"],
+        "detect_code": ["0236"],
+        "device_has": [
+            "USTICKER",
+            "RTC",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "STDIO_MESSAGES",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["5"],
+        "device_name": "LPC55S69_core0",
+        "bootloader_supported": true
+    },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],

@@ -95,6 +95,27 @@
 #define INITIAL_SP              (0x20028000UL)
 #endif
 
+#elif defined(TARGET_LPC55S69)
+
+#ifndef INITIAL_SP
+
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit[];
+#define INITIAL_SP            Image$$ARM_LIB_STACK$$ZI$$Limit
+
+#elif defined(__GNUC__)
+extern uint32_t               __StackTop[];
+
+#define INITIAL_SP            __StackTop
+
+#elif defined(__ICCARM__)
+    /* No region declarations needed */
+#else
+    #error "no toolchain defined"
+#endif
+
+#endif
+
 #elif defined(TARGET_MIMXRT1050_EVK)
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
