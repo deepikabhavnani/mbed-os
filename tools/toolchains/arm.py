@@ -364,7 +364,8 @@ class ARMC6(ARM_STD):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
-                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-A9"]
+                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FD-NS", "Cortex-M33FD",
+                       "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
 
     @staticmethod
@@ -388,7 +389,7 @@ class ARMC6(ARM_STD):
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
 
-        if target.core.lower().endswith("fd"):
+        if target.core.lower().endswith("fd") or target.core.lower().endswith("fd-ns"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
             self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
@@ -416,11 +417,15 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfloat-abi=softfp")
         elif target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-march=armv8-m.base")
+        elif target.core.startswith("Cortex-M33FD"):
+            self.flags['common'].append("-mfpu=fpv5-d16")
+            self.flags['common'].append("-mfloat-abi=softfp")
         elif target.core.startswith("Cortex-M33F"):
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=softfp")
 
-        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+        if target.core == "Cortex-M23" or target.core == "Cortex-M33" or
+           target.core == "Cortex-M33F" or target.core == "Cortex-M33FD":
             self.flags['cxx'].append("-mcmse")
             self.flags['c'].append("-mcmse")
 
