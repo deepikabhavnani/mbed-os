@@ -2038,11 +2038,10 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "FLASH",
-            "MPU"
+            "FLASH"
         ],
         "release_versions": ["5"],
-        "device_name": "LPC55S69_core0",
+        "device_name": "LPC54628J512ET180",
         "bootloader_supported": true
     },
     "NUCLEO_F030R8": {
