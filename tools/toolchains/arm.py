@@ -389,27 +389,38 @@ class ARMC6(ARM_STD):
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
 
-        if target.core.lower().endswith("fd"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
-        elif target.core.lower().endswith("fd-ns"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-5])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-5])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-5]
-        elif target.core.lower().endswith("f"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
+        if target.core == "Cortex-M0+":
+            cpu = "cortex-m0plus"
+            self.flags['ld'].append("--cpu=%s" % cpu)
+        elif target.core == "Cortex-M4F":
+            cpu = "cortex-m4"
+            self.flags['ld'].append("--cpu=%s" % cpu)
+        elif target.core == "Cortex-M7FD":
+            cpu = "cortex-m7"
+            self.flags['ld'].append("--cpu=%s" % cpu)
+        elif target.core == "Cortex-M7F":
+            cpu = "cortex-m7"
+            self.flags['ld'].append("--cpu=cortex-m7.fp.sp")
+        elif target.core.startswith("Cortex-M23"):
+            cpu = "cortex-m23"
+            self.flags['ld'].append("--cpu=%s" % cpu)
+        elif target.core.startswith("Cortex-M33FD"):
+            cpu = "cortex-m33"
+            self.flags['ld'].append("--cpu=%s" % cpu)
+        elif target.core.startswith("Cortex-M33F"):
+            cpu = "cortex-m33+no_dsp"
+            self.flags['ld'].append("--cpu=cortex-m33.no_dsp")
         elif target.core.startswith("Cortex-M33"):
-            self.flags['common'].append("-mcpu=cortex-m33+nodsp")
-            self.flags['common'].append("-mfpu=none")
-            self.flags['ld'].append("--cpu=Cortex-M33.no_dsp.no_fp")
-        elif not target.core.startswith("Cortex-M23"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower())
-            self.flags['ld'].append("--cpu=%s" % target.core.lower())
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()
+            cpu = "cortex-m33+no_dsp+no_fp"
+            self.flags['ld'].append("--cpu=cortex-m33.no_dsp.no_fp")
+        else:
+            cpu = target.core.lower()
+            self.flags['ld'].append("--cpu=%s" % cpu)
 
+        self.flags['common'].append("-mcpu=%s" % cpu)
+        self.SHEBANG += " -mcpu=%s" % cpu
+
+        # FPU handling
         if target.core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
@@ -419,8 +430,6 @@ class ARMC6(ARM_STD):
         elif target.core == "Cortex-M7FD":
             self.flags['common'].append("-mfpu=fpv5-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-        elif target.core.startswith("Cortex-M23"):
-            self.flags['common'].append("-march=armv8-m.base")
         elif target.core.startswith("Cortex-M33F"):
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
