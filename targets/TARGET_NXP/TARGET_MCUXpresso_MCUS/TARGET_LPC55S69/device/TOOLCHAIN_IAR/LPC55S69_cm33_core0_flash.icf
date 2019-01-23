@@ -50,7 +50,7 @@ define symbol SECURE_ROM_SIZE          = 0x40000;
 /* RAM space used for the secure domain */
 define symbol SECURE_RAM_SIZE          = 0x10000;
 
-if ((isdefinedsymbol(DOMAIN_NS)) && DOMAIN_NS) {
+if (isdefinedsymbol(DOMAIN_NS)) {
 
 if (!isdefinedsymbol(MBED_APP_START)) {
   define symbol MBED_APP_START         = SECURE_ROM_SIZE;
@@ -88,7 +88,7 @@ if (!isdefinedsymbol(MBED_RAM_APP_SIZE)) {
 
 }
 
-if ((isdefinedsymbol(DOMAIN_NS)) && DOMAIN_NS) {
+if (isdefinedsymbol(DOMAIN_NS)) {
 
   define symbol m_interrupts_start     = MBED_APP_START;
   define symbol m_interrupts_end       = (MBED_APP_START + 0x13F);
@@ -140,7 +140,7 @@ define region CSTACK_region = mem:[from m_data_end-__size_cstack__+1 to m_data_e
 
 define region m_interrupts_ram_region = mem:[from m_interrupts_ram_start to m_interrupts_ram_end];
 
-if ((isdefinedsymbol(DOMAIN_NS)) && DOMAIN_NS) {
+if (isdefinedsymbol(DOMAIN_NS)) {
   define region VENEER_TABLE_region   = mem:[from m_veneer_table_start to m_veneer_table_end];
 }
 
@@ -172,7 +172,7 @@ place in DATA_region                        { block ZI };
 place in DATA_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in m_interrupts_ram_region            { section m_interrupts_ram };
-if ((isdefinedsymbol(DOMAIN_NS)) && DOMAIN_NS) {
+if (isdefinedsymbol(DOMAIN_NS)) {
   place in VENEER_TABLE_region              { section Veneer$$CMSE };
 }
 
