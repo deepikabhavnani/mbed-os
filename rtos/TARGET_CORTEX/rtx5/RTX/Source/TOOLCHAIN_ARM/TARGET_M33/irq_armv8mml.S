@@ -28,7 +28,7 @@
 DOMAIN_NS     EQU      0
 #endif
 
-#if defined(__ARM_FP) && defined(__FPU_PRESENT)
+#if defined(__ARM_FP)
 FPU_USED      EQU      1
 #else
 FPU_USED      EQU      0
