@@ -61,7 +61,7 @@ class IAR(mbedToolchain):
 
         cpu = {
             "Cortex-M7FD": "Cortex-M7.fp.dp",
-            "Cortex-M7F": "Cortex-M7.fp.sp"
+            "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M33": "Cortex-M33.no_dsp",
             "Cortex-M33F": "Cortex-M33.fp.no_dsp",
             "Cortex-M33FD": "Cortex-M33.fp"}.get(core, core)
