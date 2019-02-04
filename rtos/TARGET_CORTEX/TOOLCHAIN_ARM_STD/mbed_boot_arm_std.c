@@ -27,18 +27,28 @@
 __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 void _platform_post_stackheap_init(void);
 
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Length[];
+
+extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
+
+extern uint32_t Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t Image$$ARM_LIB_HEAP$$ZI$$Length[];
+
 #if !defined(ISR_STACK_SIZE)
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
-#define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
+#define ISR_STACK_START       Image$$ARM_LIB_STACK$$ZI$$Base
+#define ISR_STACK_SIZE        Image$$ARM_LIB_STACK$$ZI$$Length
 #endif
 
 #if !defined(HEAP_START)
-/* Defined by linker script */
-extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
-#define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
-#define HEAP_SIZE       ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
+#if defined(Image$$ARM_LIB_HEAP$$ZI$$Base) && defined(Image$$ARM_LIB_HEAP$$ZI$$Length)
+#define HEAP_START            IImage$$ARM_LIB_HEAP$$ZI$$Base
+#define HEAP_SIZE             Image$$ARM_LIB_HEAP$$ZI$$Length
+#else
+// Heap here is considered starting after ZI ends to Stack start
+#define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
+#define HEAP_SIZE             ((uint32_t)(ISR_STACK_START - HEAP_START))
+#endif
 #endif
 
 /*
@@ -58,7 +68,7 @@ extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
  */
 void __rt_entry(void)
 {
-    unsigned char *free_start = HEAP_START;
+    unsigned char *free_start = (unsigned char *)HEAP_START;
     uint32_t free_size = HEAP_SIZE;
 
 #ifdef ISR_STACK_START

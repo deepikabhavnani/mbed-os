@@ -100,12 +100,8 @@
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t               Image$$RW_IRAM1$$ZI$$Base[];
     extern uint32_t               Image$$RW_IRAM1$$ZI$$Length[];
-    extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
-    extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
     #define HEAP_START            ((unsigned char*) Image$$RW_IRAM1$$ZI$$Base)
     #define HEAP_SIZE             ((uint32_t) Image$$RW_IRAM1$$ZI$$Length)
-    #define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
-    #define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
 #elif defined(__GNUC__)
     extern uint32_t               __StackTop[];
     extern uint32_t               __StackLimit[];
