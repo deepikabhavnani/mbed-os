@@ -41,7 +41,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include "platform/mbed_retarget.h"
-#include "mbed_rtx.h"
 
 static SingletonPtr<PlatformMutex> _mutex;
 
