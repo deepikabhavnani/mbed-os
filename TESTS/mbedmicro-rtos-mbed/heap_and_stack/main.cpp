@@ -106,7 +106,7 @@ static void allocate_and_fill_heap(linked_list *&head)
 
     current = (linked_list *) malloc(sizeof(linked_list));
     TEST_ASSERT_NOT_NULL(current);
-
+    printf( "Memory %d allocated at 0x%x \n", sizeof(linked_list), current);
     current->next = NULL;
     memset((void *) current->data, MALLOC_FILL, sizeof(current->data));
 
@@ -116,7 +116,7 @@ static void allocate_and_fill_heap(linked_list *&head)
 
         // Allocate
         linked_list *temp = (linked_list *) malloc(sizeof(linked_list));
-
+        printf( "Memory %d allocated at 0x%x \n", sizeof(linked_list), temp);
         if (NULL == temp) {
             break;
         }
