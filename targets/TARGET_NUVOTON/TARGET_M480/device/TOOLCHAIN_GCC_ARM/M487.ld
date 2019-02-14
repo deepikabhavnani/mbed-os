@@ -2,35 +2,46 @@
  * Nuvoton M487 GCC linker script file
  */
 
+/* Device specific values */
+/* Tools provide -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x80000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x28000 */
+
+/* Vectors in RAM */
+#define VECTORS     (16 + 96)   /* This value must match NVIC_NUM_VECTORS */
+
+M_CRASH_DATA_RAM_SIZE = 0x100;
+SPIM_CCM_START = 0x20020000;
+SPIM_CCM_END = 0x20028000;
+
+/* Common - Do not change */
+
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x00000000
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x00080000
-#endif 
-
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
-M_CRASH_DATA_RAM_SIZE = 0x100;
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE (((VECTORS * 4) + 7) & 0xFFFFFFF8)
+
 StackSize = MBED_BOOT_STACK_SIZE;
-SPIM_CCM_START = 0x20020000;
-SPIM_CCM_END = 0x20028000;
 
 MEMORY
 {
   VECTORS (rx)          : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x00000400
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00028000 - 0x00000000
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x00000400, LENGTH = MBED_APP_SIZE - 0x00000400
+  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
 }
 
 /**
  * Must match cmsis_nvic.h
  */
-__vector_size = 4 * (16 + 96);
-
+__vector_size = VECTORS_SIZE;
  
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -202,7 +213,7 @@ SECTIONS
         *(COMMON)
         __bss_end__ = .;
     } > RAM_INTERN
-    
+
     .heap (NOLOAD):
     {
         . = ALIGN(8);

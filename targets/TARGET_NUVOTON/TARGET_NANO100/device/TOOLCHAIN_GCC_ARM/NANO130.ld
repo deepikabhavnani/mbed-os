@@ -2,23 +2,42 @@
  * Nuvoton NANO130 GCC linker script file
  */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE      0x400
+/* Device specific values */
+/* Tools provide -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x20000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x4000 */
+
+/* Vectors in RAM */
+#define VECTORS     (16 + 32)   /* This value must match NVIC_NUM_VECTORS */
+
+/* Common - Do not change */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  MBED_ROM_START
 #endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE (((VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 StackSize = MBED_BOOT_STACK_SIZE;
 
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x00020000 - 0x00000400
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00004000 - 0x00000000
+  VECTORS (rx)          : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x00000400, LENGTH = MBED_APP_SIZE - 0x00000400
+  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
 }
 
 /**
  * Must match cmsis_nvic.h
  */
-__vector_size = 4 * (16 + 32);
+__vector_size = VECTORS_SIZE;
 
  
 /* Linker script to place sections and symbol values. Should be used together
