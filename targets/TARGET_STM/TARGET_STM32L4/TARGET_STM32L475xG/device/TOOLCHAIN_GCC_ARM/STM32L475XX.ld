@@ -14,6 +14,10 @@ STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
+#if !defined(ADDITIONAL_HEAP_SIZE)
+    #define ADDITIONAL_HEAP_SIZE  0x8000
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
 { 
@@ -124,6 +128,20 @@ SECTIONS
     __StackLimit = ADDR(.stack);
     PROVIDE(__stack = __StackTop);
 
+    .heap (COPY):
+    {
+        __end__ = .;
+        __mbed_sbrk_start = .;
+        end = __end__;
+        *(.heap*)
+        . += (ORIGIN(SRAM2) + LENGTH(SRAM2) - .);
+        __mbed_krbs_start = .;
+        __mbed_sbrk_start_1 = ORIGIN(SRAM1);
+        . += ADDITIONAL_HEAP_SIZE;
+        __mbed_krbs_start_1 = .;
+        __HeapLimit = .;
+    } > SRAM2
+
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -175,19 +193,5 @@ SECTIONS
 
     /* Check if bss exceeds SRAM1 */
     ASSERT(__bss_end__ <= (ORIGIN(SRAM1)+LENGTH(SRAM1)), "BSS is too big for SRAM1")
-
-    .heap (COPY):
-    {
-        __end__ = .;
-        __mbed_sbrk_start = .;
-        end = __end__;
-        *(.heap*)
-        . += (ORIGIN(SRAM2) + LENGTH(SRAM2) - .);
-        __mbed_krbs_start = .;
-        __mbed_sbrk_start_1 = __bss_end__;
-        . = (ORIGIN(SRAM1) + LENGTH(SRAM1));
-        __mbed_krbs_start_1 = .;
-        __HeapLimit = .;
-    } > SRAM2
 
 }
