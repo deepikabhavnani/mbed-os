@@ -196,7 +196,31 @@ SECTIONS
     . = ALIGN(8);
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
   } > m_data
-  
+
+  __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
+  __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
+
+  .heap (COPY):
+  {
+    . += 0xE000;
+    . = ALIGN(8);
+    __end__ = .;
+    __mbed_sbrk_start = .;
+    PROVIDE(end = .);
+    __HeapBase = .;
+    . += (ORIGIN(m_data) + LENGTH(m_data) - .);
+    __mbed_krbs_start = .;
+  } > m_data
+
+  .dummy_heap (COPY):
+  {
+    . = ALIGN(8);
+    __mbed_sbrk_start_1 = .;
+    . += 0x2000;
+    __mbed_krbs_start_1 = .;
+    __HeapLimit = .;
+  } > m_data_2
+
   .crash_data_ram :
   {
     . = ALIGN(8);
@@ -207,11 +231,7 @@ SECTIONS
     . += M_CRASH_DATA_RAM_SIZE;
     . = ALIGN(8);
     __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
-  } > m_data
-
-
-  __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
-  __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
+  } > m_data_2
 
   .data :
   {
@@ -265,16 +285,6 @@ SECTIONS
     __END_BSS = .;
   } > m_data_2
 
-  .heap :
-  {
-    . = ALIGN(8);
-    __end__ = .;
-    PROVIDE(end = .);
-    __HeapBase = .;
-    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - STACK_SIZE;
-    __HeapLimit = .;
-    __heap_limit = .; /* Add for _sbrk */
-  } > m_data_2
 
   m_usb_bdt USB_RAM_START (NOLOAD) :
   {

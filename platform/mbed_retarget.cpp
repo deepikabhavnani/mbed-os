@@ -1225,7 +1225,7 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // Provide implementation of _sbrk (low-level dynamic memory allocation
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
+#if defined(TOOLCHAIN_GCC_ARM)
 
 extern "C" uint32_t         __end__;
 extern "C" uint32_t         __HeapLimit;
@@ -1234,22 +1234,57 @@ extern "C" uint32_t         __HeapLimit;
 #undef errno
 extern "C" int errno;
 
-// Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
+extern uint32_t __mbed_sbrk_start;
+extern uint32_t __mbed_krbs_start;
+extern uint32_t __mbed_sbrk_start_1;
+extern uint32_t __mbed_krbs_start_1;
+
+uint32_t _sbrk_case = 0;
+int _sbrk_incr = 12345;
+unsigned char *_sbrk_prev_heap = (unsigned char*)0x12345;
+unsigned char *_sbrk_new_heap = (unsigned char*)0x12345;
+
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static uint32_t heap = (uint32_t) &__end__;
-    uint32_t prev_heap = heap;
-    uint32_t new_heap = heap + incr;
+    static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
+    static bool once = true;
+    uint32_t heap_ind_old = heap_ind;
+    uint32_t heap_ind_new = heap_ind_old + incr;
 
-    /* __HeapLimit is end of heap section */
-    if (new_heap >= (uint32_t) &__HeapLimit) {
-        errno = ENOMEM;
-        return (caddr_t) -1;
-    }
+    _sbrk_incr = incr;
+    _sbrk_prev_heap = (unsigned char *)heap_ind_old;
+    _sbrk_new_heap = (unsigned char *)heap_ind_new;
 
-    heap = new_heap;
-    return (caddr_t) prev_heap;
+    /**
+     * If the new address is outside the first region, start allocating from the second region.
+     */
+    do {
+        _sbrk_case = 10;
+        if (once && (heap_ind_new > (uint32_t) &__mbed_krbs_start)) {
+            once = false;
+            heap_ind = (uint32_t)&__mbed_sbrk_start_1;
+            heap_ind_old = heap_ind;
+            heap_ind_new = heap_ind_old + incr;
+            _sbrk_case = 1;
+            _sbrk_prev_heap = (unsigned char *)heap_ind_old;
+            _sbrk_new_heap = (unsigned char *)heap_ind_new;
+            continue;
+        }
+        if (once && (heap_ind_new == (uint32_t) &__mbed_krbs_start)) {
+            once = false;
+            heap_ind_new = (uint32_t)&__mbed_sbrk_start_1;
+            _sbrk_case = 2;
+        } else if (heap_ind_new > (uint32_t) &__mbed_krbs_start_1) {
+            _sbrk_case = 3;
+            errno = ENOMEM;
+            return (caddr_t) - 1;
+        }
+    } while (0);
+    heap_ind = heap_ind_new;
+
+    return (caddr_t) heap_ind_old;
 }
+
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
